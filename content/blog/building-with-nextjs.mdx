@@ -1,0 +1,66 @@
+---
+title: "Building Modern Web Apps with Next.js"
+date: "2024-02-01"
+excerpt: "Learn why Next.js is a great choice for building modern web applications."
+tags: ["nextjs", "react", "webdev"]
+---
+
+# Building Modern Web Apps with Next.js
+
+Next.js has become one of my favorite frameworks for building web applications. Here's why.
+
+## What is Next.js?
+
+Next.js is a React framework that provides:
+
+- **Server-side rendering (SSR)**
+- **Static site generation (SSG)**
+- **API routes**
+- **File-based routing**
+- **Image optimization**
+- And much more!
+
+## Why Choose Next.js?
+
+### 1. Performance
+
+Next.js optimizes your application automatically:
+
+```javascript
+import Image from 'next/image';
+
+// Automatic image optimization
+<Image src="/photo.jpg" width={500} height={300} alt="Photo" />
+```
+
+### 2. Developer Experience
+
+The file-based routing system is intuitive:
+
+```
+app/
+  page.tsx        → /
+  about/
+    page.tsx      → /about
+  blog/
+    [slug]/
+      page.tsx    → /blog/:slug
+```
+
+### 3. SEO-Friendly
+
+With SSR and SSG, your content is readily available to search engines.
+
+## Getting Started
+
+```bash
+npx create-next-app@latest my-app
+cd my-app
+npm run dev
+```
+
+## Conclusion
+
+Next.js strikes a great balance between power and simplicity. Whether you're building a blog, e-commerce site, or complex web application, Next.js has you covered.
+
+Happy coding!
