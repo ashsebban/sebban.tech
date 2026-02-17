@@ -1,3 +1,4 @@
+// Blog utilities: read MD/MDX from content/blog, parse frontmatter with gray-matter
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
@@ -5,8 +6,8 @@ import { BlogPost, BlogFrontmatter } from "./types";
 
 const postsDirectory = path.join(process.cwd(), "content/blog");
 
+/** Load all blog posts from content/blog, sorted by date (newest first) */
 export function getAllPosts(): BlogPost[] {
-  // Ensure directory exists
   if (!fs.existsSync(postsDirectory)) {
     return [];
   }
@@ -31,7 +32,6 @@ export function getAllPosts(): BlogPost[] {
       } as BlogPost;
     });
 
-  // Sort posts by date (newest first)
   return allPostsData.sort((a, b) => {
     if (a.date < b.date) {
       return 1;
@@ -41,12 +41,13 @@ export function getAllPosts(): BlogPost[] {
   });
 }
 
+/** Load a single post by slug; returns null if file not found or read fails */
 export function getPostBySlug(slug: string): BlogPost | null {
   try {
     const fullPath = path.join(postsDirectory, `${slug}.mdx`);
     let fileContents: string;
 
-    // Try .mdx first, then .md
+    // Prefer .mdx, fallback to .md
     if (fs.existsSync(fullPath)) {
       fileContents = fs.readFileSync(fullPath, "utf8");
     } else {
@@ -75,6 +76,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
   }
 }
 
+/** List all post slugs (for generateStaticParams and linking) */
 export function getAllPostSlugs(): string[] {
   if (!fs.existsSync(postsDirectory)) {
     return [];

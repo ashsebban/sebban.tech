@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+// Card for one project on the Projects page: title, description, tech tags, Code/Live links
 import { Project } from "@/lib/types";
-import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
+import FadeIn from "@/components/motion/FadeIn";
 
 interface ProjectCardProps {
   project: Project;
@@ -11,45 +11,34 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      viewport={{ once: true }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
-    >
-      {/* Project Image Placeholder */}
-      <div className="h-48 bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-        <p className="text-white text-lg font-medium">Project Image</p>
-      </div>
+    <FadeIn delay={index * 0.1}>
+      <div className="group p-6 rounded-xl border border-border bg-card hover:border-accent/50 transition-all duration-300 hover:-translate-y-0.5 h-full flex flex-col">
+        <h3 className="text-lg font-semibold mb-2">{project.title}</h3>
+        <p className="text-sm text-muted leading-relaxed mb-4 flex-1">
+          {project.description}
+        </p>
 
-      {/* Project Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
-
-        {/* Technologies */}
         <div className="flex flex-wrap gap-2 mb-4">
           {project.technologies.map((tech) => (
             <span
               key={tech}
-              className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-100 rounded-full text-sm"
+              className="text-xs px-2.5 py-1 rounded-full border border-border text-muted"
             >
               {tech}
             </span>
           ))}
         </div>
 
-        {/* Links */}
+        {/* Optional GitHub and live demo links */}
         <div className="flex gap-4">
           {project.githubUrl && (
             <a
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              className="text-sm text-accent hover:text-accent-hover transition-colors"
             >
-              <FaGithub /> Code
+              Code &rarr;
             </a>
           )}
           {project.liveUrl && (
@@ -57,13 +46,13 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              className="text-sm text-accent hover:text-accent-hover transition-colors"
             >
-              <FaExternalLinkAlt size={14} /> Live Demo
+              Live Demo &rarr;
             </a>
           )}
         </div>
       </div>
-    </motion.div>
+    </FadeIn>
   );
 }

@@ -1,58 +1,58 @@
+// Central config: site name/description/URL, nav links, social links, and home-page copy
 import { NavLink, SocialLink } from "./types";
 
-// Site Metadata
+// ——— Site metadata (SEO, OG, Twitter) ———
 export const SITE_NAME = "Asher Sebban";
-export const SITE_DESCRIPTION = "Product leader specializing in UX research, AI prototyping, and systems operations";
+export const SITE_DESCRIPTION =
+  "Product-minded builder using AI to research, prototype, and ship. Background in UX, ops, and systems. Early career, broad range, high output.";
 export const SITE_URL = "https://ashersebban.com";
-export const SITE_TAGLINE = "Product • AI Prototyping • UX Research • Systems & Ops";
+export const SITE_TAGLINE =
+  "I learn how things work — and I make them work better.";
 
-// Navigation Links
+// ——— Main nav (Navbar + Footer) ———
 export const NAV_LINKS: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "Projects", href: "/projects" },
-  { name: "Blog", href: "/blog" },
   { name: "Video", href: "/video" },
+  { name: "How I Built This", href: "/how-i-built-this" },
   { name: "Contact", href: "/contact" },
 ];
 
-// Social Links
+// ——— Social / contact (Footer, Contact page) ———
 export const SOCIAL_LINKS: SocialLink[] = [
-  { name: "GitHub", href: "https://github.com/ashersebban", icon: "FaGithub" },
-  { name: "LinkedIn", href: "https://linkedin.com/in/asher-sebban", icon: "FaLinkedin" },
+  { name: "GitHub", href: "https://github.com/ashsebban", icon: "FaGithub" },
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/asher-sebban/", icon: "FaLinkedin" },
   { name: "Email", href: "mailto:ashersamuelsebban@gmail.com", icon: "FaEnvelope" },
 ];
 
-// Skills
-export const SKILLS = [
-  "UX Research",
-  "Product Strategy",
-  "AI Prototyping",
-  "Python & SQL",
-  "JavaScript/TypeScript",
-  "Systems & Ops",
-  "Jira & Confluence",
-  "User Interviews",
+// ——— Home page Hero: "What I Do" cards ———
+export const WHAT_I_DO = [
+  {
+    title: "Product Strategy",
+    description:
+      "I translate research and user insight into decisions teams can actually act on — priorities, roadmaps, and bets worth taking.",
+  },
+  {
+    title: "UX Research",
+    description:
+      "I run research that moves products forward — not just studies, but decisions. I find the patterns that turn assumptions into action.",
+  },
+  {
+    title: "Prototyping & Building",
+    description:
+      "I use AI to go from problem to working prototype fast — then I iterate until it's real. I build to think, and I think to build.",
+  },
+  {
+    title: "Systems & Operations",
+    description:
+      "I design the processes behind the product. Workflow optimization, cross-functional coordination, and tooling that helps teams move faster.",
+  },
 ];
 
-// Interests
-export const INTERESTS = [
-  "Chess",
-  "Musical Performance & Songwriting",
-  "Basketball",
-  "Product Design",
-  "AI & Technology",
-  "Writing",
+// ——— Home page Hero: highlight tag pills ———
+export const HIGHLIGHTS = [
+  "Built AI tools at Anaconda",
+  "Ran user research that moved product decisions",
+  "Created ANACOMICS onboarding system",
+  "Built operational infrastructure for a 20-person UX org",
 ];
-
-// About
-export const ABOUT_TEXT = `
-Hey! I'm Asher, a product leader who bridges the gap between complex technical products and the people who use them.
-
-I spent the last few years at Anaconda working in UX research and product operations, where I learned that the best products come from deeply understanding both the technology and the humans interacting with it. I've built everything from AI-assisted internal tools to comic-style onboarding systems (ANACOMICS), always with the goal of making complex things intuitive.
-
-I love prototyping solutions, optimizing team workflows, and diving deep into user research. Whether it's conducting user interviews, building staging-ready prototypes, or designing systems that help teams execute better, I'm driven by the challenge of turning messy problems into plans teams can actually execute.
-
-When I'm not building or researching, you'll find me playing chess, writing music, or on the basketball court.
-
-Currently exploring opportunities where I can combine product strategy, user research, and hands-on building to create products that truly resonate with users.
-`;

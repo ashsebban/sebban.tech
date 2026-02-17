@@ -1,3 +1,4 @@
+// Portfolio project data: used by the Projects page and ProjectCard
 import { Project } from "@/lib/types";
 
 export const projects: Project[] = [

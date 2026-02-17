@@ -1,3 +1,4 @@
+// Blog post page: dynamic route [slug], renders MDX with next-mdx-remote; static params from getAllPostSlugs
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -9,11 +10,13 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
+/** Pre-render all blog post routes at build time */
 export async function generateStaticParams() {
   const slugs = getAllPostSlugs();
   return slugs.map((slug) => ({ slug }));
 }
 
+/** Set page title and description from post frontmatter */
 export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
@@ -21,9 +24,7 @@ export async function generateMetadata({
   const post = getPostBySlug(slug);
 
   if (!post) {
-    return {
-      title: "Post Not Found",
-    };
+    return { title: "Post Not Found" };
   }
 
   return {
@@ -41,30 +42,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="min-h-screen py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back link */}
+    <div className="px-6 py-24">
+      <article className="max-w-3xl mx-auto">
         <Link
           href="/blog"
-          className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-8"
+          className="text-sm text-muted hover:text-accent transition-colors"
         >
-          ← Back to Blog
+          &larr; Back to Blog
         </Link>
 
-        {/* Post header */}
-        <header className="mb-12">
+        <header className="mt-8 mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
-          <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-            <time dateTime={post.date}>
-              {format(new Date(post.date), "MMMM dd, yyyy")}
-            </time>
-          </div>
+          <time dateTime={post.date} className="text-sm text-muted">
+            {format(new Date(post.date), "MMMM dd, yyyy")}
+          </time>
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-100 rounded-full text-sm"
+                  className="text-xs px-2.5 py-1 rounded-full border border-border text-muted"
                 >
                   #{tag}
                 </span>
@@ -73,11 +70,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
         </header>
 
-        {/* Post content */}
-        <div className="prose prose-lg dark:prose-invert max-w-none">
+        {/* Render Markdown/MDX body with Tailwind typography */}
+        <div className="prose prose-invert prose-lg max-w-none prose-headings:font-semibold prose-a:text-accent prose-a:no-underline hover:prose-a:underline">
           <MDXRemote source={post.content} />
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
   );
 }

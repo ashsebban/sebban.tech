@@ -1,38 +1,31 @@
+// Site footer: tagline, nav links, social links, and copyright
 import Link from "next/link";
 import { SOCIAL_LINKS, NAV_LINKS, SITE_NAME } from "@/lib/constants";
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
-
-const iconMap: Record<string, React.ReactNode> = {
-  FaGithub: <FaGithub size={20} />,
-  FaLinkedin: <FaLinkedin size={20} />,
-  FaTwitter: <FaTwitter size={20} />,
-  FaEnvelope: <FaEnvelope size={20} />,
-};
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* About */}
+    <footer className="border-t border-border mt-20">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {/* Brand and short description */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">{SITE_NAME}</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Product Leader • UX Research • AI Prototyping
+            <h3 className="text-sm font-semibold text-foreground mb-4">{SITE_NAME}</h3>
+            <p className="text-sm text-muted leading-relaxed">
+              Product-minded builder using AI to research, prototype, and ship.
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Repeat main nav links for footer */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Pages</h3>
+            <ul className="flex flex-col gap-3">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-sm transition-colors"
+                    className="text-sm text-muted hover:text-accent transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -41,30 +34,29 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Social Links */}
+          {/* External social / contact links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Connect</h3>
-            <div className="flex space-x-4">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Connect</h3>
+            <div className="flex flex-col gap-3">
               {SOCIAL_LINKS.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                  aria-label={social.name}
+                  className="text-sm text-muted hover:text-accent transition-colors"
                 >
-                  {iconMap[social.icon]}
+                  {social.name}
                 </a>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            © {currentYear} {SITE_NAME}. All rights reserved.
+        {/* Copyright line */}
+        <div className="mt-16 pt-8 border-t border-border">
+          <p className="text-xs text-muted">
+            &copy; {currentYear} {SITE_NAME}
           </p>
         </div>
       </div>
