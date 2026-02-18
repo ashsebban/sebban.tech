@@ -21,9 +21,11 @@ export interface Project {
   longDescription: string;
   technologies: string[];
   imageUrl: string;
+  category: "game" | "website" | "app";
+  language?: string;
   githubUrl?: string;
   liveUrl?: string;
-  featured: boolean;
+  demoUrl?: string;
 }
 
 /** Blog post as loaded from MD/MDX (slug, frontmatter, raw content) */

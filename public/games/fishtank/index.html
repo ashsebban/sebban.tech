@@ -33,14 +33,109 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
     }
+
+    .intro-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.52);
+    }
+
+    .intro-modal.open {
+      display: flex;
+    }
+
+    .intro-panel {
+      width: min(580px, 94vw);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(8, 18, 38, 0.96);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      color: rgba(232, 251, 255, 0.95);
+    }
+
+    .intro-panel h2 {
+      font-size: 1rem;
+    }
+
+    .intro-panel p {
+      color: rgba(210, 240, 250, 0.9);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .intro-subtitle {
+      font-size: 0.83rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: rgba(224, 248, 255, 0.94);
+    }
+
+    .intro-list {
+      color: rgba(210, 240, 250, 0.88);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      padding-left: 16px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .intro-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .intro-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(210, 240, 250, 0.88);
+      font-size: 0.8rem;
+    }
+
+    .intro-btn {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(232, 251, 255, 0.95);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
 </head>
 <body>
   <div id="app"></div>
+  <div class="intro-modal" id="intro-modal" aria-hidden="true">
+    <div class="intro-panel" role="dialog" aria-modal="true" aria-label="About Mind-Clearing Ocean">
+      <h2>Mind-Clearing Ocean</h2>
+      <p>This interactive ocean piece explores motion, calm, and focus. I built it to turn a screensaver concept into a mindful interactive experience.</p>
+      <div class="intro-subtitle">How To Play</div>
+      <ul class="intro-list">
+        <li><strong>Relax Mode:</strong> observe calm fish flow</li>
+        <li><strong>Declutter Your Mind:</strong> tap fish and watch them swim away</li>
+        <li><strong>Breathing Exercise:</strong> follow inhale/exhale prompts to clear the scene</li>
+      </ul>
+      <div class="intro-actions">
+        <label class="intro-check"><input id="intro-skip" type="checkbox" /> Don't show again</label>
+        <button class="intro-btn" id="intro-start-btn" type="button">Enter Ocean</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     (() => {
+      const INTRO_STORAGE_KEY = "fishtank-intro-hidden-v1";
       const MODE = {
         RELAX: "relax",
         DECLUTTER: "declutter",
@@ -161,6 +256,12 @@
         lastNow: 0
       };
 
+      const introEl = {
+        modal: document.getElementById("intro-modal"),
+        skip: document.getElementById("intro-skip"),
+        startBtn: document.getElementById("intro-start-btn")
+      };
+
       function rand(min, max) {
         return min + Math.random() * (max - min);
       }
@@ -169,9 +270,23 @@
         return performance.now();
       }
 
+      function openIntroModal() {
+        introEl.modal.classList.add("open");
+        introEl.modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeIntroModal() {
+        if (introEl.skip.checked) {
+          localStorage.setItem(INTRO_STORAGE_KEY, "1");
+        }
+        introEl.modal.classList.remove("open");
+        introEl.modal.setAttribute("aria-hidden", "true");
+      }
+
       function createFish() {
         const lane = rand(height * 0.3, height * 0.9);
-        const size = rand(22, 36);
+        // Slightly larger fish for better foreground presence (~15% up).
+        const size = rand(25, 41);
         const baseSpeed = rand(CONFIG.streamSpeedMin, CONFIG.streamSpeedMax);
         const baseCadence = rand(CONFIG.tailCadenceMin, CONFIG.tailCadenceMax);
         const dir = CONFIG.streamDir;
@@ -328,6 +443,11 @@
         textFont("Avenir Next");
         resetWorld();
         state.lastNow = nowMs();
+        introEl.startBtn.addEventListener("click", closeIntroModal);
+        introEl.modal.addEventListener("click", (evt) => {
+          if (evt.target === introEl.modal) closeIntroModal();
+        });
+        if (localStorage.getItem(INTRO_STORAGE_KEY) !== "1") openIntroModal();
       }
 
       function windowResized() {

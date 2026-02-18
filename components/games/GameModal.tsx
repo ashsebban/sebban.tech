@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 interface GameModalProps {
   title: string;
@@ -9,6 +9,11 @@ interface GameModalProps {
 }
 
 export default function GameModal({ title, src, onClose }: GameModalProps) {
+  const runtimeSrc = useMemo(() => {
+    const glue = src.includes("?") ? "&" : "?";
+    return `${src}${glue}v=${Date.now()}`;
+  }, [src]);
+
   // Close on ESC
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -38,7 +43,7 @@ export default function GameModal({ title, src, onClose }: GameModalProps) {
           <span className="text-sm font-medium text-foreground">{title}</span>
           <div className="flex items-center gap-3">
             <a
-              href={src}
+              href={runtimeSrc}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-muted hover:text-foreground transition-colors"
@@ -57,7 +62,7 @@ export default function GameModal({ title, src, onClose }: GameModalProps) {
 
         {/* Game iframe */}
         <iframe
-          src={src}
+          src={runtimeSrc}
           title={title}
           className="w-full"
           style={{ height: "700px", border: "none" }}

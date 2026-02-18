@@ -280,6 +280,65 @@
       color: var(--muted);
     }
 
+    .intro-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.56);
+    }
+
+    .intro-modal.open {
+      display: flex;
+    }
+
+    .intro-panel {
+      width: min(600px, 94vw);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(10, 18, 35, 0.97);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .intro-panel h2 {
+      font-size: 1rem;
+    }
+
+    .intro-panel p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .intro-list {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      padding-left: 16px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .intro-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .intro-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
     @media (max-width: 1024px) {
       body {
         padding: 6px;
@@ -389,8 +448,8 @@
         </div>
         <div class="canvas-zoom" aria-label="Zoom controls">
           <button class="btn" id="zoom-out-btn" type="button" aria-label="Zoom out">-</button>
-          <button class="btn" id="zoom-reset-btn" type="button">Fit</button>
-          <button class="btn" id="hand-btn" type="button" aria-label="Hand tool" title="Hand (H)">Hand</button>
+          <button class="btn" id="zoom-reset-btn" type="button">Refit</button>
+          <button class="btn" id="hand-btn" type="button" aria-label="Move tool" title="Move (H)">Move</button>
           <button class="btn" id="zoom-in-btn" type="button" aria-label="Zoom in">+</button>
           <span class="label" id="zoom-label">100%</span>
         </div>
@@ -420,8 +479,8 @@
       <div class="shortcut-list">
         <div><strong>P</strong> Pen</div>
         <div><strong>E</strong> Eraser</div>
-        <div><strong>H</strong> Hand tool (pan)</div>
-        <div><strong>Space</strong> Hold for temporary pan</div>
+        <div><strong>H</strong> Move tool (pan)</div>
+        <div><strong>Space</strong> Hold for temporary move</div>
         <div><strong>[ ]</strong> Decrease / Increase brush size</div>
         <div><strong>- / +</strong> Zoom out / in</div>
         <div><strong>Cmd/Ctrl + Z</strong> Undo</div>
@@ -432,8 +491,24 @@
       </div>
     </div>
   </div>
+  <div class="intro-modal" id="intro-modal" aria-hidden="true">
+    <div class="intro-panel" role="dialog" aria-modal="true" aria-label="About Processing Canvas">
+      <h2>Processing Canvas</h2>
+      <p>This is a modern rebuild of my original Processing drawing sketch. It showcases real-time creative coding, responsive input handling, and app-style tooling.</p>
+      <ul class="intro-list">
+        <li>Draw with pen/eraser and color palettes</li>
+        <li>Use zoom + hand tool for detail work</li>
+        <li>Undo/redo and save your artwork as PNG</li>
+      </ul>
+      <div class="intro-actions">
+        <label class="intro-check"><input id="intro-skip" type="checkbox" /> Don't show again</label>
+        <button class="btn" id="intro-start-btn" type="button">Start Drawing</button>
+      </div>
+    </div>
+  </div>
 
   <script>
+    const INTRO_STORAGE_KEY = "processing-canvas-intro-hidden-v1";
     const BG = "#ffffff";
     const DEFAULTS = {
       tool: "pen",
@@ -478,6 +553,9 @@
       shortcutsBtn: document.getElementById("shortcuts-btn"),
       shortcutsModal: document.getElementById("shortcuts-modal"),
       shortcutsCloseBtn: document.getElementById("shortcuts-close-btn"),
+      introModal: document.getElementById("intro-modal"),
+      introSkip: document.getElementById("intro-skip"),
+      introStartBtn: document.getElementById("intro-start-btn"),
       sizeDownBtn: document.getElementById("size-down-btn"),
       sizeUpBtn: document.getElementById("size-up-btn"),
       undoBtn: document.getElementById("undo-btn"),
@@ -550,6 +628,19 @@
     function closeShortcutsModal() {
       el.shortcutsModal.classList.remove("open");
       el.shortcutsModal.setAttribute("aria-hidden", "true");
+    }
+
+    function openIntroModal() {
+      el.introModal.classList.add("open");
+      el.introModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeIntroModal() {
+      if (el.introSkip.checked) {
+        localStorage.setItem(INTRO_STORAGE_KEY, "1");
+      }
+      el.introModal.classList.remove("open");
+      el.introModal.setAttribute("aria-hidden", "true");
     }
 
     function setColor(color) {
@@ -809,6 +900,10 @@
       el.shortcutsModal.addEventListener("click", (evt) => {
         if (evt.target === el.shortcutsModal) closeShortcutsModal();
       });
+      el.introStartBtn.addEventListener("click", closeIntroModal);
+      el.introModal.addEventListener("click", (evt) => {
+        if (evt.target === el.introModal) closeIntroModal();
+      });
       el.paletteSelect.addEventListener("change", (e) => setPalette(e.target.value));
       el.colorPicker.addEventListener("input", (e) => setColor(e.target.value));
       el.sizeSlider.addEventListener("input", (e) => setSize(e.target.value));
@@ -853,6 +948,10 @@
         if (tag === "input" || tag === "select" || tag === "textarea") return;
         if (key === "escape" && el.shortcutsModal.classList.contains("open")) {
           closeShortcutsModal();
+          return;
+        }
+        if (key === "escape" && el.introModal.classList.contains("open")) {
+          closeIntroModal();
           return;
         }
 
@@ -906,6 +1005,7 @@
       wireEvents();
       resizePaper(false);
       syncStatus();
+      if (localStorage.getItem(INTRO_STORAGE_KEY) !== "1") openIntroModal();
     }
 
     init();
