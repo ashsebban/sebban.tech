@@ -1,6 +1,7 @@
 // Site footer: tagline, nav links, social links, and copyright
 import Link from "next/link";
 import { SOCIAL_LINKS, NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { ICON_MAP } from "@/components/icons/SocialIcons";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -38,17 +39,21 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">Connect</h3>
             <div className="flex flex-col gap-3">
-              {SOCIAL_LINKS.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-muted hover:text-accent transition-colors"
-                >
-                  {social.name}
-                </a>
-              ))}
+              {SOCIAL_LINKS.map((social) => {
+                const Icon = ICON_MAP[social.icon];
+                return (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-muted hover:text-accent transition-colors"
+                  >
+                    {Icon && <Icon className="w-4 h-4" />}
+                    <span>{social.name}</span>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>

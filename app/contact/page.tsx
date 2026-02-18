@@ -2,6 +2,7 @@
 import { Metadata } from "next";
 import ContactForm from "@/components/forms/ContactForm";
 import { SOCIAL_LINKS } from "@/lib/constants";
+import { ICON_MAP } from "@/components/icons/SocialIcons";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -31,17 +32,22 @@ export default function ContactPage() {
             <div className="p-8 rounded-xl border border-border bg-card">
               <h2 className="text-xl font-semibold mb-6">Connect With Me</h2>
               <div className="flex flex-col gap-4">
-                {SOCIAL_LINKS.map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted hover:text-accent transition-colors"
-                  >
-                    {social.name} &rarr;
-                  </a>
-                ))}
+                {SOCIAL_LINKS.map((social) => {
+                  const Icon = ICON_MAP[social.icon];
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-muted hover:text-accent transition-colors group"
+                    >
+                      {Icon && <Icon className="w-5 h-5" />}
+                      <span>{social.name}</span>
+                      <span className="ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity">&rarr;</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
