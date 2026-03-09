@@ -35,22 +35,22 @@ export const WHAT_I_DO = [
   {
     title: "Product Strategy",
     description:
-      "I build product strategy from the inside out — starting with business objectives and real constraints, not just user wishes. Roadmaps that reflect what's actually buildable, and bets that move the needle.",
+      "I turn business goals and real constraints into clear product direction. I define strategy, prioritize the right bets, and build roadmaps that move the business forward.",
   },
   {
-    title: "UX & Research",
+    title: "Product Discovery & Insight",
     description:
-      "User-focused, research-trained, strong product intuition. I run studies that produce decisions, not decks — and I know how to translate what users say into what teams should actually build.",
+      "I combine research, data, and product intuition to understand real problems. I turn insight into clear product decisions and focus teams on what actually matters.",
   },
   {
-    title: "Prototyping & AI Building",
+    title: "Rapid Prototyping & AI Development",
     description:
-      "I go from idea to working MVP fast using AI. I build to think and ship to learn — turning ambiguous problems into real things teams can react to, test, and iterate on.",
+      "I move quickly from idea to working MVP using AI and modern development tools. I prototype to test ideas early and turn ambiguous problems into real products teams can build on.",
   },
   {
-    title: "Systems, IT & Operations",
+    title: "Systems & Operational Infrastructure",
     description:
-      "I design the operational layer that lets teams move faster — tooling, workflows, cross-functional coordination, and the infrastructure that turns good ideas into repeatable execution.",
+      "I design the internal systems that help organizations move faster. I build tools, workflows, and operational infrastructure that turn strategy into repeatable execution.",
   },
 ];
 
