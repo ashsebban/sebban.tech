@@ -1,32 +1,36 @@
-// Shared TypeScript types for nav, social, projects, and blog
-
-/** Nav item used in Navbar and Footer (from constants) */
 export interface NavLink {
   name: string;
   href: string;
 }
 
-/** Social/contact link (GitHub, LinkedIn, Email, etc.) */
 export interface SocialLink {
   name: string;
   href: string;
   icon: string;
 }
 
-/** Project entry for the Projects page (from content/projects) */
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  longDescription: string;
-  technologies: string[];
-  imageUrl: string;
-  githubUrl?: string;
-  liveUrl?: string;
-  featured: boolean;
+export type QuickActionVariant = "primary" | "secondary" | "text";
+
+export interface QuickActionLink {
+  label: string;
+  href: string;
+  variant: QuickActionVariant;
+  external: boolean;
 }
 
-/** Blog post as loaded from MD/MDX (slug, frontmatter, raw content) */
+export interface ReferenceEntry {
+  group: string;
+  name: string;
+  role: string;
+}
+
+export interface ReferencesPageContent {
+  title: string;
+  intro: string;
+  statusNote: string;
+  references?: ReferenceEntry[];
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -37,11 +41,15 @@ export interface BlogPost {
   image?: string;
 }
 
-/** Frontmatter shape for blog Markdown files */
 export interface BlogFrontmatter {
   title: string;
   date: string;
   excerpt: string;
   tags: string[];
   image?: string;
+}
+
+export interface SelectedWorkItem {
+  title: string;
+  description: string;
 }

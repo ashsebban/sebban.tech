@@ -3,6 +3,7 @@ import {
   NavLink,
   QuickActionLink,
   ReferencesPageContent,
+  SelectedWorkItem,
   SocialLink,
 } from "./types";
 
@@ -11,8 +12,13 @@ export const SITE_NAME = "Asher Sebban";
 export const SITE_DESCRIPTION =
   "Product-minded builder using AI to research, prototype, and ship. Background in UX, ops, and engineering. Early career, broad range, high output.";
 export const SITE_URL = "https://ashersebban.com";
-export const SITE_TAGLINE =
-  "Product Leader | AI Enthusiast | ex-Anaconda";
+export const SITE_TAGLINE = "Product Strategy | Systems | AI";
+
+export const HERO_SUBTITLE =
+  "I build products, tools, and operational systems that help teams move faster.";
+
+export const HERO_CREDIBILITY =
+  "Former UX Researcher at Anaconda. Builder of AI tools, operational systems, and product infrastructure.";
 
 // ——— Main nav (Navbar + Footer) ———
 export const NAV_LINKS: NavLink[] = [
@@ -54,26 +60,40 @@ export const WHAT_I_DO = [
   },
 ];
 
-// ——— Home page Hero: highlight tag pills ———
-export const HIGHLIGHTS = [
-  "Built AI tools at Anaconda",
-  "Ran user research that moved product decisions",
-  "Created ANACOMICS onboarding system",
-  "Built operational infrastructure for a 20-person UX org",
+// ——— Home page: Selected Work cards ———
+export const SELECTED_WORK: SelectedWorkItem[] = [
+  {
+    title: "Built AI Tools at Anaconda",
+    description:
+      "Developed internal AI tools and workflows to accelerate research synthesis and product decision making.",
+  },
+  {
+    title: "Created ANACOMICS",
+    description:
+      "Designed a comic-style onboarding system explaining Python packaging, environments, and the Anaconda ecosystem for new employees.",
+  },
+  {
+    title: "Research that Shaped Product Decisions",
+    description:
+      "Led UX research that directly informed roadmap priorities and product strategy across multiple product cycles.",
+  },
+  {
+    title: "Operational Infrastructure for a 20-Person UX Org",
+    description:
+      "Created the tooling, workflows, and systems that supported research and product teams across the organization.",
+  },
 ];
 
-// ——— Home page: tools currently being learned ———
-export const CURRENTLY_LEARNING = ["OpenClaw", "CodeCode", "Codex"];
+// ——— Home page: Current Focus pills ———
+export const CURRENT_FOCUS = ["OpenClaw", "Codex", "Agent-based workflows"];
 
 // ——— Home page Hero: CTA links + quick actions ———
 export const RESUME_PDF_PATH = "/images/asher_sebban_resume.pdf";
 
 export const QUICK_ACTIONS: QuickActionLink[] = [
-  { label: "See My Work", href: "/projects", variant: "primary", external: false },
-  { label: "Get to Know Me", href: "/video", variant: "secondary", external: false },
-  { label: "View Resume", href: "/resume", variant: "secondary", external: false },
-  { label: "See References", href: "/references", variant: "secondary", external: false },
-  { label: "Let's Talk →", href: "/contact", variant: "text", external: false },
+  { label: "See My Work",  href: "/projects", variant: "primary",   external: false },
+  { label: "View Resume",  href: "/resume",   variant: "secondary", external: false },
+  { label: "Let's Talk →", href: "/contact",  variant: "text",      external: false },
 ];
 
 // ——— References page: logo paths per group (drop files into /public/logos/) ———
