@@ -64,24 +64,34 @@ export const WHAT_I_DO = [
 // ——— Home page: Product Thinking principles ———
 export const PRODUCT_THINKING: ProductThinkingItem[] = [
   {
-    principle: "Start with the problem, not the solution",
+    principle: "Vision matters more now that everyone can build",
     description:
-      "Good product work begins by deeply understanding the problem space before jumping to what to build.",
+      "AI has dramatically lowered the cost of building. The constraint is no longer the ability to build, but the judgment to decide what should exist in the first place. The builders who thrive will be the ones with strong product intuition, a deep understanding of users, and clear business context.",
   },
   {
-    principle: "Make it real, then make it right",
+    principle: "Fix the system before adding technology",
     description:
-      "Ship something working early. A rough prototype in front of users beats a perfect spec in a doc.",
+      "When teams struggle, the instinct is often to reach for a new tool or AI solution. In many cases the real problem is the system itself. Clear workflows, shared context, and well-designed processes usually unlock more progress than additional technology layered on top of disorder.",
   },
   {
-    principle: "Systems over heroics",
+    principle: "Humans set direction, AI provides speed",
     description:
-      "Sustainable teams run on processes and infrastructure, not individual effort or constant firefighting.",
+      "AI is most powerful when it amplifies clear thinking. Humans should define structure, strategy, and intent. AI can then accelerate execution. When AI is given ownership of the work instead of assisting it, teams often move faster in the short term but slower in the long run.",
   },
   {
-    principle: "Clarity is the job",
+    principle: "Build early to expose reality",
     description:
-      "Whether writing a spec, running a meeting, or building a dashboard — making things clear for others is always the work.",
+      "Ideas sound convincing until they encounter real constraints. Early prototypes expose assumptions, trade-offs, and edge cases much faster than discussion alone. Even rough tools can clarify thinking and dramatically improve decisions.",
+  },
+  {
+    principle: "Favor leverage over effort",
+    description:
+      "The most valuable improvements often come from changing the system rather than working harder within it. A small improvement to a workflow, tool, or piece of infrastructure can compound across a team or organization. I look for changes that unlock progress at scale rather than solving problems one instance at a time.",
+  },
+  {
+    principle: "Design systems that produce good outcomes",
+    description:
+      "Good products and good operations both shape behavior. Instead of focusing only on the end result, I try to design workflows and systems where the right actions become obvious, simple, and satisfying.",
   },
 ];
 
