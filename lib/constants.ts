@@ -1,6 +1,7 @@
 // Central config: site name/description/URL, nav links, social links, and home-page copy
 import {
   NavLink,
+  ProductThinkingItem,
   QuickActionLink,
   ReferencesPageContent,
   SelectedWorkItem,
@@ -10,15 +11,15 @@ import {
 // ——— Site metadata (SEO, OG, Twitter) ———
 export const SITE_NAME = "Asher Sebban";
 export const SITE_DESCRIPTION =
-  "Product-minded builder using AI to research, prototype, and ship. Background in UX, ops, and engineering. Early career, broad range, high output.";
+  "Product and systems builder exploring AI, automation, and developer tooling.";
 export const SITE_URL = "https://ashersebban.com";
 export const SITE_TAGLINE = "Product Strategy | Systems | AI";
 
 export const HERO_SUBTITLE =
-  "I build products, tools, and operational systems that help teams move faster.";
+  "I build products and operational systems that help teams move faster.";
 
 export const HERO_CREDIBILITY =
-  "Former UX Researcher at Anaconda. Builder of AI tools, operational systems, and product infrastructure.";
+  "Former UX Researcher at Anaconda. Builder of AI tools and product infrastructure.";
 
 // ——— Main nav (Navbar + Footer) ———
 export const NAV_LINKS: NavLink[] = [
@@ -41,7 +42,7 @@ export const WHAT_I_DO = [
   {
     title: "Product Strategy",
     description:
-      "I turn business goals and real constraints into clear product direction. I define strategy, prioritize the right bets, and build roadmaps that move the business forward.",
+      "I turn business goals and real constraints into clear product direction. I define strategy, prioritize the right bets, and build roadmaps that move the business.",
   },
   {
     title: "Product Discovery & Insight",
@@ -49,7 +50,7 @@ export const WHAT_I_DO = [
       "I combine research, data, and product intuition to understand real problems. I turn insight into clear product decisions and focus teams on what actually matters.",
   },
   {
-    title: "Rapid Prototyping & AI Development",
+    title: "Rapid Prototyping & AI Systems",
     description:
       "I move quickly from idea to working MVP using AI and modern development tools. I prototype to test ideas early and turn ambiguous problems into real products teams can build on.",
   },
@@ -57,6 +58,30 @@ export const WHAT_I_DO = [
     title: "Systems & Operational Infrastructure",
     description:
       "I design the internal systems that help organizations move faster. I build tools, workflows, and operational infrastructure that turn strategy into repeatable execution.",
+  },
+];
+
+// ——— Home page: Product Thinking principles ———
+export const PRODUCT_THINKING: ProductThinkingItem[] = [
+  {
+    principle: "Start with the problem, not the solution",
+    description:
+      "Good product work begins by deeply understanding the problem space before jumping to what to build.",
+  },
+  {
+    principle: "Make it real, then make it right",
+    description:
+      "Ship something working early. A rough prototype in front of users beats a perfect spec in a doc.",
+  },
+  {
+    principle: "Systems over heroics",
+    description:
+      "Sustainable teams run on processes and infrastructure, not individual effort or constant firefighting.",
+  },
+  {
+    principle: "Clarity is the job",
+    description:
+      "Whether writing a spec, running a meeting, or building a dashboard — making things clear for others is always the work.",
   },
 ];
 
@@ -73,19 +98,22 @@ export const SELECTED_WORK: SelectedWorkItem[] = [
       "Designed a comic-style onboarding system explaining Python packaging, environments, and the Anaconda ecosystem for new employees.",
   },
   {
-    title: "Research that Shaped Product Decisions",
+    title: "Research that Shaped Product Roadmaps",
     description:
       "Led UX research that directly informed roadmap priorities and product strategy across multiple product cycles.",
   },
   {
-    title: "Operational Infrastructure for a 20-Person UX Org",
+    title: "Built Infrastructure for a 20-Person UX Organization",
     description:
       "Created the tooling, workflows, and systems that supported research and product teams across the organization.",
   },
 ];
 
 // ——— Home page: Current Focus pills ———
-export const CURRENT_FOCUS = ["OpenClaw", "Codex", "Agent-based workflows"];
+export const CURRENT_FOCUS = ["AI agents", "Developer tooling", "Autonomous workflows"];
+
+export const CURRENT_FOCUS_NOTE =
+  "Currently experimenting with OpenClaw, Codex, and agent systems.";
 
 // ——— Home page Hero: CTA links + quick actions ———
 export const RESUME_PDF_PATH = "/images/asher_sebban_resume.pdf";

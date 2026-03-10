@@ -53,3 +53,8 @@ export interface SelectedWorkItem {
   title: string;
   description: string;
 }
+
+export interface ProductThinkingItem {
+  principle: string;
+  description: string;
+}
