@@ -106,37 +106,18 @@ export default function Hero() {
 
       {/* ── Product Thinking ──────────────────────────────────────────────── */}
       <section className="px-6 pt-8 pb-16">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <FadeIn>
             <h2 className={sectionHeading}>Product Thinking</h2>
           </FadeIn>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-12">
             {PRODUCT_THINKING.map((item, index) => (
-              <FadeIn key={item.principle} delay={index * 0.1}>
-                <div className={card}>
-                  <h3 className="text-lg font-semibold mb-3">{item.principle}</h3>
-                  <p className="text-sm text-muted leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── How I Work ────────────────────────────────────────────────────── */}
-      <section className="px-6 pt-8 pb-16">
-        <div className="max-w-6xl mx-auto">
-          <FadeIn>
-            <h2 className={sectionHeading}>How I Work</h2>
-          </FadeIn>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {WHAT_I_DO.map((item, index) => (
-              <FadeIn key={item.title} delay={index * 0.1}>
-                <div className={card}>
-                  <h3 className="text-lg font-semibold mb-3">{item.title}</h3>
-                  <p className="text-sm text-muted leading-relaxed">
+              <FadeIn key={item.principle} delay={index * 0.08}>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-foreground">
+                    {item.principle}
+                  </h3>
+                  <p className="text-base text-muted leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -151,6 +132,11 @@ export default function Hero() {
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className={sectionHeading}>Projects</h2>
+          </FadeIn>
+          <FadeIn delay={0.05}>
+            <p className="text-sm text-muted text-center mb-10 -mt-10">
+              Small experiments and interactive tools I&apos;ve built while learning and exploring ideas.
+            </p>
           </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {projects.map((project, index) => (
@@ -177,24 +163,47 @@ export default function Hero() {
         </div>
       </section>
 
+      {/* ── How I Work ────────────────────────────────────────────────────── */}
+      <section className="px-6 pt-8 pb-16">
+        <div className="max-w-3xl mx-auto">
+          <FadeIn>
+            <h2 className={sectionHeading}>How I Work</h2>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <ul className="space-y-4">
+              {WHAT_I_DO.map((item) => (
+                <li key={item.title} className="flex items-start gap-3">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                  <span className="text-base text-foreground font-medium">
+                    {item.title}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* ── Current Focus ─────────────────────────────────────────────────── */}
       <section className="px-6 pb-24">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl mx-auto text-center">
           <FadeIn>
             <h2 className={sectionHeading}>Current Focus</h2>
           </FadeIn>
-          <div className="flex flex-wrap justify-center gap-4">
+          <FadeIn delay={0.1}>
+            <p className="text-base text-muted mb-8 leading-relaxed">
+              {CURRENT_FOCUS_NOTE}
+            </p>
+          </FadeIn>
+          <div className="flex flex-wrap justify-center gap-3">
             {CURRENT_FOCUS.map((item, index) => (
-              <FadeIn key={item} delay={index * 0.1}>
-                <span className="px-6 py-3 text-sm md:text-base border border-border rounded-full bg-card text-foreground">
+              <FadeIn key={item} delay={0.2 + index * 0.08}>
+                <span className="px-5 py-2 text-sm border border-border rounded-full bg-card text-foreground">
                   {item}
                 </span>
               </FadeIn>
             ))}
           </div>
-          <FadeIn delay={0.4}>
-            <p className="mt-6 text-center text-sm text-muted">{CURRENT_FOCUS_NOTE}</p>
-          </FadeIn>
         </div>
       </section>
     </>
