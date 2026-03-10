@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 
 // ── Shared sub-components ────────────────────────────────────────────────────
 
-function ImgPlaceholder({ caption }: { caption: string }) {
+function ComicImg({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="my-5 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center p-6 text-center text-xs text-zinc-400 italic min-h-[100px]">
-      [ {caption} ]
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      className="my-5 w-full rounded-lg border border-zinc-200 object-contain"
+    />
   );
 }
 
@@ -79,7 +82,7 @@ const PAGES: React.ReactNode[] = [
         In this module we will discover <strong>4 types of &ldquo;deployment&rdquo;</strong>: local, cloud, hybrid, and on-prem.
       </p>
       <p className="text-sm font-semibold text-zinc-800">Ready to see how much you already know?</p>
-      <ImgPlaceholder caption="little girl mirror" />
+      <ComicImg src="/images/anacomics/mirror-girl.png" alt="Little girl in mirror: I am smart, I am kind, I am emotionally stable, I am a natural cloud vs local expert" />
     </div>
   </div>,
 
@@ -92,7 +95,7 @@ const PAGES: React.ReactNode[] = [
       increasingly loudly humming rectangle on your desk. But if that rectangle catches fire? So does
       everything inside it.
     </p>
-    <ImgPlaceholder caption="house" />
+    <ComicImg src="/images/anacomics/house-fire.png" alt="Local deployment: house on fire, someone says 'Wait...we forgot to back it up to the cloud'" />
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       One hint that you&apos;re dealing with a local application is when you have to download it and/or go
       through one of those cool installation wizards. 🙂
@@ -102,7 +105,7 @@ const PAGES: React.ReactNode[] = [
       down the terms and conditions for 92 seconds, and click <em>Finish</em>), help tell the computer where to
       store all the outside files you&apos;re bringing in.
     </p>
-    <ImgPlaceholder caption="terms and conditions scroll" />
+    <ComicImg src="/images/anacomics/terms-conditions.png" alt="Terms and conditions: 'Can you put your files on my computer?' 'Okay, but only on one condition. It's a very long condition.'" />
     <p className="text-sm text-zinc-700 leading-relaxed">
       So the next time you go through an Installer or download something, know that you&apos;re basically
       inserting someone else&apos;s stuff into your file system (which is why you should never, ever, under
@@ -154,7 +157,7 @@ const PAGES: React.ReactNode[] = [
       Microsoft, IBM, Alibaba, and every start-up in the galaxy was building data centers to get
       in on the Cloud action.
     </p>
-    <ImgPlaceholder caption="Star Wars — a long long time ago" />
+    <ComicImg src="/images/anacomics/star-wars.png" alt="Darth Vader: 'Behold... the Data Star.' Engineer: 'Sir, where should we put the server cooling vent?' Vader: 'NO VENTS!'" />
     <FootnoteBlock number={1}>
       <strong>Cloud Computing in 3 minutes:</strong> Cloud computing is the computer version of outsourcing math homework to a super-genius who lives in a warehouse. The genius
       solves the math problem and sends us back the results. Cloud Servers are usually faster than our laptops because they have newer and faster CPUs (the &ldquo;computer&apos;s brain&rdquo;).
@@ -180,7 +183,7 @@ const PAGES: React.ReactNode[] = [
       cables to the internet service provider building who sends it to another computer. So basically,
       that fancy thing we call the Cloud? <strong>It&apos;s all mostly underground!</strong>
     </p>
-    <ImgPlaceholder caption="cloud cables underground" />
+    <ComicImg src="/images/anacomics/cloud-cables.png" alt="The cloud: not actually in the sky. Just cables underground going to Jeff's 'Property of Jeff' server room." />
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       The process of offloading tasks to Jeff&apos;s computer makes your own laptop faster and hum
       quieter. PLUS your files live-on even if your physical laptop takes a swan dive off some cliff
@@ -189,7 +192,7 @@ const PAGES: React.ReactNode[] = [
     <Callout variant="blue">
       <strong>TL;DR:</strong> Cloud = the tech giants built massive computer hotels; our devices rent rooms!
     </Callout>
-    <ImgPlaceholder caption="cloud hotel" />
+    <ComicImg src="/images/anacomics/cloud-hotel.png" alt="THE CLOUD - Now Hosting Your Files! Jeff as hotel manager: 'Relax, we've stored millions of files here. Just don't forget your WiFi password'" />
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       <strong>PS.</strong> It&apos;s a lucrative hotel: AWS generated net sales of <strong>$28.8 billion for Q4 2024</strong>, accounted for 15.3% of total net sales, and 50% of Amazon&apos;s entire operating income.
     </p>
@@ -229,7 +232,7 @@ const PAGES: React.ReactNode[] = [
     <p className="text-sm text-zinc-700 leading-relaxed mb-4">
       It&apos;s the best of both worlds: the snappy feel of local software with cloud storage convenience.
     </p>
-    <ImgPlaceholder caption="mediation / shared custody" />
+    <ComicImg src="/images/anacomics/hybrid-mediation.png" alt="HYBRID MEDIATION Est. 1999: Cloud and computer in shared custody, 'You each get 50% custody... unless the Wi-Fi goes out'" />
   </div>,
 
   // ── Page 6: On-Prem, Air Gaps, and Sneakernet ────────────────────────────
@@ -243,11 +246,11 @@ const PAGES: React.ReactNode[] = [
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       This setup is popular with governments, banks, and hospitals... basically anyone whose worst-case scenario involves a data breach making headlines before breakfast.
     </p>
-    <ImgPlaceholder caption="On-Prem deployment diagram pt. 1" />
+    <ComicImg src="/images/anacomics/on-prem-pt1.png" alt="On-Prem: Deployment Strategy — Control, Security, Independence. 'Oh yeah? Well this is OUR data center!' WHRRRR" />
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       Still, I don&apos;t think Jeff is very worried about the competition.
     </p>
-    <ImgPlaceholder caption="On-Prem deployment diagram pt. 2" />
+    <ComicImg src="/images/anacomics/on-prem-pt2.png" alt="Man pointing at small data center next to a massive AWS building: 'Oh yeah? Well this is OUR data center!'" />
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       The downside of On-Prem? Your security is entirely independent. The biggest breaches often occur from on-prem setups that aren&apos;t built or maintained properly.
     </p>
@@ -257,7 +260,7 @@ const PAGES: React.ReactNode[] = [
     <Callout variant="gray">
       <strong>Air-Gapped Systems</strong> are physically isolated. No Wi-Fi. No Ethernet. No sneaky Bluetooth handshake. Just cold, lonely data, locked in a bunker, listening to its own hard drive spin. It&apos;s the security equivalent of digging a moat, raising the drawbridge, and swallowing the key.
     </Callout>
-    <ImgPlaceholder caption="drawbridge comic" />
+    <ComicImg src="/images/anacomics/air-gap.png" alt="Air Gap: isolated server 'Still spinning...still secure...', drawbridge castle rejecting cloud with donuts, knight 'WHAT ARE YOU DOING?!'" />
     <p className="text-sm text-zinc-700 leading-relaxed mb-3">
       And if you still need to move data between two air-gapped Fort Knox-style boxes? Well, you can&apos;t use the internet. So... you use what&apos;s called the <strong>Sneakernet</strong>.
     </p>
@@ -268,7 +271,7 @@ const PAGES: React.ReactNode[] = [
       Seriously! Someone puts the file on the drive, and they walk it across the building. Because sometimes, the most secure data transfer method on Earth... is Karen from accounting
       power-walking between servers with <code className="text-xs bg-zinc-100 px-1 rounded">top_secret_FINAL_v4.pptx</code> in her tote bag.<sup>3</sup>
     </p>
-    <ImgPlaceholder caption="sneakernet" />
+    <ComicImg src="/images/anacomics/sneakernet.png" alt="THE SNEAKERNET PROTOCOL: woman running with tote bag labeled 'tap.secret.FINAL.v4.ppix', speech bubble: 'ETA to server room: 3 minutes. if I don't stop for coffee.'" />
     <FootnoteBlock number={3}>
       Note (from Claude): &ldquo;While entertaining and essentially accurate, the &lsquo;Karen from accounting&rsquo; example might trivialize that sneakernet is actually a legitimate security protocol used in high-security environments, not just a casual workaround.&rdquo; ← I don&apos;t know why I found this so funny.
     </FootnoteBlock>
@@ -297,7 +300,7 @@ const PAGES: React.ReactNode[] = [
         </p>
       </div>
     </div>
-    <ImgPlaceholder caption="Jeff Bezos" />
+    <ComicImg src="/images/anacomics/jeff-traffic.png" alt="Jeff Bezos as traffic controller routing files: 'When your files live in the cloud, sharing is simple. Jeff just reroutes the traffic.'" />
     <Callout variant="yellow">
       <strong>Congratulations!</strong> You now know why &ldquo;deployment architecture&rdquo; isn&apos;t scary. It&apos;s just a fancy way
       of asking: <em>&ldquo;Where does the software live, and who&apos;s paying the electric bill?&rdquo;</em>
