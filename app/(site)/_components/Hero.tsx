@@ -9,7 +9,9 @@ import {
   HERO_CREDIBILITY,
   WHAT_I_DO,
   SELECTED_WORK,
+  PRODUCT_THINKING,
   CURRENT_FOCUS,
+  CURRENT_FOCUS_NOTE,
   QUICK_ACTIONS,
 } from "@/lib/constants";
 import { projects } from "../projects/_content/projects";
@@ -102,6 +104,27 @@ export default function Hero() {
         </div>
       </section>
 
+      {/* ── Product Thinking ──────────────────────────────────────────────── */}
+      <section className="px-6 pt-8 pb-16">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className={sectionHeading}>Product Thinking</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {PRODUCT_THINKING.map((item, index) => (
+              <FadeIn key={item.principle} delay={index * 0.1}>
+                <div className={card}>
+                  <h3 className="text-lg font-semibold mb-3">{item.principle}</h3>
+                  <p className="text-sm text-muted leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── How I Work ────────────────────────────────────────────────────── */}
       <section className="px-6 pt-8 pb-16">
         <div className="max-w-6xl mx-auto">
@@ -133,12 +156,7 @@ export default function Hero() {
             {projects.map((project, index) => (
               <FadeIn key={project.id} delay={index * 0.1}>
                 <div className={card}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <h3 className="text-lg font-semibold">{project.title}</h3>
-                    <span className="text-xs px-2 py-0.5 rounded-full border border-border text-muted capitalize">
-                      {project.category}
-                    </span>
-                  </div>
+                  <h3 className="text-lg font-semibold mb-3">{project.title}</h3>
                   <p className="text-sm text-muted leading-relaxed">
                     {project.description}
                   </p>
@@ -174,6 +192,9 @@ export default function Hero() {
               </FadeIn>
             ))}
           </div>
+          <FadeIn delay={0.4}>
+            <p className="mt-6 text-center text-sm text-muted">{CURRENT_FOCUS_NOTE}</p>
+          </FadeIn>
         </div>
       </section>
     </>
