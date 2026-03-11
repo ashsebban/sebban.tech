@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import AnacomicsModal from "./AnacomicsModal";
 import {
   SITE_NAME,
   SITE_TAGLINE,
@@ -10,11 +12,9 @@ import {
   WHAT_I_DO,
   SELECTED_WORK,
   PRODUCT_THINKING,
-  CURRENT_FOCUS,
-  CURRENT_FOCUS_NOTE,
+  TOOLKIT,
   QUICK_ACTIONS,
 } from "@/lib/constants";
-import { projects } from "../projects/_content/projects";
 import FadeIn from "@/components/motion/FadeIn";
 
 const QUICK_ACTION_VARIANTS = {
@@ -30,6 +30,10 @@ const card =
   "p-6 rounded-xl border border-border bg-card hover:border-accent/50 transition-all duration-300 hover:-translate-y-0.5";
 
 export default function Hero() {
+  const [anacomicsOpen, setAnacomicsOpen] = useState(false);
+  const [openPrinciple, setOpenPrinciple] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState(TOOLKIT[0].category);
+
   return (
     <>
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
@@ -91,6 +95,80 @@ export default function Hero() {
           </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {SELECTED_WORK.map((item, index) => (
+              <FadeIn key={item.title} delay={index * 0.1} className="h-full">
+                {item.title === "Created ANACOMICS" ? (
+                  <button
+                    onClick={() => setAnacomicsOpen(true)}
+                    className={`${card} h-full flex flex-col min-h-[10rem] w-full text-left cursor-pointer`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-lg font-semibold">{item.title}</h3>
+                      <span className="text-xs text-accent ml-3 flex-shrink-0">Preview →</span>
+                    </div>
+                    <p className="text-sm text-muted leading-relaxed flex-1">
+                      {item.description}
+                    </p>
+                  </button>
+                ) : (
+                  <div className={`${card} h-full flex flex-col min-h-[10rem]`}>
+                    <h3 className="text-lg font-semibold mb-3">{item.title}</h3>
+                    <p className="text-sm text-muted leading-relaxed flex-1">
+                      {item.description}
+                    </p>
+                  </div>
+                )}
+              </FadeIn>
+            ))}
+          </div>
+          {anacomicsOpen && <AnacomicsModal onClose={() => setAnacomicsOpen(false)} />}
+        </div>
+      </section>
+
+      {/* ── Product Thinking ──────────────────────────────────────────────── */}
+      <section className="px-6 pt-8 pb-16">
+        <div className="max-w-3xl mx-auto">
+          <FadeIn>
+            <h2 className={sectionHeading}>Product Thinking</h2>
+          </FadeIn>
+          <div className="divide-y divide-border border-t border-border">
+            {PRODUCT_THINKING.map((item, index) => (
+              <FadeIn key={item.principle} delay={index * 0.05}>
+                <div>
+                  <button
+                    onClick={() =>
+                      setOpenPrinciple(
+                        openPrinciple === item.principle ? null : item.principle
+                      )
+                    }
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-base font-semibold text-foreground pr-4">
+                      {item.principle}
+                    </span>
+                    <span className="text-muted flex-shrink-0 text-lg leading-none">
+                      {openPrinciple === item.principle ? "−" : "+"}
+                    </span>
+                  </button>
+                  {openPrinciple === item.principle && (
+                    <p className="pb-4 text-sm text-muted leading-relaxed">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── What I Bring ──────────────────────────────────────────────────── */}
+      <section className="px-6 pt-8 pb-16">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className={sectionHeading}>What I Bring</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {WHAT_I_DO.map((item, index) => (
               <FadeIn key={item.title} delay={index * 0.1}>
                 <div className={card}>
                   <h3 className="text-lg font-semibold mb-3">{item.title}</h3>
@@ -104,106 +182,46 @@ export default function Hero() {
         </div>
       </section>
 
-      {/* ── Product Thinking ──────────────────────────────────────────────── */}
-      <section className="px-6 pt-8 pb-16">
-        <div className="max-w-3xl mx-auto">
-          <FadeIn>
-            <h2 className={sectionHeading}>Product Thinking</h2>
-          </FadeIn>
-          <div className="space-y-12">
-            {PRODUCT_THINKING.map((item, index) => (
-              <FadeIn key={item.principle} delay={index * 0.08}>
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-foreground">
-                    {item.principle}
-                  </h3>
-                  <p className="text-base text-muted leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Projects ──────────────────────────────────────────────────────── */}
-      <section className="px-6 pt-8 pb-16">
-        <div className="max-w-6xl mx-auto">
-          <FadeIn>
-            <h2 className={sectionHeading}>Projects</h2>
-          </FadeIn>
-          <FadeIn delay={0.05}>
-            <p className="text-sm text-muted text-center mb-10 -mt-10">
-              Small experiments and interactive tools I&apos;ve built while learning and exploring ideas.
-            </p>
-          </FadeIn>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((project, index) => (
-              <FadeIn key={project.id} delay={index * 0.1}>
-                <div className={card}>
-                  <h3 className="text-lg font-semibold mb-3">{project.title}</h3>
-                  <p className="text-sm text-muted leading-relaxed">
-                    {project.description}
-                  </p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-          <FadeIn delay={0.4}>
-            <div className="mt-8 text-center">
-              <Link
-                href="/projects"
-                className="text-sm text-muted hover:text-accent transition-colors"
-              >
-                View all projects →
-              </Link>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ── How I Work ────────────────────────────────────────────────────── */}
-      <section className="px-6 pt-8 pb-16">
-        <div className="max-w-3xl mx-auto">
-          <FadeIn>
-            <h2 className={sectionHeading}>How I Work</h2>
-          </FadeIn>
-          <FadeIn delay={0.1}>
-            <ul className="space-y-4">
-              {WHAT_I_DO.map((item) => (
-                <li key={item.title} className="flex items-start gap-3">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                  <span className="text-base text-foreground font-medium">
-                    {item.title}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ── Current Focus ─────────────────────────────────────────────────── */}
+      {/* ── Toolkit ───────────────────────────────────────────────────────── */}
       <section className="px-6 pb-24">
         <div className="max-w-3xl mx-auto text-center">
           <FadeIn>
-            <h2 className={sectionHeading}>Current Focus</h2>
+            <h2 className={sectionHeading}>Toolkit</h2>
+          </FadeIn>
+          <FadeIn delay={0.05}>
+            <div className="flex gap-2 justify-center flex-wrap mb-8">
+              {TOOLKIT.map((cat) => (
+                <button
+                  key={cat.category}
+                  onClick={() => setActiveCategory(cat.category)}
+                  className={
+                    activeCategory === cat.category
+                      ? "px-4 py-1.5 text-sm rounded-full bg-accent text-white transition-colors"
+                      : "px-4 py-1.5 text-sm rounded-full border border-border text-muted hover:border-accent hover:text-accent transition-colors"
+                  }
+                >
+                  {cat.category}
+                </button>
+              ))}
+            </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <p className="text-base text-muted mb-8 leading-relaxed">
-              {CURRENT_FOCUS_NOTE}
-            </p>
-          </FadeIn>
-          <div className="flex flex-wrap justify-center gap-3">
-            {CURRENT_FOCUS.map((item, index) => (
-              <FadeIn key={item} delay={0.2 + index * 0.08}>
-                <span className="px-5 py-2 text-sm border border-border rounded-full bg-card text-foreground">
-                  {item}
+            <div className="flex flex-wrap justify-center gap-3">
+              {TOOLKIT.find((c) => c.category === activeCategory)?.tools.map((tool) => (
+                <span
+                  key={tool.name}
+                  className="px-5 py-2 text-sm border border-border rounded-full bg-card text-foreground flex items-center gap-2"
+                >
+                  {tool.name}
+                  {tool.learning && (
+                    <span className="text-[10px] text-accent border border-accent/40 rounded px-1 py-0.5 leading-none">
+                      learning
+                    </span>
+                  )}
                 </span>
-              </FadeIn>
-            ))}
-          </div>
+              ))}
+            </div>
+          </FadeIn>
         </div>
       </section>
     </>

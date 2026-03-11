@@ -58,3 +58,20 @@ export interface ProductThinkingItem {
   principle: string;
   description: string;
 }
+
+export interface Tool {
+  name: string;
+  learning?: boolean;
+}
+
+export interface ToolkitCategory {
+  category: string;
+  tools: Tool[];
+}
+
+export interface ChangelogEntry {
+  date: string;
+  label: string;
+  feature: string;
+  note: string;
+}

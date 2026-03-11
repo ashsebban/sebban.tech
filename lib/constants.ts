@@ -1,11 +1,13 @@
 // Central config: site name/description/URL, nav links, social links, and home-page copy
 import {
+  ChangelogEntry,
   NavLink,
   ProductThinkingItem,
   QuickActionLink,
   ReferencesPageContent,
   SelectedWorkItem,
   SocialLink,
+  ToolkitCategory,
 } from "./types";
 
 // ——— Site metadata (SEO, OG, Twitter) ———
@@ -13,13 +15,13 @@ export const SITE_NAME = "Asher Sebban";
 export const SITE_DESCRIPTION =
   "Product and systems builder exploring AI, automation, and developer tooling.";
 export const SITE_URL = "https://ashersebban.com";
-export const SITE_TAGLINE = "Product Strategy | Systems | AI";
+export const SITE_TAGLINE = "Product Leader | Systems Builder | AI Enthusiast";
 
 export const HERO_SUBTITLE =
   "I build products and operational systems that help teams move faster.";
 
 export const HERO_CREDIBILITY =
-  "Former UX Researcher at Anaconda. Builder of AI tools and product infrastructure.";
+  "Former UX Researcher at Anaconda.";
 
 // ——— Main nav (Navbar + Footer) ———
 export const NAV_LINKS: NavLink[] = [
@@ -40,12 +42,12 @@ export const SOCIAL_LINKS: SocialLink[] = [
 // ——— Home page Hero: "What I Do" cards ———
 export const WHAT_I_DO = [
   {
-    title: "Product Strategy",
+    title: "Product Leadership",
     description:
-      "I turn business goals and real constraints into clear product direction. I define strategy, prioritize the right bets, and build roadmaps that move the business.",
+      "I translate business goals and inspiring ideas into clear product direction and communicate team constraints to other stakeholders so we all align on what is possible. ",
   },
   {
-    title: "Product Discovery & Insight",
+    title: "Discovery & Insight",
     description:
       "I combine research, data, and product intuition to understand real problems. I turn insight into clear product decisions and focus teams on what actually matters.",
   },
@@ -119,11 +121,61 @@ export const SELECTED_WORK: SelectedWorkItem[] = [
   },
 ];
 
-// ——— Home page: Current Focus pills ———
-export const CURRENT_FOCUS = ["AI agents", "Developer tooling", "Autonomous workflows"];
+// ——— Home page: Toolkit section ———
+export const TOOLKIT: ToolkitCategory[] = [
+  {
+    category: "Research",
+    tools: [
+      { name: "SurveyMonkey" },
+      { name: "Great Question" },
+      { name: "Google Suite" },
+    ],
+  },
+  {
+    category: "Design",
+    tools: [
+      { name: "Miro" },
+      { name: "Figma", learning: true },
+    ],
+  },
+  {
+    category: "AI & Code",
+    tools: [
+      { name: "Claude Code" },
+      { name: "Codex" },
+      { name: "OpenClaw" },
+      { name: "Anaconda Assistant" },
+    ],
+  },
+];
 
-export const CURRENT_FOCUS_NOTE =
-  "Currently experimenting with OpenClaw, Codex, and agent systems.";
+// ——— How I Built This: changelog entries ———
+export const CHANGELOG: ChangelogEntry[] = [
+  {
+    date: "2026-02-11",
+    label: "Feb 2026",
+    feature: "Site launched",
+    note: "Initial build with Next.js, TypeScript, and Tailwind CSS. Started from scratch rather than a template — structure and copy written from a hiring manager's perspective.",
+  },
+  {
+    date: "2026-02-18",
+    label: "Feb 2026",
+    feature: "Rebuilt + games added",
+    note: "Stripped the first version and rebuilt with a dark theme and cleaner layout. Added three embedded browser games: a Processing-style canvas, a calming Fishtank, and Shape Runner v2.",
+  },
+  {
+    date: "2026-03-10",
+    label: "Mar 2026",
+    feature: "ANACOMICS",
+    note: "ANACOMICS is a comic series explaining Python packaging, environments, and the Anaconda ecosystem. Launched the Deployment Architecture module — 7 pages with custom image sequencing, serif typography, and an accessible panel layout.",
+  },
+  {
+    date: "2026-03-11",
+    label: "Mar 2026",
+    feature: "Homepage redesign",
+    note: "Repositioned the site around product and systems thinking. Rewrote all copy, restructured every section, and replaced static lists with an accordion, a 2×2 card grid, a Toolkit, and this build log.",
+  },
+];
 
 // ——— Home page Hero: CTA links + quick actions ———
 export const RESUME_PDF_PATH = "/images/asher_sebban_resume.pdf";

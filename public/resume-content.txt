@@ -1,0 +1,43 @@
+Asher Sebban
+Lakewood, NJ 08701
+424-777-5129 • ashersamuelsebban@gmail.com
+P RODUCT M ANAGEMENT • S TRATEGY • P ROTOTYPING • S YSTEMS
+SUMMARY
+Early-career product leader who makes complex technical products easy for people to understand and use. I combine customer research,
+cross-functional collaboration, and hands-on building (prototypes, tooling, and clear documentation) to turn messy problems into decisions
+teams can ship. I’m known for leveling up how teams work: scaling product/operations, creating standout technical onboarding (like
+ANACOMICS), and leading conference research and strategy that drives developer engagement and pipeline.
+WORK EXPERIENCE
+Anaconda, Inc. | User Experience Researcher Tristate Area (Remote) | 2024-2026
+● Led end-to-end UXR (interview, usability, survey) across 6+ products, translating insights into roadmap priorities.
+● Spearheaded UX Ops systems (intake, planning, resourcing, Jira/Confluence) for a ~20-person UX org.
+● Created ANACOMICS (popular comic-style onboarding) and built system maps for internal technical enablement.
+● Built a staging-ready prototype to de-risk a new $20K license initiative.
+● Shipped 5+ AI-assisted internal tools to speed synthesis and standardize research artifacts.
+● Owned developer conference booth strategy; exceeded team goals by 200%+ and received company-wide recognition.
+LTC Ally | Web App Development Intern Lakewood, NJ | Summer 2023
+● Built an internal web application to safely modify database records; solution remains in active use .
+● Designed a new intake workflow for VBA debugging requests, reducing back-and-forth and improving team throughput.
+Anaconda, Inc. | Product Operations Intern Tristate Area (Remote) | Summer 2022
+● Partnered with UX, marketing, and product ops on user research and product initiatives across the business.
+● Analyzed the website funnel, identified key drop-offs, and shaped recommendations that informed the official redesign.
+Independent Project | Game Developer Los Angeles, CA | Summer 2021
+● Designed and built an infinite-runner game in Java, owning development end-to-end from concept through implementation.
+● Implemented novel gameplay mechanics to introduce strategic tradeoffs within fast-paced play.
+Academix.bio | Computer Science Intern Tel Aviv, Israel | Summer 2020
+● Supported engineers building a marketplace for academic researchers through QA, debugging, and data work.
+● Performed high-volume analysis and troubleshooting across XML/CSV/TXT datasets using SQL and Python .
+The Management Group (TMG) | Business Management Intern Beverly Hills, CA | Summers 2018 & 2019
+● Supported litigation research and case preparation for high-profile clients
+● Conducted investment portfolio analysis for high-net-worth clients using SQL and Excel macros
+EDUCATION
+Machon Shlomo | The Heiden Institute Fellowship Jerusalem, Israel | 2022-2024
+New York University | The Gallatin School of Individualized Study New York, NY | 2017-2021
+● Bachelor of Arts , August 2021 | Concentration: Business Management, Computer Science, Design, Humanities
+● GPA: 3.63 | Dean’s List: Spring 2020
+● Memberships: Alpha Epsilon Pi (Executive Board, Fall 2018) | Chess Club
+SKILLS AND DEVELOPMENT
+Programming: Python, SQL, Java, JavaScript, HTML/CSS, JQL
+Tools: Anaconda, Google Suite, Jira, Confluence, Miro, Excel
+Core Skills: UX research, product strategy, prototyping, systems and ops
+Hobbies: Chess, Musical Performance and Songwriting, Basketball

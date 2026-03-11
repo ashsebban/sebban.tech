@@ -121,21 +121,74 @@ function drawPipe(px) {
 }
 
 function drawBird(pos) {
+  let wingSin = sin(f) * 6;
+
+  // TAIL — wedge at rear, breaks the circle silhouette
+  fill(200, 155, 0);
+  noStroke();
+  triangle(
+    pos.x - birdWidth * 0.45, pos.y - birdHeight * 0.05,
+    pos.x - birdWidth * 0.45, pos.y + birdHeight * 0.25,
+    pos.x - birdWidth * 0.78, pos.y + birdHeight * 0.5
+  );
+
   // BODY
-  fill(255, 243, 20);
+  fill(255, 215, 20);
+  stroke(0);
   ellipse(pos.x, pos.y, birdWidth, birdHeight);
-  // WING
+
+  // BELLY — lighter, lower-forward (not centered)
+  fill(255, 245, 160);
+  noStroke();
+  ellipse(pos.x + birdWidth * 0.08, pos.y + birdHeight * 0.12, birdWidth * 0.42, birdHeight * 0.38);
+
+  // WING — amber/gold, under head (not rear), animated flap
+  fill(220, 165, 0);
+  ellipse(pos.x - birdWidth * 0.05, pos.y - birdHeight * 0.05 + wingSin, birdWidth * 0.52, birdHeight * 0.3);
+
+  // EYE — smaller, pulled forward near beak, with shine
+  stroke(0);
   fill(255);
-  ellipse(pos.x - birdWidth * 0.35, pos.y + sin(f) * 5, 0.5 * birdWidth, 0.4 * birdHeight);
-  // EYE white
-  ellipse(pos.x + birdWidth * 0.3, pos.y - birdWidth * 0.2, 0.4 * birdWidth, 0.5 * birdHeight);
-  // EYE pupil
+  ellipse(pos.x + birdWidth * 0.32, pos.y - birdHeight * 0.12, birdWidth * 0.28, birdHeight * 0.32);
   fill(0);
-  ellipse(pos.x + birdWidth * 0.4, pos.y - birdWidth * 0.25, 0.05 * birdWidth, 0.2 * birdHeight);
-  // BEAK
-  fill(250, 123, 5);
-  ellipse(pos.x + birdWidth * 0.45, pos.y + birdHeight * 0.08, 0.4 * birdWidth, 0.15 * birdHeight);
-  ellipse(pos.x + birdWidth * 0.43, pos.y + birdHeight * 0.2, 0.3 * birdWidth, 0.15 * birdHeight);
+  ellipse(pos.x + birdWidth * 0.38, pos.y - birdHeight * 0.14, birdWidth * 0.1, birdHeight * 0.18);
+  fill(255);
+  noStroke();
+  ellipse(pos.x + birdWidth * 0.34, pos.y - birdHeight * 0.2, birdWidth * 0.06, birdHeight * 0.06);
+  stroke(0);
+
+  // BEAK — chunky two-part wedge (upper + lower mandible)
+  fill(250, 130, 0);
+  triangle(
+    pos.x + birdWidth * 0.3,  pos.y - birdHeight * 0.08,
+    pos.x + birdWidth * 0.3,  pos.y + birdHeight * 0.06,
+    pos.x + birdWidth * 0.72, pos.y + birdHeight * 0.01
+  );
+  fill(220, 100, 0);
+  triangle(
+    pos.x + birdWidth * 0.3,  pos.y + birdHeight * 0.06,
+    pos.x + birdWidth * 0.3,  pos.y + birdHeight * 0.18,
+    pos.x + birdWidth * 0.68, pos.y + birdHeight * 0.1
+  );
+
+  // FEET — tucked, trailing backward (two toes each)
+  stroke(200, 120, 0);
+  strokeWeight(2);
+  line(pos.x - birdWidth * 0.05, pos.y + birdHeight * 0.45,
+       pos.x - birdWidth * 0.05, pos.y + birdHeight * 0.65);
+  line(pos.x - birdWidth * 0.05, pos.y + birdHeight * 0.65,
+       pos.x - birdWidth * 0.22, pos.y + birdHeight * 0.78);
+  line(pos.x - birdWidth * 0.05, pos.y + birdHeight * 0.65,
+       pos.x + birdWidth * 0.1,  pos.y + birdHeight * 0.78);
+  line(pos.x - birdWidth * 0.18, pos.y + birdHeight * 0.48,
+       pos.x - birdWidth * 0.18, pos.y + birdHeight * 0.65);
+  line(pos.x - birdWidth * 0.18, pos.y + birdHeight * 0.65,
+       pos.x - birdWidth * 0.32, pos.y + birdHeight * 0.78);
+  line(pos.x - birdWidth * 0.18, pos.y + birdHeight * 0.65,
+       pos.x - birdWidth * 0.03, pos.y + birdHeight * 0.78);
+
+  stroke(0);
+  strokeWeight(1);
   fill(255);
 }
 
