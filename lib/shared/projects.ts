@@ -1,4 +1,4 @@
-export type ProjectCategory = "project" | "app" | "game";
+export type ProjectCategory = "project" | "app" | "game" | "website" | "enterprise";
 export type ProjectStatus = "live" | "locked";
 export type ProjectPreviewMode = "embed" | "external";
 

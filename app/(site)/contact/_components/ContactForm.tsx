@@ -53,7 +53,7 @@ export default function ContactForm() {
 
   // Shared Tailwind classes for all form inputs
   const inputClasses =
-    "w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-colors text-sm";
+    "w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted/20 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-colors text-sm";
 
   return (
     // handleSubmit applies validation before calling onSubmit

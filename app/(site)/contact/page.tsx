@@ -1,11 +1,11 @@
 import { Metadata } from "next";
-import { ICON_MAP } from "@/components/icons/SocialIcons";
-import { SOCIAL_LINKS } from "@/lib/constants";
+import Link from "next/link";
+import SocialLinksList from "@/components/ui/SocialLinksList";
 import ContactForm from "./_components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch with me",
+  description: "Reach out via email or LinkedIn. Usually responds within 24–48 hours.",
 };
 
 export default function ContactPage() {
@@ -27,30 +27,25 @@ export default function ContactPage() {
             <div className="rounded-xl border border-border bg-card p-8">
               <h2 className="mb-6 text-xl font-semibold">Connect With Me</h2>
               <div className="flex flex-col gap-4">
-                {SOCIAL_LINKS.map((social) => {
-                  const Icon = ICON_MAP[social.icon];
-                  return (
-                    <a
-                      key={social.name}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-3 text-muted transition-colors hover:text-accent"
-                    >
-                      {Icon && <Icon className="h-5 w-5" />}
-                      <span>{social.name}</span>
-                      <span className="ml-auto text-xs opacity-0 transition-opacity group-hover:opacity-100">&rarr;</span>
-                    </a>
-                  );
-                })}
+                <SocialLinksList iconSize="h-5 w-5" />
               </div>
             </div>
 
             <div className="rounded-xl border border-border bg-card p-8">
               <h3 className="mb-3 text-lg font-semibold">Response Time</h3>
               <p className="text-sm leading-relaxed text-muted">
-                I typically respond within 24-48 hours. For urgent matters, feel free to reach out via email or LinkedIn.
+                I usually respond within 24–48 hours. LinkedIn and email both work.
               </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-8 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-semibold mb-1">References</h3>
+                <p className="text-xs text-muted">Leaders, professors, and mentors available upon request.</p>
+              </div>
+              <Link href="/references" className="flex-shrink-0 text-sm text-accent hover:text-accent/80 transition-colors">
+                View →
+              </Link>
             </div>
           </div>
         </div>

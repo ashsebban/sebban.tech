@@ -41,17 +41,17 @@ export interface BlogPost {
   image?: string;
 }
 
-export interface BlogFrontmatter {
-  title: string;
-  date: string;
-  excerpt: string;
-  tags: string[];
-  image?: string;
-}
-
-export interface SelectedWorkItem {
+export interface WorkExample {
   title: string;
   description: string;
+  preview?: boolean;
+  href?: string;
+}
+
+export interface WorkPillar {
+  capability: string;
+  capabilityDesc: string;
+  examples: WorkExample[];
 }
 
 export interface ProductThinkingItem {
@@ -61,12 +61,21 @@ export interface ProductThinkingItem {
 
 export interface Tool {
   name: string;
-  learning?: boolean;
+  icon?: string;
+  emoji?: string;
+  separator?: boolean;
+  comingSoon?: boolean;
 }
 
 export interface ToolkitCategory {
   category: string;
   tools: Tool[];
+}
+
+export interface AboutHighlight {
+  label: string;
+  value: string;
+  detail: string;
 }
 
 export interface ChangelogEntry {

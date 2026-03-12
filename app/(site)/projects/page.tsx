@@ -22,7 +22,7 @@ export default function ProjectsPage() {
           </FadeIn>
           <FadeIn delay={0.1}>
             <p className="max-w-2xl text-lg text-muted">
-              A collection of things I&apos;ve built. Games run live in the browser, pulled directly from their own repos.
+              A selection of projects and experiments. Games run live in the browser, pulled directly from their own repos.
             </p>
           </FadeIn>
         </div>
