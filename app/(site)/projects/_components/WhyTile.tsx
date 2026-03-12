@@ -8,9 +8,9 @@ interface WhyTileProps {
 
 export default function WhyTile({ title, body, onDismiss }: WhyTileProps) {
   return (
-    <article className="flex h-full flex-col rounded-xl border border-white/20 bg-card p-6">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">{title}</p>
-      <p className="mb-4 flex-1 text-sm leading-relaxed text-muted">{body}</p>
+    <article className="flex h-full flex-col rounded-xl border border-accent/40 bg-card p-6">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-accent">{title}</p>
+      <p className="mb-4 flex-1 text-sm leading-relaxed text-foreground">{body}</p>
       <div className="mt-auto">
         <button
           type="button"
