@@ -1,7 +1,7 @@
 // Site footer: tagline, nav links, social links, and copyright
 import Link from "next/link";
-import { SOCIAL_LINKS, NAV_LINKS, SITE_NAME } from "@/lib/constants";
-import { ICON_MAP } from "@/components/icons/SocialIcons";
+import { NAV_LINKS, SITE_NAME, FOOTER_TAGLINE } from "@/lib/constants";
+import SocialLinksList from "@/components/ui/SocialLinksList";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,9 +13,7 @@ export default function Footer() {
           {/* Brand and short description */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">{SITE_NAME}</h3>
-            <p className="text-sm text-muted leading-relaxed">
-              Product-minded builder using AI to research, prototype, and ship.
-            </p>
+            <p className="text-sm text-muted leading-relaxed">{FOOTER_TAGLINE}</p>
           </div>
 
           {/* Repeat main nav links for footer */}
@@ -38,22 +36,8 @@ export default function Footer() {
           {/* External social / contact links */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">Connect</h3>
-            <div className="flex flex-col gap-3">
-              {SOCIAL_LINKS.map((social) => {
-                const Icon = ICON_MAP[social.icon];
-                return (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-muted hover:text-accent transition-colors"
-                  >
-                    {Icon && <Icon className="w-4 h-4" />}
-                    <span>{social.name}</span>
-                  </a>
-                );
-              })}
+            <div className="flex flex-col gap-3 text-sm">
+              <SocialLinksList />
             </div>
           </div>
         </div>
