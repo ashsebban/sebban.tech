@@ -15,7 +15,7 @@ export default function WhyTile({ title, body, onDismiss }: WhyTileProps) {
         <button
           type="button"
           onClick={onDismiss}
-          className="flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
+          className="rounded-full border border-white/30 px-2.5 py-0.5 text-xs text-white/60 hover:border-white/60 hover:text-white/90 transition-colors"
         >
           Close
         </button>
