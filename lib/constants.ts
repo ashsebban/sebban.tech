@@ -87,9 +87,9 @@ export const WORK_PILLARS: WorkPillar[] = [
           "Built and shipped 5+ AI-assisted internal tools that reduced research synthesis time, standardized deliverables, and improved consistency across the team.",
       },
       {
-        title: "Built This Site with AI",
+        title: "Built Sebban.tech",
         description:
-          "Designed, coded, and shipped this portfolio using an AI-assisted development workflow, moving from idea to working product in days while learning the full path from artifact to live site.",
+          "Designed and coded this portfolio from scratch over a month — no templates, no Lovable, no drag-and-drop. Custom Next.js, TypeScript, and Tailwind, built with an AI-assisted workflow where I wrote and reviewed every line. The build log is on this site.",
         href: "/how-i-built-this",
       },
     ],
