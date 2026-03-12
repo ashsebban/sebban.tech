@@ -238,8 +238,8 @@ export const FOOTER_TAGLINE =
 export const RESUME_PDF_PATH = "/images/asher_sebban_resume.pdf";
 
 export const QUICK_ACTIONS: QuickActionLink[] = [
-  { label: "See My Work",  href: "/projects", variant: "primary",   external: false },
-  { label: "View Resume",  href: "/resume",   variant: "secondary", external: false },
+  { label: "View Resume",  href: "/resume",   variant: "primary",   external: false },
+  { label: "See My Work",  href: "/projects", variant: "secondary", external: false },
   { label: "Let's Talk →", href: "/contact",  variant: "text",      external: false },
 ];
 

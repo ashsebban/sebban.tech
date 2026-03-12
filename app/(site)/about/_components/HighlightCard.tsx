@@ -1,21 +1,18 @@
-"use client";
-
-import { useState } from "react";
 import FadeIn from "@/components/motion/FadeIn";
 import { AboutHighlight } from "@/lib/types";
 
 interface HighlightCardProps {
   highlight: AboutHighlight;
   index: number;
+  isFlipped: boolean;
+  onFlip: () => void;
 }
 
-export default function HighlightCard({ highlight, index }: HighlightCardProps) {
-  const [flipped, setFlipped] = useState(false);
-
+export default function HighlightCard({ highlight, index, isFlipped, onFlip }: HighlightCardProps) {
   return (
     <FadeIn delay={index * 0.07}>
       <div
-        onClick={() => setFlipped((v) => !v)}
+        onClick={onFlip}
         className="relative h-44 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
         style={{ perspective: "1000px" }}
       >
@@ -24,7 +21,7 @@ export default function HighlightCard({ highlight, index }: HighlightCardProps) 
           style={{
             transformStyle: "preserve-3d",
             transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
-            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           }}
         >
           {/* Front */}
