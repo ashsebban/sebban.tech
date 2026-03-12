@@ -16,7 +16,7 @@ export default function HighlightCard({ highlight, index }: HighlightCardProps) 
     <FadeIn delay={index * 0.07}>
       <div
         onClick={() => setFlipped((v) => !v)}
-        className="relative h-44 cursor-pointer"
+        className="relative h-44 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
         style={{ perspective: "1000px" }}
       >
         <div
@@ -29,12 +29,16 @@ export default function HighlightCard({ highlight, index }: HighlightCardProps) 
         >
           {/* Front */}
           <div
-            className="absolute inset-0 p-5 rounded-xl border border-border bg-card flex flex-col justify-between"
+            className="absolute inset-0 p-5 rounded-xl border border-border bg-card flex flex-col justify-between transition-colors duration-300 hover:border-accent/50"
             style={{ backfaceVisibility: "hidden" }}
           >
             <p className="text-xs text-muted uppercase tracking-wide">{highlight.label}</p>
             <p className="text-2xl font-bold text-foreground leading-tight">{highlight.value}</p>
-            <p className="text-xs text-muted/50">Click to read more</p>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block w-1 h-1 rounded-full bg-accent/60" />
+              <span className="inline-block w-1 h-1 rounded-full bg-accent/40" />
+              <span className="inline-block w-1 h-1 rounded-full bg-accent/20" />
+            </div>
           </div>
 
           {/* Back */}
@@ -44,7 +48,11 @@ export default function HighlightCard({ highlight, index }: HighlightCardProps) 
           >
             <p className="text-xs text-accent uppercase tracking-wide">{highlight.label}</p>
             <p className="text-xs text-foreground/80 leading-relaxed">{highlight.detail}</p>
-            <p className="text-xs text-muted/50">Click to close</p>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block w-1 h-1 rounded-full bg-accent/20" />
+              <span className="inline-block w-1 h-1 rounded-full bg-accent/40" />
+              <span className="inline-block w-1 h-1 rounded-full bg-accent/60" />
+            </div>
           </div>
         </div>
       </div>
