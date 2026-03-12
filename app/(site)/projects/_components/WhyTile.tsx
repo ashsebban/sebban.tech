@@ -3,23 +3,23 @@
 interface WhyTileProps {
   title: string;
   body: string;
-  accentClass: string;
   onDismiss: () => void;
 }
 
-export default function WhyTile({ title, body, accentClass, onDismiss }: WhyTileProps) {
+export default function WhyTile({ title, body, onDismiss }: WhyTileProps) {
   return (
-    <article className={`relative flex h-full flex-col rounded-xl border p-6 ${accentClass}`}>
-      <button
-        type="button"
-        onClick={onDismiss}
-        aria-label="Dismiss"
-        className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-white/40 transition-colors hover:text-white/80"
-      >
-        ✕
-      </button>
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">{title}</p>
-      <p className="flex-1 text-sm leading-relaxed text-white/80">{body}</p>
+    <article className="flex h-full flex-col rounded-xl border border-white/20 bg-card p-6">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">{title}</p>
+      <p className="mb-4 flex-1 text-sm leading-relaxed text-muted">{body}</p>
+      <div className="mt-auto">
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
+        >
+          Close
+        </button>
+      </div>
     </article>
   );
 }

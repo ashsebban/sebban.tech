@@ -7,13 +7,22 @@ import ProjectCard from "./ProjectCard";
 import WhyTile from "./WhyTile";
 
 export default function GamesSection({ games }: { games: SiteProject[] }) {
-  const [showTile, setShowTile] = useState(true);
+  const [showTile, setShowTile] = useState(false);
 
   return (
     <section className="mb-20">
       <FadeIn>
-        <div className="mb-8">
+        <div className="mb-8 flex items-center gap-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">Games</h2>
+          {!showTile && (
+            <button
+              type="button"
+              onClick={() => setShowTile(true)}
+              className="rounded-full border border-white/30 px-2.5 py-0.5 text-xs text-white/60 hover:border-white/60 hover:text-white/90 transition-colors"
+            >
+              Why I do this
+            </button>
+          )}
         </div>
       </FadeIn>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -22,7 +31,6 @@ export default function GamesSection({ games }: { games: SiteProject[] }) {
             <WhyTile
               title="Why I build games"
               body="Games are my playground for practicing product philosophy. Reading Atomic Habits changed how I think about products — less as objects, more as behaviors. Every game I build, I ask the same questions I ask about any product: Is it obvious? Is it simple? Is it attractive? Is it satisfying enough to come back to?"
-              accentClass="border-blue-500/30 bg-blue-950/30"
               onDismiss={() => setShowTile(false)}
             />
           </FadeIn>
