@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { ABOUT_HIGHLIGHTS } from "@/lib/constants";
 import FadeIn from "@/components/motion/FadeIn";
+import HighlightCard from "./_components/HighlightCard";
 
 export const metadata: Metadata = {
   title: "About",
@@ -32,13 +33,7 @@ export default function AboutPage() {
         {/* Highlights */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-16">
           {ABOUT_HIGHLIGHTS.map((h, i) => (
-            <FadeIn key={h.label} delay={i * 0.07}>
-              <div className="p-5 rounded-xl border border-border bg-card h-full">
-                <p className="text-xs text-muted uppercase tracking-wide mb-1">{h.label}</p>
-                <p className="text-sm font-semibold text-foreground mb-2">{h.value}</p>
-                <p className="text-xs text-muted leading-relaxed">{h.detail}</p>
-              </div>
-            </FadeIn>
+            <HighlightCard key={h.label} highlight={h} index={i} />
           ))}
         </div>
 
