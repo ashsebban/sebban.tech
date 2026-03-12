@@ -124,6 +124,12 @@ export default function ResumePage() {
                 </span>
               </button>
               <Link
+                href="/references"
+                className={`${fixedButtonClass} bg-card-hover text-foreground hover:bg-accent hover:text-white transition-colors`}
+              >
+                References
+              </Link>
+              <Link
                 href="/"
                 className={`${fixedButtonClass} bg-card-hover text-foreground hover:bg-accent hover:text-white transition-colors`}
               >
