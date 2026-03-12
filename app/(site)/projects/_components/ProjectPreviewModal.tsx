@@ -59,7 +59,7 @@ export default function ProjectPreviewModal({ title, embedUrl, deployUrl, onClos
         </a>
       }
     >
-      <div className="min-h-[540px]">
+      <div className="min-h-[540px] overflow-hidden">
         {embedBlocked ? (
           <div className="flex h-[540px] flex-col items-center justify-center gap-3 p-6 text-center">
             <p className="text-sm text-foreground">Preview unavailable in embedded mode, opening project in a new tab.</p>
@@ -77,7 +77,7 @@ export default function ProjectPreviewModal({ title, embedUrl, deployUrl, onClos
             src={runtimeSrc}
             title={title}
             className="h-[700px] w-full"
-            style={{ border: "none" }}
+            style={{ border: "none", touchAction: "none" }}
             onLoad={() => setIframeReady(true)}
             onError={openFallback}
             sandbox="allow-scripts allow-same-origin allow-forms allow-downloads"
