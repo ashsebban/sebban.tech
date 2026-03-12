@@ -1,5 +1,5 @@
 export type ProjectCategory = "project" | "app" | "game" | "website" | "enterprise";
-export type ProjectStatus = "live" | "locked";
+export type ProjectStatus = "live" | "locked" | "coming-soon";
 export type ProjectPreviewMode = "embed" | "external";
 
 export interface ProjectPreview {

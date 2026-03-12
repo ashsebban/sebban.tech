@@ -17,6 +17,18 @@ export const projects: SiteProject[] = [
     }
   },
   {
+    id: "storyboard-ai",
+    title: "Storyboard AI",
+    description: "An app for planning and producing AI-generated videos — from script to shot list to final output.",
+    category: "app",
+    tech: ["AI", "Video Generation", "Product Design"],
+    status: "coming-soon",
+    deployUrl: "",
+    preview: {
+      mode: "external",
+    }
+  },
+  {
     id: "flappy-bird-rebuild",
     title: "Happy Bird",
     description: "A from-scratch Processing remake of the classic tap-to-fly arcade game.",
