@@ -30,7 +30,7 @@ export default function GamesSection({ games }: { games: SiteProject[] }) {
           <FadeIn>
             <WhyTile
               title="Why I build games"
-              body="Games are my playground for practicing product philosophy. Reading Atomic Habits changed how I think about products — less as objects, more as behaviors. Every game I build, I ask the same questions I ask about any product: Is it obvious? Is it simple? Is it attractive? Is it satisfying enough to come back to?"
+              body="Games are my playground for practicing product philosophy. Atomic Habits changed how I think about products — less as objects, more as behaviors. Every game I build, I ask: Is it obvious? Simple? Attractive? Satisfying enough to come back to?"
               onDismiss={() => setShowTile(false)}
             />
           </FadeIn>

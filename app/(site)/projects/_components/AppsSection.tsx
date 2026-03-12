@@ -30,7 +30,7 @@ export default function AppsSection({ apps }: { apps: SiteProject[] }) {
           <FadeIn>
             <WhyTile
               title="How I think about apps"
-              body="Prototyping early is how I figure out what to build — not just how to build it. My canvas app started as a tool to design characters and mechanics for my games. Using it revealed a gap immediately: I had to draw shapes manually because there was no shape tool. That's the kind of insight you only get by being your own user. The feature is on the list."
+              body="Prototyping early is how I figure out what to build, not just how to build it. My canvas app revealed a gap the moment I used it: no shape tool. I had to draw everything by hand. That insight only comes from being your own user. The feature is on the list."
               onDismiss={() => setShowTile(false)}
             />
           </FadeIn>
