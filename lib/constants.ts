@@ -223,6 +223,12 @@ export const CHANGELOG: ChangelogEntry[] = [
     feature: "Homepage redesign",
     note: "Repositioned the site around product and systems thinking. Rewrote all copy, restructured every section, and replaced static lists with an accordion, a 2×2 card grid, a Toolkit, and this build log.",
   },
+  {
+    date: "2026-03-12",
+    label: "Mar 2026",
+    feature: "sebban.tech is live",
+    note: "Deployed the site end-to-end: code lives on GitHub, Vercel pulls from the master branch and rebuilds on every push, and Hostinger DNS routes sebban.tech to Vercel via A and CNAME records. Also shipped a full SEO pass: self-hosted fonts, dynamic OG image, favicon, sitemap, and robots.txt.",
+  },
 ];
 
 // ——— Home page Hero: CTA links + quick actions ———
