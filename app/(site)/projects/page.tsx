@@ -2,7 +2,8 @@ import { Metadata } from "next";
 import FadeIn from "@/components/motion/FadeIn";
 import { projects } from "./_content/projects";
 import ProjectCard from "./_components/ProjectCard";
-import GamesHeader from "./_components/GamesHeader";
+import GamesSection from "./_components/GamesSection";
+import AppsSection from "./_components/AppsSection";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -43,33 +44,9 @@ export default function ProjectsPage() {
           </section>
         )}
 
-        {apps.length > 0 && (
-          <section className="mb-20">
-            <FadeIn>
-              <div className="mb-8">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">Apps</h2>
-              </div>
-            </FadeIn>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {apps.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
-            </div>
-          </section>
-        )}
+        {apps.length > 0 && <AppsSection apps={apps} />}
 
-        {games.length > 0 && (
-          <section className="mb-20">
-            <FadeIn>
-              <GamesHeader />
-            </FadeIn>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {games.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
-            </div>
-          </section>
-        )}
+        {games.length > 0 && <GamesSection games={games} />}
       </div>
     </div>
   );
