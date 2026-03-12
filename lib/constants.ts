@@ -89,7 +89,7 @@ export const WORK_PILLARS: WorkPillar[] = [
       {
         title: "Built Sebban.tech",
         description:
-          "Designed and coded this portfolio from scratch over a month — no templates, no Lovable, no drag-and-drop. Custom Next.js, TypeScript, and Tailwind, built with an AI-assisted workflow where I wrote and reviewed every line. The build log is on this site.",
+          "Designed and built this portfolio from scratch over a month — no templates, no drag-and-drop tools. Custom Next.js, TypeScript, and Tailwind. I directed every architectural and design decision, understood what was being built, and iterated continuously. AI was the accelerant, not the author. The build log is on this site.",
         href: "/how-i-built-this",
       },
     ],
