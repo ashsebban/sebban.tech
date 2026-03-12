@@ -10,7 +10,7 @@ export default function WhyTile({ title, body, onDismiss }: WhyTileProps) {
   return (
     <article className="flex h-full flex-col rounded-xl border border-accent/40 bg-card p-6">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-accent">{title}</p>
-      <p className="mb-4 flex-1 text-xs leading-relaxed text-foreground/80">{body}</p>
+      <p className="mb-4 flex-1 text-xs leading-relaxed text-foreground/70">{body}</p>
       <div className="mt-auto">
         <button
           type="button"
