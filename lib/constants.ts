@@ -133,7 +133,7 @@ export const PRODUCT_THINKING: ProductThinkingItem[] = [
   {
     principle: "Products are habits",
     description:
-      "James Clear writes, \"You do not rise to the level of your goals. You fall to the level of your systems.\" The best products do not succeed just because they exist or even because they are better. They succeed when they change behavior: when the right action becomes obvious, easy, and satisfying enough to repeat.",
+      "Reading Atomic Habits made me think about products less as objects and more as behaviors. The real question is not just whether a feature is useful, but whether the action it asks of people is obvious, easy, attractive, and satisfying enough to repeat. The same idea applies to systems and operations: the best ones make the desired outcome feel natural.",
   },
   {
     principle: "Use AI with judgment",

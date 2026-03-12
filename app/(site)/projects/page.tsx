@@ -62,6 +62,7 @@ export default function ProjectsPage() {
             <FadeIn>
               <div className="mb-8">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">Games</h2>
+                <p className="mt-2 text-sm text-muted">Games are my playground for practicing the product principles I took from Atomic Habits. As I build, I'm always asking: is it obvious, simple, attractive, and satisfying?</p>
               </div>
             </FadeIn>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
