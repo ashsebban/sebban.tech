@@ -21,7 +21,7 @@ export default function ImpactTabs({ pillars, onPreview }: Props) {
   return (
     <div>
       {/* Tab strip */}
-      <div className="flex flex-wrap justify-center border-b border-border">
+      <div className="flex overflow-x-auto border-b border-border scrollbar-none -mx-1 px-1">
         {pillars.map((p, i) => (
           <button
             key={p.capability}

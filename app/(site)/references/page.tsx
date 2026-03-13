@@ -202,7 +202,7 @@ export default function ReferencesPage() {
                           type="button"
                           onClick={() => toggleReference(key)}
                           disabled={isDisabled}
-                          className={`ml-4 shrink-0 inline-flex items-center px-3 py-1 rounded-md border text-xs font-medium transition-colors ${
+                          className={`ml-4 shrink-0 inline-flex items-center px-3 py-2 rounded-md border text-xs font-medium transition-colors ${
                             isSelected
                               ? "border-accent bg-accent/10 text-accent"
                               : "border-border text-muted hover:border-accent hover:text-accent"
@@ -354,7 +354,7 @@ export default function ReferencesPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label htmlFor="company" className="text-sm font-medium text-foreground">
                       Company *

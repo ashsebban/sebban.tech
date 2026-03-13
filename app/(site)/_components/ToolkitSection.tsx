@@ -35,8 +35,8 @@ export default function ToolkitSection({ toolkit }: Props) {
                 onClick={() => setActiveCategory(cat.category)}
                 className={
                   activeCategory === cat.category
-                    ? "px-4 py-1.5 text-sm rounded-full bg-accent text-white transition-colors"
-                    : "px-4 py-1.5 text-sm rounded-full border border-border text-muted hover:border-accent hover:text-accent transition-colors"
+                    ? "px-5 py-2.5 text-sm rounded-full bg-accent text-white transition-colors"
+                    : "px-5 py-2.5 text-sm rounded-full border border-border text-muted hover:border-accent hover:text-accent transition-colors"
                 }
               >
                 {cat.category}
@@ -82,7 +82,7 @@ export default function ToolkitSection({ toolkit }: Props) {
                         )}
                       </div>
                       <span className="text-xs text-muted whitespace-nowrap">{tool.name}</span>
-                      <span className="text-[9px] text-muted/60 -mt-1 uppercase tracking-wide">soon</span>
+                      <span className="text-[10px] text-muted/60 -mt-1 uppercase tracking-wide">soon</span>
                     </motion.div>
                   );
                 }

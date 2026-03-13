@@ -13,7 +13,7 @@ export default function PrincipleAccordion({ item, isOpen, onToggle }: Props) {
   return (
     <div
       className={`group/row -mx-3 px-3 rounded-lg cursor-pointer transition-all duration-150 origin-left
-        hover:scale-[1.015] hover:bg-white/[0.04] hover:ring-1 hover:ring-white/10 hover:shadow-[0_0_24px_rgba(255,255,255,0.04)]
+        sm:hover:scale-[1.015] hover:bg-white/[0.04] hover:ring-1 hover:ring-white/10 hover:shadow-[0_0_24px_rgba(255,255,255,0.04)]
         ${isOpen ? "scale-[1.015] bg-white/[0.04] ring-1 ring-white/10" : ""}
       `}
     >
