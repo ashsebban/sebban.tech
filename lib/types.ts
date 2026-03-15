@@ -31,16 +31,6 @@ export interface ReferencesPageContent {
   references?: ReferenceEntry[];
 }
 
-export interface BlogPost {
-  slug: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  content: string;
-  tags: string[];
-  image?: string;
-}
-
 export interface WorkExample {
   title: string;
   description: string;

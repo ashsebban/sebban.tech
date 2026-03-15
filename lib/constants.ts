@@ -27,7 +27,6 @@ export const HERO_CREDIBILITY = "Previously at Anaconda";
 export const NAV_LINKS: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "Projects", href: "/projects" },
-  { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
   { name: "Build Notes", href: "/build-notes" },
   { name: "Contact", href: "/contact" },

@@ -7,7 +7,7 @@ See [STRUCTURE.md](STRUCTURE.md) for the full file map and architectural convent
 
 ## What This Project Is
 
-A personal portfolio/blog site. It is intentionally simple. The goal is a clean, fast, maintainable site — not a feature-rich platform. Resist the urge to over-engineer.
+A personal portfolio site. It is intentionally simple. The goal is a clean, fast, maintainable site — not a feature-rich platform. Resist the urge to over-engineer.
 
 ---
 
@@ -43,7 +43,6 @@ A personal portfolio/blog site. It is intentionally simple. The goal is a clean,
 **Types and utilities:**
 - Shared types → `lib/types.ts`
 - Site-wide constants → `lib/constants.ts`
-- MDX/blog helpers → `lib/blog.ts`
 
 **`_` prefix folders** (`_components/`, `_content/`) are private to their route segment — Next.js will not treat them as routes.
 

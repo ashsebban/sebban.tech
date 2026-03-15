@@ -38,12 +38,6 @@
 │   │   ├── _components/
 │   │   │   └── Hero.tsx          # Home page hero section
 │   │   ├── page.tsx              # Home page /
-│   │   ├── blog/
-│   │   │   ├── _components/
-│   │   │   │   └── BlogCard.tsx  # Card used in the blog listing
-│   │   │   ├── [slug]/
-│   │   │   │   └── page.tsx      # Individual blog post /blog/:slug
-│   │   │   └── page.tsx          # Blog index /blog
 │   │   ├── contact/
 │   │   │   ├── _components/
 │   │   │   │   └── ContactForm.tsx
@@ -75,13 +69,10 @@
 │   └── ui/
 │       └── Modal.tsx             # Generic modal primitive
 │
-├── content/                      # MDX source files for blog posts
-│   └── blog/
-│       ├── welcome-to-my-blog.mdx
-│       └── building-with-nextjs.mdx
+├── content/                      # Shared content/configuration files
+│   └── home.ts
 │
 ├── lib/                          # Shared utilities, types, and data
-│   ├── blog.ts                   # MDX parsing helpers (getAllPosts, getPost)
 │   ├── constants.ts              # Site-wide constants (name, nav links…)
 │   ├── types.ts                  # Shared TypeScript types
 │   └── shared/

@@ -9,7 +9,6 @@ This repo contains **website code only**. Project runtimes (games, apps, tools) 
 - Next.js 15 + React 19
 - TypeScript
 - Tailwind CSS
-- MDX (blog posts)
 - React Hook Form + Zod (contact form)
 
 ## Quick Start
