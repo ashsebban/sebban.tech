@@ -1,24 +1,22 @@
 Asher Sebban
 Lakewood, NJ 08701
 424-777-5129 • ashersamuelsebban@gmail.com
-P RODUCT M ANAGEMENT • S TRATEGY • P ROTOTYPING • S YSTEMS
+P RODUCT L EADERSHIP • S YSTEMS T HINKING • P ROTOTYPING • AI
 SUMMARY
-Early-career product leader who makes complex technical products easy for people to understand and use. I combine customer research,
-cross-functional collaboration, and hands-on building (prototypes, tooling, and clear documentation) to turn messy problems into decisions
-teams can ship. I’m known for leveling up how teams work: scaling product/operations, creating standout technical onboarding (like
-ANACOMICS), and leading conference research and strategy that drives developer engagement and pipeline.
+Product leader who makes complex technical products feel simple. I build prototypes, systems, internal tools, and technical enablement to
+help teams move faster, reduce ambiguity, and ship with confidence.
 WORK EXPERIENCE
-Anaconda, Inc. | User Experience Researcher Tristate Area (Remote) | 2024-2026
-● Led end-to-end UXR (interview, usability, survey) across 6+ products, translating insights into roadmap priorities.
-● Spearheaded UX Ops systems (intake, planning, resourcing, Jira/Confluence) for a ~20-person UX org.
+Anaconda, Inc. | User Experience Researcher, Product & Systems Tri-State Area (Remote) | 2024-2026
+● Led end-to-end UXR (interviews, usability studies, surveys) across 6+ products, translating insights into roadmap priorities.
+● Spearheaded UX Ops systems (intake, planning, resourcing, Jira/Confluence) for a ~20-person UX team.
 ● Created ANACOMICS (popular comic-style onboarding) and built system maps for internal technical enablement.
 ● Built a staging-ready prototype to de-risk a new $20K license initiative.
 ● Shipped 5+ AI-assisted internal tools to speed synthesis and standardize research artifacts.
-● Owned developer conference booth strategy; exceeded team goals by 200%+ and received company-wide recognition.
+● Led developer conference booth strategy; exceeded team goals by 200%+ and earned company-wide recognition.
 LTC Ally | Web App Development Intern Lakewood, NJ | Summer 2023
 ● Built an internal web application to safely modify database records; solution remains in active use .
 ● Designed a new intake workflow for VBA debugging requests, reducing back-and-forth and improving team throughput.
-Anaconda, Inc. | Product Operations Intern Tristate Area (Remote) | Summer 2022
+Anaconda, Inc. | Product Operations Intern Tri-State Area (Remote) | Summer 2022
 ● Partnered with UX, marketing, and product ops on user research and product initiatives across the business.
 ● Analyzed the website funnel, identified key drop-offs, and shaped recommendations that informed the official redesign.
 Independent Project | Game Developer Los Angeles, CA | Summer 2021
@@ -36,8 +34,8 @@ New York University | The Gallatin School of Individualized Study New York, NY |
 ● Bachelor of Arts , August 2021 | Concentration: Business Management, Computer Science, Design, Humanities
 ● GPA: 3.63 | Dean’s List: Spring 2020
 ● Memberships: Alpha Epsilon Pi (Executive Board, Fall 2018) | Chess Club
-SKILLS AND DEVELOPMENT
-Programming: Python, SQL, Java, JavaScript, HTML/CSS, JQL
-Tools: Anaconda, Google Suite, Jira, Confluence, Miro, Excel
-Core Skills: UX research, product strategy, prototyping, systems and ops
-Hobbies: Chess, Musical Performance and Songwriting, Basketball
+SKILLS
+● Strengths: Product strategy, prototyping, AI workflows, systems design, UX research
+● Programming: Python, SQL, Java, JavaScript, HTML/CSS, JQL, TypeScript
+● Tools: Jira, Confluence, Miro, Figma, Loom, GitHub, Vercel, Excel
+● Hobbies: Game design, chess, songwriting, live performance, basketball

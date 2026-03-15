@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: `How ${SITE_NAME} built this site: the AI workflow, tools used, and a running log of decisions.`,
 };
 
-export default function HowIBuiltThisPage() {
+export default function BuildNotesPage() {
   return (
     <div className="px-6 py-24">
       <div className="max-w-3xl mx-auto">

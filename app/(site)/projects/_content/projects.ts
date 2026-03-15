@@ -11,9 +11,7 @@ export const projects: SiteProject[] = [
     repoUrl: "https://github.com/ashsebban/art-studio",
     deployUrl: "https://ashsebban.github.io/art-studio/",
     preview: {
-      mode: "embed",
-      embedUrl: "https://ashsebban.github.io/art-studio/",
-      fallback: "new-tab"
+      mode: "external",
     }
   },
   {

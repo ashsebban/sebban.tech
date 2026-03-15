@@ -11,7 +11,7 @@
 - **Colocation:** Components, content, and data that belong to a single route live _next to_ that route using `_`-prefixed folders (`_components/`, `_content/`). The underscore makes them private to Next.js — they are not routable.
 - **Global vs. local components:** A component starts life colocated with its route. If it gets imported by a second route, it graduates to the root `components/` folder.
 - **Data / logic separation:** Shared utilities and types live in `lib/`. Route-specific data (e.g. project list) lives in `_content/` next to its route.
-- **Static assets:** Everything in `public/` is served at the root URL (`/images/headshot.jpg` → `https://sebban.tech/images/headshot.jpg`).
+- **Static assets:** Everything in `public/` is served at the root URL (`/images/headshot2.png` → `https://sebban.tech/images/headshot2.png`).
 
 ---
 
@@ -48,8 +48,8 @@
 │   │   │   ├── _components/
 │   │   │   │   └── ContactForm.tsx
 │   │   │   └── page.tsx          # Contact page /contact
-│   │   ├── how-i-built-this/
-│   │   │   └── page.tsx          # How I built this /how-i-built-this
+│   │   ├── build-notes/
+│   │   │   └── page.tsx          # Build Notes /build-notes
 │   │   ├── projects/
 │   │   │   ├── _components/
 │   │   │   │   ├── ProjectCard.tsx
@@ -61,8 +61,6 @@
 │   │   │   └── page.tsx          # References page /references
 │   │   ├── resume/
 │   │   │   └── page.tsx          # Resume viewer + CTA page /resume
-│   │   └── video/
-│   │       └── page.tsx          # Video page /video
 │   ├── globals.css               # Global styles + Tailwind base imports
 │   └── layout.tsx                # Root layout (fonts, Navbar, Footer)
 │
@@ -86,7 +84,6 @@
 │   ├── blog.ts                   # MDX parsing helpers (getAllPosts, getPost)
 │   ├── constants.ts              # Site-wide constants (name, nav links…)
 │   ├── types.ts                  # Shared TypeScript types
-│   ├── hooks/                    # Custom React hooks
 │   └── shared/
 │       └── projects.ts           # Shared project data (if used across routes)
 ├── scripts/
@@ -96,7 +93,7 @@
     ├── resume-content.txt        # Auto-generated plain-text resume content
     └── images/
         ├── asher_sebban_resume.pdf # Resume PDF source for /resume page
-        └── headshot.jpg
+        └── headshot2.png
 ```
 
 ---

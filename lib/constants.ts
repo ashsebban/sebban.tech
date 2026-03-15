@@ -27,8 +27,9 @@ export const HERO_CREDIBILITY = "Previously at Anaconda";
 export const NAV_LINKS: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "Projects", href: "/projects" },
+  { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
-  { name: "Build Notes", href: "/how-i-built-this" },
+  { name: "Build Notes", href: "/build-notes" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -90,7 +91,7 @@ export const WORK_PILLARS: WorkPillar[] = [
         title: "Built Sebban.tech",
         description:
           "Designed and built this portfolio from scratch over a month — no templates, no drag-and-drop tools. Custom Next.js, TypeScript, and Tailwind. I directed every architectural and design decision, understood what was being built, and iterated continuously. AI was the accelerant, not the author. The build log is on this site.",
-        href: "/how-i-built-this",
+        href: "/build-notes",
       },
     ],
   },
@@ -197,7 +198,7 @@ export const TOOLKIT: ToolkitCategory[] = [
   },
 ];
 
-// ——— How I Built This: changelog entries ———
+// ——— Build Notes: changelog entries ———
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-02-11",
