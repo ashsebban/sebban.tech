@@ -15,6 +15,18 @@ export const projects: SiteProject[] = [
     }
   },
   {
+    id: "b-seder",
+    title: "B'Seder",
+    description: "A goal-tracking app designed for the Orthodox Jewish community, tailored to the rhythms of frum life.",
+    category: "app",
+    tech: ["Goal Tracking", "Community Product", "Workflow Design"],
+    status: "coming-soon",
+    deployUrl: "",
+    preview: {
+      mode: "external",
+    }
+  },
+  {
     id: "storyboard-ai",
     title: "Storyboard AI",
     description: "An app for planning and producing AI-generated videos — from script to shot list to final output.",
