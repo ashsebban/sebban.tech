@@ -82,3 +82,18 @@ dialog li { margin-bottom:10px; }
 }
 
 .turn-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; }
+
+.board { position:relative; }
+.square.castle-square .piece { width:78%; height:78%; padding:7%; border:2px solid #f0d896; border-radius:20%; }
+.square.castle-w .piece { background:#397573; }
+.square.castle-b .piece { background:#bc8153; }
+.flying-arrow { position:absolute; z-index:5; pointer-events:none; color:#ffe69e; line-height:1; font-size:clamp(18px,5vw,36px); text-shadow:0 1px 3px #23140d,0 0 8px #f2a54c; }
+
+.square.checked { outline:3px solid #ed7063; outline-offset:-3px; }
+.spawn::after { content:"+♟"; position:absolute; z-index:2; color:#201810; background:#ffdb88; padding:2px 4px; border-radius:5px; font-size:clamp(10px,3vw,18px); }
+
+.wall-square .piece { background:#e8cf8260; border-bottom:3px solid #75563c; border-radius:0 0 4px 4px; }
+
+.game-end { margin-top:.65rem; padding:.85rem; border:1px solid #a48458; border-radius:.6rem; background:#26313c; color:#fff4df; }
+.game-end h2 { margin:0; }
+.game-end p { margin:.3rem 0 .65rem; }

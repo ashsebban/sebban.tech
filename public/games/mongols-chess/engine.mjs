@@ -6,6 +6,8 @@ const knight = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 const castleSquares = { w: [56,63], b: [0,7] };
 const value = { p:100, b:335, n:450, k:380, q:900, r:1500 };
 export const profiles = {
+  siege: { jumpShot:true, shootFirst:true, captureOnLanding:true, emptyShotLanding:true,
+    castleDefense:true, reinforcements:true, pawnReinforcementsOnly:true, territoryWalls:true },
   cornerCastles: { jumpShot:true },
   cornerRally: { jumpShot:true, rally:true, allAllies:true },
   cornerRaid: { jumpShot:true, shootFirst:true, rally:true, allAllies:true },
@@ -15,10 +17,7 @@ export const profiles = {
   escort: { min:2, max:3, rally:true, escort:true },
   bishopWard: { min:2, max:2, rally:true, escort:true, bishopWard:true },
 };
-export const defaultRules = {
-  ...profiles.cornerRaid,
-  captureOnLanding: true,
-};
+export const defaultRules = { ...profiles.siege, firstCastleWins:true, castlesRequireOccupation:true, bishopWallSidestep:true };
 export const passMove = Object.freeze({from:-1,to:-1,kind:'pass',capture:null});
 export const opposite = side => side === 'w' ? 'b' : 'w';
 export const square = index => files[index % 8] + (8 - Math.floor(index / 8));
@@ -31,6 +30,10 @@ const startingPawnBit = (index, side) => {
 };
 const startingPawns = board => board.reduce((mask,piece,index) =>
   piece?.[1]==='p' ? mask | startingPawnBit(index,piece[0]) : mask, 0);
+
+export function isWall(piece, index) {
+  return piece==='wp' && index>=40 || piece==='bp' && index<24;
+}
 
 export function position(placements, turn = 'w', ep = null, quiet = 0) {
   const board = Array(64).fill(null);
@@ -50,7 +53,7 @@ export function initial() {
 }
 
 export function key(state) {
-  return state.turn + ' ' + state.ep + ' ' + (state.pawnStarts ?? startingPawns(state.board)) + ' ' + state.board.map(piece=>piece ?? '--').join('');
+  return state.turn + ' ' + state.ep + ' ' + (state.pawnStarts ?? startingPawns(state.board)) + ' ' + JSON.stringify(Object.entries(state.reserves ?? {}).sort()) + ' ' + (state.freshPawns ?? []).join(',') + ' ' + state.board.map(piece=>piece ?? '--').join('');
 }
 
 function guarded(board, target, defender) {
@@ -66,7 +69,23 @@ export function bishopGuardsCastle(board, target) {
     valid(x+dx,y+dy) && board[get(x+dx,y+dy)] === castle[0]+'b');
 }
 
+export function inCheck(state, rules = defaultRules) {
+  const king = state.board.indexOf(state.turn+'k');
+  if (king<0) return false;
+  return candidateMoves({...state,turn:opposite(state.turn),ep:null},rules).some(move =>
+    move.capture?.[1]==='k' || move.landingCapture?.[1]==='k');
+}
+
 export function moves(state, rules = defaultRules, selected = null) {
+  const candidates=candidateMoves(state,rules,selected);
+  if (!rules.royalCheck) return candidates;
+  return candidates.filter(move => {
+    if (move.capture?.[1]==='k' || move.landingCapture?.[1]==='k') return false;
+    return !inCheck({...apply(state,move),turn:state.turn},rules);
+  });
+}
+
+function candidateMoves(state, rules, selected = null) {
   const { board, turn, ep, pawnStarts=startingPawns(board) } = state;
   const enemy = opposite(turn);
   const forward = turn === 'w' ? -1 : 1;
@@ -74,7 +93,7 @@ export function moves(state, rules = defaultRules, selected = null) {
   const first = selected ?? 0, last = selected ?? 63;
   for (let from = first; from <= last; from++) {
     const piece = board[from];
-    if (!piece || piece[0] !== turn || piece[1] === 'r') continue;
+    if (!piece || piece[0] !== turn) continue;
     const type = piece[1], x = from%8, y = Math.floor(from/8);
     const add = (tx,ty,kind='move',captureAt=null) => {
       if (!valid(tx,ty)) return false;
@@ -82,16 +101,49 @@ export function moves(state, rules = defaultRules, selected = null) {
       const target = board[to];
       if (target?.[0] === turn) return false;
       const capture = board[captureAt ?? to];
+      if (rules.castlesRequireOccupation && kind==='shot' && capture?.[1]==='r') return false;
+      if (rules.territoryWalls && isWall(capture,captureAt ?? to) && !isWall(piece,from)) return false;
       found.push({from,to,kind,capture,captureAt,
-        promotion:type==='p' && (ty===0 || ty===7)});
+        promotion:type==='p' && ty===(turn==='w'?0:7)});
       return !target;
     };
+    if (type === 'r') {
+      if (rules.reinforcements) {
+        for (const type of rules.pawnReinforcementsOnly ? ['p'] : ['p','n','b']) {
+          if (!(state.reserves?.[turn+type]>0)) continue;
+          for (const [dx,dy] of compass) {
+            if (!valid(x+dx,y+dy)) continue;
+            const to=get(x+dx,y+dy);
+            if (!board[to]) found.push({from,to,kind:'spawn',spawn:type,capture:null,captureAt:null,promotion:false});
+          }
+        }
+      }
+      if (rules.castleDefense) {
+        for (const [dx,dy] of orthogonal) {
+          for (let distance=1; distance<=2; distance++) {
+            const tx=x+dx*distance, ty=y+dy*distance;
+            if (!valid(tx,ty)) break;
+            const target=board[get(tx,ty)];
+            if (!target) continue;
+            if (target[0]===enemy) add(tx,ty,'shot');
+            break;
+          }
+        }
+      }
+      continue;
+    }
     if (type === 'p') {
+      if (rules.flexiblePawns) {
+        for (const [dx,dy] of [[-1,0],[1,0],[0,-forward]]) {
+          const tx=x+dx, ty=y+dy;
+          if (valid(tx,ty) && !board[get(tx,ty)]) add(tx,ty);
+        }
+      }
       const ny = y + forward;
       if (!valid(x,ny)) continue;
       if (!board[get(x,ny)]) {
         add(x,ny);
-        if ((pawnStarts & startingPawnBit(from,turn)) && !board[get(x,y+2*forward)]) add(x,y+2*forward);
+        if (valid(x,y+2*forward) && ((pawnStarts & startingPawnBit(from,turn)) || (state.freshPawns?.includes(from) && (!rules.pawnReinforcementsOnly || startingPawnBit(from,turn)))) && !board[get(x,y+2*forward)]) add(x,y+2*forward);
       }
       for (const dx of [-1,1]) {
         if (!valid(x+dx,ny)) continue;
@@ -108,20 +160,40 @@ export function moves(state, rules = defaultRules, selected = null) {
         const tx=x+dx, ty=y+dy;
         if (!valid(tx,ty)) continue;
         const to=get(tx,ty), landingCapture=board[to];
-        if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn)) continue;
+        if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && isWall(landingCapture,to)))) continue;
         add(tx,ty);
+        if (landingCapture && rules.emptyShotLanding) continue;
         const shotX=rules.shootFirst ? x : tx;
         const shotY=rules.shootFirst ? y : ty;
         for (const [sx,sy] of orthogonal) {
           const ax=shotX+2*sx, ay=shotY+2*sy;
           if (!valid(ax,ay) || board[get(shotX+sx,shotY+sy)]) continue;
           const captureAt=get(ax,ay), capture=board[captureAt];
-          if (capture?.[0]===enemy) {
+          if (capture?.[0]===enemy && !(rules.castlesRequireOccupation && capture[1]==='r') && !(rules.territoryWalls && isWall(capture,captureAt))) {
             found.push({from,to,kind:'jumpShot',capture,captureAt,landingCapture,promotion:false});
           }
         }
       }
       continue;
+    }
+    if (type==='b' && (rules.bishopWalls || rules.bishopWallSidestep)) {
+      const firingTargets=new Set();
+      let hasWall=false;
+      for (const [dx,dy] of [[-1,0],[1,0],[-1,forward],[0,forward],[1,forward]]) {
+        if (!valid(x+dx,y+dy) || board[get(x+dx,y+dy)]!==turn+'p') continue;
+        if (rules.bishopWalls || (dy && isWall(board[get(x+dx,y+dy)],get(x+dx,y+dy)))) hasWall=true;
+        if (!dy || !rules.bishopWalls) continue;
+        for (const offset of [-1,0,1]) {
+          const tx=x+dx+offset, ty=y+2*forward;
+          if (valid(tx,ty) && board[get(tx,ty)]?.[0]===enemy) firingTargets.add(get(tx,ty));
+        }
+      }
+      for (const to of firingTargets) add(to%8,Math.floor(to/8),'shot');
+      if (hasWall) {
+        for (const dx of [-1,1]) {
+          if (valid(x+dx,y) && !board[get(x+dx,y)]) add(x+dx,y);
+        }
+      }
     }
     const steps = type === 'n' ? knight : type === 'b' ? diagonal : compass;
     for (const [dx,dy] of steps) {
@@ -174,8 +246,19 @@ export function apply(state, move) {
   if (move.landingCapture?.[1]==='p') pawnStarts &= ~startingPawnBit(move.to,opposite(state.turn));
   const pawnRally=move.kind==='rally' && board[move.to][1]==='p';
   if (pawnRally) pawnStarts &= ~startingPawnBit(move.to,state.turn);
+  const reserves={...state.reserves};
+  for (const captured of [move.capture,move.landingCapture]) {
+    if (captured && 'pnb'.includes(captured[1])) reserves[captured]=(reserves[captured]??0)+1;
+  }
+  let freshPawns=(state.freshPawns??[]).filter(index =>
+    index!==move.to && index!==move.captureAt && index!==move.from);
   if (move.kind==='shot') {
     board[move.to]=null;
+  } else if (move.kind==='spawn') {
+    const piece=state.turn+move.spawn;
+    if (--reserves[piece]===0) delete reserves[piece];
+    board[move.to]=piece;
+    if (move.spawn==='p') freshPawns=[...freshPawns,move.to].sort((a,b)=>a-b);
   } else if (move.kind==='rally') {
     board[move.from]=move.promotion ? state.turn+'q' : board[move.to];
     board[move.to]=piece;
@@ -186,7 +269,7 @@ export function apply(state, move) {
   }
   const pawnMove=piece[1]==='p' && move.kind==='move';
   const ep=pawnMove && Math.abs(move.from-move.to)===16 ? (move.from+move.to)/2 : null;
-  return {board,turn:opposite(state.turn),ep,pawnStarts,quiet:move.capture || pawnMove || pawnRally ? 0 : state.quiet+1};
+  return {board,turn:opposite(state.turn),ep,pawnStarts,reserves,freshPawns,quiet:move.capture || pawnMove || pawnRally || move.kind==='spawn' ? 0 : state.quiet+1};
 }
 
 export function castles(state,side) {
@@ -194,8 +277,17 @@ export function castles(state,side) {
 }
 
 export function outcome(state,rules=defaultRules,repetitions=0,legal=null) {
+  if (rules.firstCastleWins) {
+    if (castles(state,'w')<2) return {winner:'b',reason:'Black took a White castle.'};
+    if (castles(state,'b')<2) return {winner:'w',reason:'White took a Black castle.'};
+  }
   if (!castles(state,'w')) return {winner:'b',reason:'Both White castles fell.'};
   if (!castles(state,'b')) return {winner:'w',reason:'Both Black castles fell.'};
+  if (rules.royalCheck && !(legal ?? moves(state,rules)).length) {
+    return inCheck(state,rules)
+      ? {winner:opposite(state.turn),reason:'Checkmate.'}
+      : {winner:null,reason:'Stalemate.'};
+  }
   if (repetitions>=3) return {winner:null,reason:'The same position repeated three times.'};
   if (state.quiet>=60) return {winner:null,reason:'60 turns passed without a pawn move or capture.'};
   if (!(legal ?? moves(state,rules)).length && !moves(apply(state,passMove),rules).length) {
@@ -238,11 +330,15 @@ export function chooseMove(state,{rules=defaultRules,depth=3,budget=6500,seen={}
   let nodes=0, best=actions[0];
   function search(current,left,alpha,beta,ply) {
     if(++nodes>budget) throw exhausted;
-    if(!castles(current,current.turn)) return -100000+ply;
+    if(castles(current,current.turn)<(rules.firstCastleWins?2:1)) return -100000+ply;
     if(current.quiet>=60 || seen[key(current)]>=2) return 0;
-    if(!left) return evaluate(current,rules);
+    if(!left) {
+      if(rules.royalCheck && inCheck(current,rules) && !moves(current,rules).length) return -100000+ply;
+      return evaluate(current,rules);
+    }
     const replies=sorted(moves(current,rules));
     if(!replies.length) {
+      if(rules.royalCheck) return inCheck(current,rules) ? -100000+ply : 0;
       const passed=apply(current,passMove);
       return moves(passed,rules).length ? -search(passed,left-1,-beta,-alpha,ply+1) : 0;
     }

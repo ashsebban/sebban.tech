@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#151e22">
-  <meta name="description" content="An original chess-inspired siege game. Capture both enemy castles with mounted archers while defending your own corners.">
+  <meta name="description" content="An original chess-inspired siege game. Clear a path to an enemy castle, then land on it to win.">
   <title>Mongol’s Chess</title>
-  <link rel="stylesheet" href="./style.css?v=6">
+  <link rel="stylesheet" href="./style.css?v=15">
 </head>
 <body>
   <main>
     <header class="title">
-      <div><h1>Mongol’s Chess</h1><p>Capture both enemy castles.</p></div>
+      <div><h1>Mongol’s Chess</h1><p>Take either enemy castle to win.</p></div>
       <button type="button" id="show-rules" aria-haspopup="dialog">Rules</button>
     </header>
     <div class="game">
@@ -21,6 +21,11 @@
           <div><span>Black · Computer</span><strong id="black-castles"></strong></div>
         </div>
         <div id="board" class="board" role="group" aria-label="Game board"></div>
+        <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
+          <h2 id="game-end-title"></h2>
+          <p id="game-end-reason"></p>
+          <button id="play-again" type="button" class="primary">Play again</button>
+        </section>
         <div class="below-board">
           <div>
             <p id="status" class="status" role="status">White to move</p>
@@ -31,16 +36,14 @@
         <div class="legend">
           <span><i class="move-dot"></i> Move</span>
           <span><i class="shot-dot"></i> Arrow shot</span>
-          <span><i class="rally-dot"></i> Rally swap</span>
         </div>
       </section>
       <aside class="orders">
         <section class="panel" aria-labelledby="tactics-title">
           <h2 id="tactics-title">Siege tactics</h2>
           <dl>
-            <dt>Castles</dt><dd>They hold their squares. Capture both to win.</dd>
-            <dt>Horse archers</dt><dd>Jump and capture like a knight. Before jumping, you may shoot an enemy exactly two squares away in a clear row or column.</dd>
-            <dt>Rally</dt><dd>Your king can spend a turn swapping with any adjacent ally except a castle.</dd>
+            <dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Castles stay in place. Select yours to fire at an enemy up to two squares away in a clear row or column.</dd>
+            <dt>Horse archers</dt><dd>Move and capture like a knight, or shoot first and then jump to an empty square.</dd>
           </dl>
         </section>
         <button type="button" id="new-game" class="primary">New game</button>
@@ -54,15 +57,23 @@
       <form method="dialog"><button value="close">Done</button></form>
     </div>
     <ul>
-      <li><strong>Take both castles.</strong> A castle stays put and can fall to a direct capture or a clear arrow shot.</li>
-      <li><strong>Shoot, then jump.</strong> A horse archer can optionally shoot one enemy piece or castle exactly two squares away in a row or column, with an empty square in between. It must then make a knight jump, capturing any enemy on its landing square. That can take two enemies in one turn. An archer can also jump without shooting.</li>
-      <li><strong>Rally with your king.</strong> Select your king and tap any adjacent friendly piece to swap places for your turn. Castles stay fixed. Pawns on their own back rank still move one square forward when clear.</li>
-      <li><strong>Other pieces.</strong> Queens, bishops, kings, and pawns move as in chess. Pawns promote to queens. Kings can be captured. The game has no check or castling.</li>
-      <li><strong>Draws.</strong> A side with no move passes. Threefold repetition, both sides unable to move, or 60 turns without a pawn move or capture is a draw.</li>
+      <li><strong>Breach a castle.</strong> Land a piece on either enemy castle to win. Castles stay put and are immune to arrows.</li>
+      <li><strong>Shoot, then jump.</strong> A horse archer can optionally shoot one enemy piece exactly two squares away in a row or column, with an empty square in between. It must then make a knight jump to an empty square. It can also move and capture like a regular knight without shooting.</li>
+      <li><strong>Fire from a castle.</strong> A castle can shoot one enemy unit one or two squares away along a clear row or column. Firing takes your turn. Any intervening piece blocks the shot.</li>
+      <li><strong>Call reinforcements.</strong> Spend a turn returning a captured friendly pawn to any empty square touching your castle. A returned pawn on its usual starting rank can advance two clear squares on its first move.</li>
+      <li><strong>Walls and battlefield.</strong> White pawns on ranks 1–3 and Black pawns on ranks 6–8 are walls. They block arrows and resist capture. Ranks 4 and 5 are the battlefield, where pawns can be captured normally.</li>
+      <li><strong>Bishop sidestep.</strong> With a friendly wall one square straight or diagonally ahead, a bishop can step one square left or right into an empty square.</li>
+      <li><strong>Other pieces.</strong> Pawns, bishops, queens, and kings use their normal movement. Pawns promote to queens. Kings can be captured, and play continues until a castle falls or the game is drawn.</li>
+      <li><strong>Draws.</strong> Threefold repetition, neither side able to move, or 60 turns without a pawn move, reinforcement, or capture is a draw. A side with no legal move passes.</li>
     </ul>
     <button type="button" id="practice" class="primary">Start practice siege</button>
-    <p class="practice-note">Try shooting the castle on a8, then capturing the pawn on c5.</p>
+    <p class="practice-note">Select the horse archer on b6 and capture the castle on a8.</p>
   </dialog>
-  <script type="module" src="./app.mjs?v=6"></script>
+  <dialog id="move-choice" aria-labelledby="choice-title">
+    <h2 id="choice-title">Choose your move</h2>
+    <div id="move-options"></div>
+    <form method="dialog"><button>Cancel</button></form>
+  </dialog>
+  <script type="module" src="./app.mjs?v=15"></script>
 </body>
 </html>

@@ -23,7 +23,7 @@ export default function Navbar() {
   }, [open]);
 
   const links = NAV_LINKS.map(({ name, href }) => {
-    const current = pathname === href || (href === "/apps" && pathname === "/projects");
+    const current = pathname === href;
     return <li key={href}><Link href={href} onClick={close} aria-current={current ? "page" : undefined}
       className={`flex min-h-12 items-center rounded-lg px-4 text-base transition-colors md:min-h-11 md:px-2 md:text-sm ${current ? "bg-accent/10 font-semibold text-foreground md:bg-transparent" : "text-muted hover:text-foreground"}`}>{name}</Link></li>;
   });

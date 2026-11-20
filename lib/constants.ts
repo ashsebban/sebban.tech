@@ -25,16 +25,16 @@ export const HERO_CREDIBILITY = "Previously in UX research at Anaconda";
 
 // ——— Main nav (Navbar + Footer) ———
 export const NAV_LINKS: NavLink[] = [
-  { name: "Work", href: "/#selected-work" },
-  { name: "Apps", href: "/apps" },
-  { name: "Game Center", href: "/games" },
-  { name: "About", href: "/about" },
+  { name: "Work", href: "/work" },
+  { name: "Play", href: "/games" },
+  { name: "Build Notes", href: "/build-notes" },
 ];
 
 export const FOOTER_LINKS: NavLink[] = [
   { name: "Home", href: "/" },
   ...NAV_LINKS,
-  { name: "Build Notes", href: "/build-notes" },
+  { name: "Apps", href: "/apps" },
+  { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -257,7 +257,7 @@ export const FOOTER_TAGLINE =
 export const RESUME_PDF_PATH = "/images/asher_sebban_resume.pdf";
 
 export const QUICK_ACTIONS: QuickActionLink[] = [
-  { label: "Selected Work", href: "/#selected-work", variant: "primary", external: false },
+  { label: "Selected Work", href: "/work#selected-work", variant: "primary", external: false },
   { label: "Explore Apps", href: "/apps", variant: "secondary", external: false },
   { label: "Resume", href: "/resume", variant: "text", external: false },
   { label: "Contact", href: "/contact", variant: "text", external: false },

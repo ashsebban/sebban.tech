@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { SITE_NAME, CHANGELOG } from "@/lib/constants";
 import FadeIn from "@/components/motion/FadeIn";
 
@@ -14,9 +15,21 @@ export default function BuildNotesPage() {
         <FadeIn>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Build Notes</h1>
           <p className="text-lg text-muted leading-relaxed mb-16">
-            How this site was built, what tools were used, and a running log of decisions. Each entry reflects something real.
+            Notes on building games and this website, including the decisions that came out of playtesting.
           </p>
         </FadeIn>
+
+        <article className="mb-16 rounded-2xl border border-border bg-card p-6 sm:p-8">
+          <h2 className="text-2xl font-bold sm:text-3xl">What makes chess feel like a siege?</h2>
+          <div className="mt-4 space-y-4 leading-relaxed text-muted">
+            <p>I gave each player two stationary castles and made capturing either enemy castle the goal. In early playtests, reaching the back rank felt like it settled the game too quickly. I wanted the battle to build around the approach to the castle.</p>
+            <p>Horse archers originally jumped before shooting. That meant tracking every square they could jump to and every shot from those squares. I flipped the order so you can read the shot from where the archer stands.</p>
+            <p>The next playtest gives each side three home ranks where pawns act as walls. The two middle ranks are open battlefield, and bishops behind friendly walls can sidestep. I’m looking to see whether this makes pushing a line of pawns up the board feel worthwhile.</p>
+          </div>
+          <Link href="/games" className="mt-5 inline-flex min-h-11 items-center font-semibold text-accent hover:underline">
+            Find Mongol’s Chess in the Game Center <span aria-hidden="true" className="ml-2">→</span>
+          </Link>
+        </article>
 
         {/* AI Workflow section */}
         <FadeIn delay={0.1}>
