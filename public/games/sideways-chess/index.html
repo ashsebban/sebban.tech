@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Play chess against the computer with one extra move for bishops, knights, or both.">
+  <meta name="theme-color" content="#161c18">
+  <title>Sideways Chess</title>
+  <link rel="stylesheet" href="./style.css?v=6">
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <h1>Sideways Chess</h1>
+      <p>Same board. One extra move.</p>
+    </header>
+
+    <div class="layout">
+      <section class="match" aria-label="Chess match">
+        <div class="match-header">
+          <div class="match-label">
+            <span class="opponent">vs. computer</span>
+            <strong id="active-rule">Concord Chess</strong>
+          </div>
+          <button type="button" id="show-settings" class="toolbar-button" aria-haspopup="dialog">Game settings</button>
+        </div>
+        <div id="board" class="board" role="group" aria-label="Chessboard"></div>
+        <div class="match-footer">
+          <div>
+            <p id="status" class="status" role="status"></p>
+            <p id="last-move" class="last-move" hidden></p>
+          </div>
+          <button type="button" id="undo" class="secondary">Undo</button>
+        </div>
+        <div class="board-tools">
+          <div class="board-key">
+          <span><i class="key-dot"></i> Legal move</span>
+          <span id="special-key"><i class="key-diamond"></i> <span id="special-label">Sidestep</span></span>
+          </div>
+          <button type="button" id="show-openings" class="toolbar-button" aria-haspopup="dialog">Opening lab</button>
+        </div>
+      </section>
+
+      <aside class="controls">
+        <section class="panel score-sheet" aria-labelledby="moves-title">
+          <h2 id="moves-title">Moves</h2>
+          <ol id="moves" class="moves"></ol>
+          <p id="empty-moves">You play White.</p>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="credits">Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> · <a href="./pieces/credits.html">Artwork license</a></footer>
+
+    <dialog id="settings" class="game-dialog" aria-labelledby="settings-title">
+      <div class="dialog-header">
+        <h2 id="settings-title">Game settings</h2>
+        <form method="dialog"><button value="close">Done</button></form>
+      </div>
+      <div id="settings-overview">
+      <label class="difficulty" for="difficulty">
+            <span>Difficulty</span>
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="standard" selected>Standard</option>
+              <option value="strong">Strong</option>
+            </select>
+          </label>
+      <h3>Variant for the next game</h3>
+      <div id="variant-options" class="variant-options"></div>
+      </div>
+
+      <section id="variant-tutorial" hidden aria-labelledby="tutorial-name">
+        <h3 id="tutorial-name"></h3>
+        <p id="tutorial-rule" class="rule"></p>
+        <div id="tutorial-board" class="opening-board" role="group" aria-label="Practice position"></div>
+        <p id="tutorial-status" class="tutorial-status" role="status"></p>
+        <button type="button" id="tutorial-next" class="toolbar-button" hidden>Next exercise</button>
+        <div class="actions tutorial-actions">
+          <button type="button" id="tutorial-back">Back</button>
+          <button type="button" id="new-game" class="primary">Start new game</button>
+        </div>
+      </section>
+    </dialog>
+
+    <dialog id="opening-explorer" class="game-dialog" aria-labelledby="opening-title">
+      <div class="dialog-header">
+        <h2 id="opening-title">Opening lab</h2>
+        <form method="dialog"><button value="close">Done</button></form>
+      </div>
+      <label class="opening-picker" for="opening-line">Replay
+        <select id="opening-line"></select>
+      </label>
+      <p id="opening-variant" class="opening-variant"></p>
+      <div id="opening-board" class="opening-board" role="group" aria-label="Opening position"></div>
+      <div class="opening-navigation">
+        <button type="button" id="opening-previous">Previous</button>
+        <p id="opening-position" role="status"></p>
+        <button type="button" id="opening-next">Next</button>
+      </div>
+      <label class="opening-scrub" for="opening-ply">Replay position
+        <input id="opening-ply" type="range" min="0" max="0" value="0">
+      </label>
+      <button type="button" id="opening-key" class="toolbar-button">Jump to key move</button>
+      <p id="opening-moves" class="opening-moves"></p>
+      <p id="opening-idea" class="opening-idea"></p>
+      <p class="opening-note">After the stated opening setup, both sides use the built-in Strong engine, with up to 0.55 seconds per move. Three games hit the 40-move cutoff. The h2 setup replay ended in checkmate.</p>
+    </dialog>
+
+    <dialog id="promotion" aria-labelledby="promotion-title">
+      <h2 id="promotion-title">Promote your pawn</h2>
+      <form method="dialog">
+        <button value="q">Queen</button>
+        <button value="r">Rook</button>
+        <button value="b">Bishop</button>
+        <button value="n">Knight</button>
+        <button value="">Cancel</button>
+      </form>
+    </dialog>
+  </main>
+  <script type="module" src="./app.mjs?v=6"></script>
+</body>
+</html>

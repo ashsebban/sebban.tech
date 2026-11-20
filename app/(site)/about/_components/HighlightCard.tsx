@@ -1,3 +1,4 @@
+import { useId } from "react";
 import FadeIn from "@/components/motion/FadeIn";
 import { AboutHighlight } from "@/lib/types";
 
@@ -9,50 +10,15 @@ interface HighlightCardProps {
 }
 
 export default function HighlightCard({ highlight, index, isFlipped, onFlip }: HighlightCardProps) {
+  const detailId = useId();
   return (
     <FadeIn delay={index * 0.07}>
-      <div
-        onClick={onFlip}
-        className="relative h-44 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
-        style={{ perspective: "1000px" }}
-      >
-        <div
-          className="relative w-full h-full"
-          style={{
-            transformStyle: "preserve-3d",
-            transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
-            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          }}
-        >
-          {/* Front */}
-          <div
-            className="absolute inset-0 p-5 rounded-xl border border-border bg-card flex flex-col justify-between transition-colors duration-300 hover:border-accent/50"
-            style={{ backfaceVisibility: "hidden" }}
-          >
-            <p className="text-xs text-muted uppercase tracking-wide">{highlight.label}</p>
-            <p className="text-2xl font-bold text-foreground leading-tight">{highlight.value}</p>
-            <div className="flex items-center gap-1.5">
-              <span className="inline-block w-1 h-1 rounded-full bg-accent/60" />
-              <span className="inline-block w-1 h-1 rounded-full bg-accent/40" />
-              <span className="inline-block w-1 h-1 rounded-full bg-accent/20" />
-            </div>
-          </div>
-
-          {/* Back */}
-          <div
-            className="absolute inset-0 p-5 rounded-xl border border-accent/30 bg-card flex flex-col justify-between"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-          >
-            <p className="text-xs text-accent uppercase tracking-wide">{highlight.label}</p>
-            <p className="text-xs text-foreground/80 leading-relaxed">{highlight.detail}</p>
-            <div className="flex items-center gap-1.5">
-              <span className="inline-block w-1 h-1 rounded-full bg-accent/20" />
-              <span className="inline-block w-1 h-1 rounded-full bg-accent/40" />
-              <span className="inline-block w-1 h-1 rounded-full bg-accent/60" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <article className="h-full rounded-xl border border-border bg-card p-5">
+        <p className="text-sm uppercase tracking-wide text-muted">{highlight.label}</p>
+        <h2 className="mt-3 text-2xl font-bold leading-tight">{highlight.value}</h2>
+        <button type="button" onClick={onFlip} aria-expanded={isFlipped} aria-controls={detailId} className="mt-3 flex min-h-11 items-center text-sm font-medium text-accent">{isFlipped ? "Show less" : "Read more"}</button>
+        <p id={detailId} hidden={!isFlipped} className="mt-2 text-base leading-relaxed text-foreground/80">{highlight.detail}</p>
+      </article>
     </FadeIn>
   );
 }

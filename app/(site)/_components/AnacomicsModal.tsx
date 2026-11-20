@@ -421,10 +421,10 @@ export default function AnacomicsModal({ onClose }: Props) {
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
 
       {/* Modal */}
-      <div className="relative z-10 flex flex-col w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl border border-zinc-700/60 bg-zinc-950">
+      <div className="relative z-10 flex flex-col w-full max-w-4xl max-h-[90dvh] rounded-2xl overflow-hidden shadow-2xl border border-zinc-700/60 bg-zinc-950">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800 flex-shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-zinc-800 flex-shrink-0">
           <span className="font-black tracking-widest uppercase" style={{ fontSize: "11px", color: G }}>
             ANACOMICS
           </span>
@@ -457,7 +457,7 @@ export default function AnacomicsModal({ onClose }: Props) {
             <span className="text-xs text-zinc-400">{page + 1} / {total}</span>
             <button
               onClick={onClose}
-              className="text-xl leading-none text-zinc-400 hover:text-zinc-100 transition-colors"
+              className="grid h-11 w-11 place-items-center text-xl leading-none text-zinc-400 hover:text-zinc-100 transition-colors"
               aria-label="Close"
             >
               ×
@@ -475,7 +475,7 @@ export default function AnacomicsModal({ onClose }: Props) {
             lineHeight: "1.8",
           }}
         >
-          <div className="px-8 py-8">
+          <div className="px-4 py-5 sm:px-8 sm:py-8">
             <div className="max-w-[70ch] mx-auto">
               {PAGES[page]}
             </div>
@@ -483,11 +483,11 @@ export default function AnacomicsModal({ onClose }: Props) {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-zinc-800 flex-shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-zinc-800 flex-shrink-0">
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 0))}
             disabled={page === 0}
-            className="px-4 py-1.5 text-xs font-medium rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="min-h-11 px-4 py-1.5 text-sm font-medium rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = G)}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = "")}
           >
@@ -499,7 +499,7 @@ export default function AnacomicsModal({ onClose }: Props) {
               <button
                 key={i}
                 onClick={() => setPage(i)}
-                className="w-1.5 h-1.5 rounded-full transition-all"
+                className="w-6 h-11 rounded-full transition-all"
                 style={{ backgroundColor: i === page ? G : "#3f3f46" }}
                 aria-label={`Go to page ${i + 1}`}
               />
@@ -509,7 +509,7 @@ export default function AnacomicsModal({ onClose }: Props) {
           <button
             onClick={() => setPage((p) => Math.min(p + 1, total - 1))}
             disabled={page === total - 1}
-            className="px-4 py-1.5 text-xs font-medium rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="min-h-11 px-4 py-1.5 text-sm font-medium rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = G)}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = "")}
           >

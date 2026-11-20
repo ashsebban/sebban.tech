@@ -13,7 +13,7 @@ export default function ResumePage() {
   const [fillTransitionEnabled, setFillTransitionEnabled] = useState(false);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fixedButtonClass =
-    "inline-flex h-9 w-44 items-center justify-center rounded-lg px-3 text-sm font-medium";
+    "inline-flex min-h-11 w-full sm:w-44 items-center justify-center rounded-lg px-3 text-sm font-medium";
 
   useEffect(() => {
     return () => {
@@ -77,13 +77,13 @@ export default function ResumePage() {
       <iframe
         src={`${RESUME_PDF_PATH}#toolbar=1&navpanes=0`}
         title="Asher Sebban Resume"
-        className="w-full h-[120vh] md:h-[150vh] border-0"
+        className="w-full h-[70dvh] md:h-[150vh] border-0"
       />
 
-      <div className="sticky bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+      <div className="resume-actions sticky bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           <div className="flex flex-col items-center gap-2">
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-3">
               <a
                 href={RESUME_PDF_PATH}
                 download

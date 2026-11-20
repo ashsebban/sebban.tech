@@ -20,11 +20,11 @@ export default function Hero() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <HeroSection {...homeContent.hero} />
 
-      {/* ── How I Create Impact ───────────────────────────────────────────── */}
-      <section className="px-6 py-24">
+      {/* ── Selected Work ─────────────────────────────────────────────────── */}
+      <section id="selected-work" className="scroll-mt-28 px-6 py-16 sm:scroll-mt-16">
         <div className="max-w-3xl mx-auto">
           <FadeIn>
-            <h2 className={sectionHeading}>How I Create Impact</h2>
+            <h2 className={sectionHeading}>Selected Work</h2>
           </FadeIn>
           <FadeIn delay={0.1}>
             <ImpactTabs

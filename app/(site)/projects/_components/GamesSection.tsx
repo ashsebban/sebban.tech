@@ -8,6 +8,8 @@ import WhyTile from "./WhyTile";
 
 export default function GamesSection({ games }: { games: SiteProject[] }) {
   const [showTile, setShowTile] = useState(false);
+  const chess = games.filter((project) => project.collection === "chess");
+  const otherGames = games.filter((project) => project.collection !== "chess");
 
   return (
     <section className="mb-20">
@@ -25,6 +27,16 @@ export default function GamesSection({ games }: { games: SiteProject[] }) {
           )}
         </div>
       </FadeIn>
+      {chess.length > 0 && (
+        <section aria-labelledby="chess-variations" className="mb-8">
+          <h3 id="chess-variations" className="mb-4 text-base font-semibold">Chess Variations</h3>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {chess.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
+            ))}
+          </div>
+        </section>
+      )}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {showTile && (
           <FadeIn>
@@ -35,7 +47,7 @@ export default function GamesSection({ games }: { games: SiteProject[] }) {
             />
           </FadeIn>
         )}
-        {games.map((project, index) => (
+        {otherGames.map((project, index) => (
           <ProjectCard key={project.id} project={project} index={index} />
         ))}
       </div>

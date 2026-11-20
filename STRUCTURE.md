@@ -44,13 +44,15 @@
 │   │   │   └── page.tsx          # Contact page /contact
 │   │   ├── build-notes/
 │   │   │   └── page.tsx          # Build Notes /build-notes
+│   │   ├── apps/
+│   │   │   └── page.tsx          # Apps catalog /apps
 │   │   ├── projects/
 │   │   │   ├── _components/
 │   │   │   │   ├── ProjectCard.tsx
 │   │   │   │   └── ProjectPreviewModal.tsx
 │   │   │   ├── _content/
 │   │   │   │   └── projects.ts   # Project data (title, description, links…)
-│   │   │   └── page.tsx          # Projects page /projects
+│   │   │   └── page.tsx          # Legacy /projects URL for Apps
 │   │   ├── references/
 │   │   │   └── page.tsx          # References page /references
 │   │   ├── resume/
@@ -81,6 +83,7 @@
 │   └── extract-resume-text.mjs   # Generates public/resume-content.txt from resume PDF
 │
 └── public/                       # Static assets, served at /
+    ├── games/sideways-chess/      # Standalone Sideways Chess build
     ├── resume-content.txt        # Auto-generated plain-text resume content
     └── images/
         ├── asher_sebban_resume.pdf # Resume PDF source for /resume page
@@ -97,3 +100,5 @@
 | `_components` colocation | Enforces ownership — a component lives with the code that uses it |
 | `lib/shared/` vs `_content/` | `lib/shared/` for data consumed by multiple routes; `_content/` for data owned by one route |
 | Root `components/` folder | Only for components used in more than one route or in the root layout |
+
+- `scripts/dev.mjs`: Launches Next.js development with compatible host/port arguments for managed previews.

@@ -39,47 +39,68 @@ export const projects: SiteProject[] = [
     }
   },
   {
+    id: "sideways-chess",
+    title: "Sideways Chess",
+    collection: "chess",
+    description: "Play the computer with one extra move for bishops, knights, or both. Explore what the rule changes in familiar openings.",
+    category: "game",
+    tech: ["Chess engine", "Variant design"],
+    status: "live",
+    deployUrl: "/games/sideways-chess/index.html",
+    preview: { mode: "external" },
+  },
+  {
+    id: "mongols-chess",
+    title: "Mongol’s Chess",
+    description: "Raid two corner castles with mounted archers while defending your own.",
+    category: "game",
+    tech: ["Chess engine", "Variant design"],
+    status: "live",
+    deployUrl: "https://mongols-chess.insightfullarch.chatgpt.site",
+    preview: { mode: "external" },
+  },
+  {
     id: "flappy-bird-rebuild",
-    title: "Happy Bird",
-    description: "A from-scratch Processing remake of the classic tap-to-fly arcade game.",
+    title: "Sleepy Bird",
+    description: "Keep a dozing bird in the air as you fly through a valley from dusk to dawn.",
     category: "game",
     tech: ["Processing", "Game Development"],
     status: "live",
     repoUrl: "https://github.com/ashsebban/happy-bird",
-    deployUrl: "https://ashsebban.github.io/happy-bird/",
+    deployUrl: "/game-preview/happy-bird/index.html",
     preview: {
       mode: "embed",
-      embedUrl: "https://ashsebban.github.io/happy-bird/",
+      embedUrl: "/game-preview/happy-bird/index.html",
       fallback: "new-tab"
     }
   },
   {
     id: "mindful-ocean",
     title: "Mindful Ocean",
-    description: "An interactive ocean experience designed for calm focus and playful interaction.",
+    description: "Watch fish drift by, tap them to clear the ocean, or follow a guided breathing exercise.",
     category: "game",
     tech: ["Processing", "Animation", "Creative Coding"],
     status: "live",
     repoUrl: "https://github.com/ashsebban/mindful-ocean",
-    deployUrl: "https://ashsebban.github.io/mindful-ocean/",
+    deployUrl: "/game-preview/mindful-ocean/index.html",
     preview: {
       mode: "embed",
-      embedUrl: "https://ashsebban.github.io/mindful-ocean/",
+      embedUrl: "/game-preview/mindful-ocean/index.html",
       fallback: "new-tab"
     }
   },
   {
     id: "shape-runner-arcade",
     title: "Shape Runner",
-    description: "A 3-mode shape-switch arcade runner originally built from a CS101 concept.",
+    description: "Switch between circle, square, and triangle as you run. Each shape moves differently.",
     category: "game",
     tech: ["JavaScript", "Game Design", "OOP"],
     status: "live",
     repoUrl: "https://github.com/ashsebban/shape-runner",
-    deployUrl: "https://ashsebban.github.io/shape-runner/",
+    deployUrl: "/game-preview/shape-runner/index.html",
     preview: {
       mode: "embed",
-      embedUrl: "https://ashsebban.github.io/shape-runner/",
+      embedUrl: "/game-preview/shape-runner/index.html",
       fallback: "new-tab"
     }
   },

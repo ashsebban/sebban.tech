@@ -1,6 +1,6 @@
 // Site footer: tagline, nav links, social links, and copyright
 import Link from "next/link";
-import { NAV_LINKS, SITE_NAME, FOOTER_TAGLINE } from "@/lib/constants";
+import { FOOTER_LINKS, SITE_NAME, FOOTER_TAGLINE } from "@/lib/constants";
 import SocialLinksList from "@/components/ui/SocialLinksList";
 
 export default function Footer() {
@@ -16,11 +16,11 @@ export default function Footer() {
             <p className="text-sm text-muted leading-relaxed">{FOOTER_TAGLINE}</p>
           </div>
 
-          {/* Repeat main nav links for footer */}
+          {/* Site pages and secondary links */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">Pages</h3>
             <ul className="flex flex-col gap-3">
-              {NAV_LINKS.map((link) => (
+              {FOOTER_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

@@ -228,7 +228,7 @@ export default function ReferencesPage() {
 
       {selectedKeys.length > 0 && (
         <div className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur-sm">
-          <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <span className="text-sm font-medium text-foreground whitespace-nowrap shrink-0">
                 {selectedKeys.length}/{maxRequests} selected
@@ -242,7 +242,7 @@ export default function ReferencesPage() {
               onClick={openWizard}
               className="shrink-0 inline-flex px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
             >
-              Submit Request →
+              Submit Request
             </button>
           </div>
         </div>
@@ -250,7 +250,7 @@ export default function ReferencesPage() {
 
       {isWizardOpen && (
         <Modal title="Reference Request" onClose={closeWizard} size="md">
-          <div className="max-h-[80vh] overflow-y-auto px-6 py-5">
+          <div className="px-4 py-5 sm:px-6">
             {/* Step indicator */}
             <div className="flex items-center gap-2 mb-5">
               {([1, 2] as WizardStep[]).map((step) => (

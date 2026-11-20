@@ -20,8 +20,12 @@ export default function ImpactTabs({ pillars, onPreview }: Props) {
 
   return (
     <div>
+      <label className="mb-2 block text-sm font-medium text-muted md:hidden" htmlFor="work-category">Explore my work</label>
+      <select id="work-category" value={active} onChange={(event) => switchTab(Number(event.target.value))} className="mb-4 min-h-12 w-full rounded-lg border border-border bg-card px-4 text-base text-foreground md:hidden">
+        {pillars.map((pillar, index) => <option key={pillar.capability} value={index}>{pillar.capability}</option>)}
+      </select>
       {/* Tab strip */}
-      <div className="flex overflow-x-auto border-b border-border scrollbar-none -mx-1 px-1">
+      <div className="hidden md:flex overflow-x-auto border-b border-border scrollbar-none -mx-1 px-1">
         {pillars.map((p, i) => (
           <button
             key={p.capability}
@@ -62,7 +66,7 @@ export default function ImpactTabs({ pillars, onPreview }: Props) {
                       <span className="text-xs text-accent font-medium">Preview →</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted leading-relaxed mt-1.5">{example.description}</p>
+                  <p className="text-base text-muted leading-relaxed mt-1.5">{example.description}</p>
                 </motion.div>
               );
 

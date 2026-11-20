@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId, useRef } from "react";
 
 interface ModalProps {
   title: string;
@@ -11,39 +11,29 @@ interface ModalProps {
 }
 
 export default function Modal({ title, onClose, children, actions, size = "xl" }: ModalProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    document.addEventListener("keydown", handleKey);
+    const node = dialog.current;
+    const previous = document.body.style.overflow;
+    node?.showModal();
     document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleKey);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
+    return () => { node?.close(); document.body.style.overflow = previous; };
+  }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.85)" }}>
-      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
-      <div className={`relative z-10 flex w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-2xl ${size === "md" ? "max-w-lg" : "max-w-[1200px]"}`}>
-        <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <span className="text-sm font-medium text-foreground">{title}</span>
-          <div className="flex items-center gap-4">
-            {actions}
-            <button
-              onClick={onClose}
-              className="text-xl leading-none text-muted transition-colors hover:text-foreground"
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
+    <dialog ref={dialog} aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); onCloseRef.current(); }}
+      onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
+      className={`site-modal ${size === "md" ? "site-modal-compact" : "site-modal-wide"}`}>
+      <div className="modal-shell flex min-h-0 flex-col overflow-hidden bg-card">
+        <div className="modal-header flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-2">
+          <h2 id={titleId} className="min-w-0 text-base font-medium text-foreground">{title}</h2>
+          <div className="flex shrink-0 items-center gap-2">{actions}<button autoFocus type="button" onClick={onClose} className="grid h-11 w-11 place-items-center rounded-lg text-2xl text-muted hover:text-foreground" aria-label="Close">×</button></div>
         </div>
-        {children}
+        <div className="modal-content min-h-0 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </dialog>
   );
 }

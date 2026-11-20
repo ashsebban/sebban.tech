@@ -14,33 +14,52 @@ import {
 // ——— Site metadata (SEO, OG, Twitter) ———
 export const SITE_NAME = "Asher Sebban";
 export const SITE_DESCRIPTION =
-  "Product leader and builder working at the intersection of AI, research, and systems.";
+  "Asher Sebban, GTM engineer at HiveMQ with a background in UX research. Explore his projects and selected work.";
 export const SITE_URL = "https://sebban.tech";
-export const SITE_TAGLINE = "Product Builder | Systems Thinker";
+export const SITE_TAGLINE = "GTM Engineer at HiveMQ";
 
 export const HERO_SUBTITLE =
-  "I find what's broken, build what's needed, and make it feel simple.";
+  "I work on go-to-market systems, drawing on my background in UX research.";
 
-export const HERO_CREDIBILITY = "Previously at Anaconda";
+export const HERO_CREDIBILITY = "Previously in UX research at Anaconda";
 
 // ——— Main nav (Navbar + Footer) ———
 export const NAV_LINKS: NavLink[] = [
-  { name: "Home", href: "/" },
-  { name: "Projects", href: "/projects" },
+  { name: "Work", href: "/#selected-work" },
+  { name: "Apps", href: "/apps" },
+  { name: "Game Center", href: "/games" },
   { name: "About", href: "/about" },
+];
+
+export const FOOTER_LINKS: NavLink[] = [
+  { name: "Home", href: "/" },
+  ...NAV_LINKS,
   { name: "Build Notes", href: "/build-notes" },
   { name: "Contact", href: "/contact" },
 ];
 
 // ——— Social / contact (Footer, Contact page) ———
+export const CONTACT_EMAIL = "ashersamuelsebban@gmail.com";
+
 export const SOCIAL_LINKS: SocialLink[] = [
   { name: "GitHub", href: "https://github.com/ashsebban", icon: "FaGithub" },
   { name: "LinkedIn", href: "https://www.linkedin.com/in/asher-sebban/", icon: "FaLinkedin" },
-  { name: "Email", href: "mailto:ashersamuelsebban@gmail.com", icon: "FaEnvelope" },
+  { name: "Email", href: `mailto:${CONTACT_EMAIL}`, icon: "FaEnvelope" },
 ];
 
 // ——— Home page: "How I Create Impact" pillars (capability + work examples) ———
 export const WORK_PILLARS: WorkPillar[] = [
+  {
+    capability: "GTM Engineering",
+    capabilityDesc:
+      "I build tools that help prospective customers see what a product does and connect with the right team.",
+    examples: [
+      {
+        title: "HiveMQ case studies",
+        description: "Case studies are in progress.",
+      },
+    ],
+  },
   {
     capability: "Product Leadership",
     capabilityDesc:
@@ -238,9 +257,10 @@ export const FOOTER_TAGLINE =
 export const RESUME_PDF_PATH = "/images/asher_sebban_resume.pdf";
 
 export const QUICK_ACTIONS: QuickActionLink[] = [
-  { label: "View Resume",  href: "/resume",   variant: "primary",   external: false },
-  { label: "See My Work",  href: "/projects", variant: "secondary", external: false },
-  { label: "Let's Talk →", href: "/contact",  variant: "text",      external: false },
+  { label: "Selected Work", href: "/#selected-work", variant: "primary", external: false },
+  { label: "Explore Apps", href: "/apps", variant: "secondary", external: false },
+  { label: "Resume", href: "/resume", variant: "text", external: false },
+  { label: "Contact", href: "/contact", variant: "text", external: false },
 ];
 
 // ——— About page: highlight cards ———

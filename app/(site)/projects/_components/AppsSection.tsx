@@ -10,10 +10,9 @@ export default function AppsSection({ apps }: { apps: SiteProject[] }) {
   const [showTile, setShowTile] = useState(false);
 
   return (
-    <section className="mb-20">
+    <section aria-label="App catalog" className="mb-20">
       <FadeIn>
         <div className="mb-8 flex items-center gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">Apps</h2>
           {!showTile && (
             <button
               type="button"

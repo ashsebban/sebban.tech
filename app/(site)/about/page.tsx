@@ -5,7 +5,7 @@ import HighlightGrid from "./_components/HighlightGrid";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Get to know Asher Sebban: product leader, systems builder, curious human.",
+  description: "Asher Sebban’s work in GTM engineering, product research, and technical prototyping.",
 };
 
 export default function AboutPage() {
@@ -18,13 +18,12 @@ export default function AboutPage() {
           <div className="mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">About</h1>
             <p className="text-lg text-muted leading-relaxed mb-3">
-              I build systems that help teams move faster, and I make tech feel simple for the people who use them.
+              I’m a GTM engineer at HiveMQ.
             </p>
             <p className="text-base text-muted leading-relaxed">
-              My background spans product research, operations, and technical prototyping.
-              I'm most useful when a problem is messy: unclear workflows, missing tools,
-              or decisions that need real evidence. That's the environment where I tend to
-              build something that makes the team around me more effective.
+              Before HiveMQ, I worked in UX research at Anaconda. I bring that approach to
+              engineering by learning where a workflow breaks down, building a prototype,
+              and testing it with the people who will use it.
             </p>
           </div>
         </FadeIn>
@@ -45,31 +44,6 @@ export default function AboutPage() {
             >
               View →
             </Link>
-          </div>
-        </FadeIn>
-
-        {/* Video section */}
-        <FadeIn delay={0.1}>
-          <div className="mb-4 flex items-center gap-3">
-            <h2 className="text-2xl font-bold">Introduction Video</h2>
-            <span className="px-2.5 py-1 text-xs rounded-full border border-dashed border-border text-muted uppercase tracking-wide">
-              Coming Soon
-            </span>
-          </div>
-          <p className="text-sm text-muted mb-6">
-            A real intro is on the way. In the meantime, here's Rick Astley.
-          </p>
-
-          <div className="rounded-xl overflow-hidden border border-border">
-            <div className="aspect-video">
-              <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                title="Introduction Video"
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
           </div>
         </FadeIn>
 

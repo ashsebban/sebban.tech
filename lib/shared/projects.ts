@@ -13,6 +13,7 @@ export interface SiteProject {
   title: string;
   description: string;
   category: ProjectCategory;
+  collection?: "chess";
   tech: string[];
   status: ProjectStatus;
   repoUrl?: string;

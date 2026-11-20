@@ -1,7 +1,7 @@
 "use client";
 
 // Framer Motion wrapper: fade in + slide from a direction when the element enters view (once)
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ReactNode } from "react";
 
 interface FadeInProps {
@@ -27,12 +27,13 @@ export default function FadeIn({
   duration = 0.5,
   className,
 }: FadeInProps) {
+  const reducedMotion = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, ...directionOffset[direction] }}
+      initial={reducedMotion ? false : { opacity: 0, ...directionOffset[direction] }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+      transition={{ duration: reducedMotion ? 0 : duration, delay: reducedMotion ? 0 : delay, ease: [0.21, 0.47, 0.32, 0.98] }}
       className={className}
     >
       {children}

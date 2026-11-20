@@ -28,13 +28,16 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
 
   const canEmbed = project.preview.mode === "embed" && Boolean(project.preview.embedUrl);
 
-  const openProject = () => {
-    if (canEmbed) {
-      setPreviewOpen(true);
-      return;
-    }
-    window.open(project.deployUrl, "_blank", "noopener,noreferrer");
-  };
+  const opensNewTab = !project.deployUrl.startsWith("/");
+  const actionClass = project.category === "game"
+    ? "inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-hover"
+    : "inline-flex min-h-11 items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover";
+  const actionContent = (
+    <>
+      <ActionIcon className="h-4 w-4" />
+      {actionLabel}
+    </>
+  );
 
   return (
     <>
@@ -43,11 +46,11 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           <div className="mb-2 flex items-start justify-between gap-3">
             <h3 className="text-lg font-semibold leading-tight">{project.title}</h3>
             {project.status === "coming-soon" ? (
-              <span className="shrink-0 rounded border border-dashed border-border px-2 py-0.5 text-[10px] text-muted uppercase tracking-wide">
+              <span className="shrink-0 rounded border border-dashed border-border px-2 py-0.5 text-xs text-muted uppercase tracking-wide">
                 Coming Soon
               </span>
             ) : (
-              <span className="shrink-0 rounded border border-blue-500/40 bg-background px-2 py-0.5 text-[10px] text-blue-400">
+              <span className="shrink-0 rounded border border-blue-500/40 bg-background px-2 py-0.5 text-xs text-blue-400">
                 {project.status === "live" ? "Live" : "Locked"}
               </span>
             )}
@@ -69,22 +72,27 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                 href={project.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
+                className="inline-flex min-h-11 items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
               >
                 <GitHubIcon className="h-4 w-4" />
                 Code
               </a>
             )}
 
-            {project.status !== "coming-soon" && (
-              <button
-                onClick={openProject}
-                className="flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
-              >
-                <ActionIcon className="h-4 w-4" />
-                {actionLabel}
+            {project.status !== "coming-soon" && (canEmbed ? (
+              <button type="button" onClick={() => setPreviewOpen(true)} className={actionClass}>
+                {actionContent}
               </button>
-            )}
+            ) : (
+              <a
+                href={project.deployUrl}
+                target={opensNewTab ? "_blank" : undefined}
+                rel={opensNewTab ? "noopener noreferrer" : undefined}
+                className={actionClass}
+              >
+                {actionContent}
+              </a>
+            ))}
           </div>
         </article>
       </FadeIn>
