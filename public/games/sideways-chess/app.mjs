@@ -23,7 +23,14 @@ try {
 }
 const cells = new Map();
 
-let game = new VariantChess();
+const requestedVariant = new URLSearchParams(window.location.search).get('variant');
+const initialVariant = Object.hasOwn(variants, requestedVariant) ? requestedVariant : 'bn';
+let game = new VariantChess(initialVariant);
+if (requestedVariant && Object.hasOwn(variants, requestedVariant)) {
+  document.title = variants[initialVariant].name;
+  document.querySelector('.intro h1').textContent = variants[initialVariant].name;
+}
+
 let history = [];
 let allMoves = [];
 let selection = null;

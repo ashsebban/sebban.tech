@@ -28,7 +28,6 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
 
   const canEmbed = project.preview.mode === "embed" && Boolean(project.preview.embedUrl);
 
-  const opensNewTab = !project.deployUrl.startsWith("/");
   const actionClass = project.category === "game"
     ? "inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-hover"
     : "inline-flex min-h-11 items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover";
@@ -86,8 +85,6 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             ) : (
               <a
                 href={project.deployUrl}
-                target={opensNewTab ? "_blank" : undefined}
-                rel={opensNewTab ? "noopener noreferrer" : undefined}
                 className={actionClass}
               >
                 {actionContent}

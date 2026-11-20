@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151e22">
+  <meta name="description" content="An original chess-inspired siege game. Capture both enemy castles with mounted archers while defending your own corners.">
+  <title>Mongol’s Chess</title>
+  <link rel="stylesheet" href="./style.css?v=6">
+</head>
+<body>
+  <main>
+    <header class="title">
+      <div><h1>Mongol’s Chess</h1><p>Capture both enemy castles.</p></div>
+      <button type="button" id="show-rules" aria-haspopup="dialog">Rules</button>
+    </header>
+    <div class="game">
+      <section class="field" aria-label="The match">
+        <div class="goal">
+          <div><span>White · You</span><strong id="white-castles"></strong></div>
+          <div><span>Black · Computer</span><strong id="black-castles"></strong></div>
+        </div>
+        <div id="board" class="board" role="group" aria-label="Game board"></div>
+        <div class="below-board">
+          <div>
+            <p id="status" class="status" role="status">White to move</p>
+            <p id="last-move" class="last-move"></p>
+          </div>
+          <div class="turn-controls"><button type="button" id="cancel-shot" hidden>Cancel shot</button><button type="button" id="undo" disabled>Undo</button></div>
+        </div>
+        <div class="legend">
+          <span><i class="move-dot"></i> Move</span>
+          <span><i class="shot-dot"></i> Arrow shot</span>
+          <span><i class="rally-dot"></i> Rally swap</span>
+        </div>
+      </section>
+      <aside class="orders">
+        <section class="panel" aria-labelledby="tactics-title">
+          <h2 id="tactics-title">Siege tactics</h2>
+          <dl>
+            <dt>Castles</dt><dd>They hold their squares. Capture both to win.</dd>
+            <dt>Horse archers</dt><dd>Jump and capture like a knight. Before jumping, you may shoot an enemy exactly two squares away in a clear row or column.</dd>
+            <dt>Rally</dt><dd>Your king can spend a turn swapping with any adjacent ally except a castle.</dd>
+          </dl>
+        </section>
+        <button type="button" id="new-game" class="primary">New game</button>
+      </aside>
+    </div>
+    <footer>Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> and Wikimedia Commons contributors, via the <a href="https://github.com/lichess-org/lila/tree/master/public/piece/cburnett">Cburnett set</a>. <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</footer>
+  </main>
+  <dialog id="rules" aria-labelledby="rules-title">
+    <div class="dialog-head">
+      <h2 id="rules-title">How to play</h2>
+      <form method="dialog"><button value="close">Done</button></form>
+    </div>
+    <ul>
+      <li><strong>Take both castles.</strong> A castle stays put and can fall to a direct capture or a clear arrow shot.</li>
+      <li><strong>Shoot, then jump.</strong> A horse archer can optionally shoot one enemy piece or castle exactly two squares away in a row or column, with an empty square in between. It must then make a knight jump, capturing any enemy on its landing square. That can take two enemies in one turn. An archer can also jump without shooting.</li>
+      <li><strong>Rally with your king.</strong> Select your king and tap any adjacent friendly piece to swap places for your turn. Castles stay fixed. Pawns on their own back rank still move one square forward when clear.</li>
+      <li><strong>Other pieces.</strong> Queens, bishops, kings, and pawns move as in chess. Pawns promote to queens. Kings can be captured. The game has no check or castling.</li>
+      <li><strong>Draws.</strong> A side with no move passes. Threefold repetition, both sides unable to move, or 60 turns without a pawn move or capture is a draw.</li>
+    </ul>
+    <button type="button" id="practice" class="primary">Start practice siege</button>
+    <p class="practice-note">Try shooting the castle on a8, then capturing the pawn on c5.</p>
+  </dialog>
+  <script type="module" src="./app.mjs?v=6"></script>
+</body>
+</html>

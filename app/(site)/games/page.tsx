@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const games = projects.filter((game) => game.category === "game" && game.status === "live");
 const chess = games.filter((game) => game.collection === "chess");
-const arcade = games.filter((game) => !game.collection && game.id !== "mongols-chess");
+const arcade = games.filter((game) => !game.collection);
 
 export default function GameCenter() {
   return (

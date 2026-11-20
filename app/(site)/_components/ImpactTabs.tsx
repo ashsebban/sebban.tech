@@ -25,12 +25,12 @@ export default function ImpactTabs({ pillars, onPreview }: Props) {
         {pillars.map((pillar, index) => <option key={pillar.capability} value={index}>{pillar.capability}</option>)}
       </select>
       {/* Tab strip */}
-      <div className="hidden md:flex overflow-x-auto border-b border-border scrollbar-none -mx-1 px-1">
+      <div className="hidden md:flex md:flex-wrap border-b border-border -mx-1 px-1">
         {pillars.map((p, i) => (
           <button
             key={p.capability}
             onClick={() => switchTab(i)}
-            className={`px-5 py-3 text-sm font-medium transition-colors duration-150 border-b-2 -mb-px whitespace-nowrap ${
+            className={`px-3 py-3 text-sm font-medium transition-colors duration-150 border-b-2 -mb-px whitespace-nowrap ${
               active === i
                 ? "text-foreground border-accent"
                 : "text-muted border-transparent hover:text-foreground hover:border-border"

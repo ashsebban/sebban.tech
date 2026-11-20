@@ -102,3 +102,8 @@
 | Root `components/` folder | Only for components used in more than one route or in the root layout |
 
 - `scripts/dev.mjs`: Launches Next.js development with compatible host/port arguments for managed previews.
+
+- `public/games/mongols-chess/`: Self-contained Mongol’s Chess build, launched on the same site as the catalog.
+- `public/apps/art-studio/`: Art Studio build mirrored from ashsebban/art-studio commit 10f5d2a, avoiding a new-tab launch in the mobile preview.
+
+Chess catalog entries link to the shared Sideways Chess engine with `?variant=b`, `n`, `bn`, or `s`, selecting Cathedral, Lancer, Concord, or Squire’s Chess on launch.
