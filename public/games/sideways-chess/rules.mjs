@@ -2,8 +2,8 @@ import { Chess, DEFAULT_POSITION, SQUARES } from './vendor/chess.mjs';
 
 export const variants = {
   b: { name: 'Cathedral Chess', pieces: ['b'] },
-  n: { name: 'Lancer Chess', pieces: ['n'] },
-  bn: { name: 'Concord Chess', pieces: ['b', 'n'] },
+  n: { name: 'Paladin Chess', pieces: ['n'] },
+  bn: { name: 'Royal Court Chess', pieces: ['b', 'n'] },
   s: { name: 'Squire’s Chess', pieces: [] },
 };
 

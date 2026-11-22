@@ -1,4 +1,4 @@
-import { VariantChess, variants } from './rules.mjs?v=6';
+import { VariantChess, variants } from './rules.mjs?v=8';
 
 const bishop = {
   fen: '7k/8/8/8/3B4/8/8/K7 w - - 0 1',

@@ -1,4 +1,4 @@
-import { VariantChess, variants, isSidestep } from './rules.mjs?v=6';
+import { VariantChess, variants, isSidestep } from './rules.mjs?v=8';
 
 import { openings } from './opening-games.mjs';
 

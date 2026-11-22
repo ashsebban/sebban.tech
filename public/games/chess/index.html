@@ -3,29 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#151e22">
-  <meta name="description" content="Play Asher Sebban’s original chess variations in one place.">
+  <meta name="theme-color" content="#161a1c">
+  <meta name="description" content="Choose a chess variation and play against the computer.">
   <title>Asher’s Chess Variations</title>
-  <link rel="stylesheet" href="./chess.css">
+  <link rel="stylesheet" href="./chess.css?v=2">
 </head>
 <body>
   <header class="shell">
-    <a href="/games">Game Center</a>
-    <h1>Asher’s Chess Variations</h1>
-    <div class="mode-bar">
-      <label for="variant">Game mode</label>
-      <select id="variant" aria-describedby="mode-description">
-        <option value="mongols">Mongol’s Chess</option>
-        <option value="cathedral">Cathedral Chess</option>
-        <option value="lancer">Lancer Chess</option>
-        <option value="concord">Concord Chess</option>
-        <option value="squires">Squire’s Chess</option>
-      </select>
-      <p id="mode-description" aria-live="polite"></p>
+    <a class="home" href="/games">Game Center</a>
+    <div id="gallery-heading">
+      <h1>Asher’s Chess Variations</h1>
+      <p>Choose a variation to play against the computer.</p>
+    </div>
+    <div id="match-heading" class="match-heading" hidden>
+      <h1 id="mode-name" tabindex="-1"></h1>
+      <a id="choose-variation" href="./index.html">Choose a variation</a>
     </div>
   </header>
-  <main id="game" aria-label="Playable chessboard"></main>
+  <main>
+    <section id="gallery" class="gallery shell" aria-label="Chess variations"></section>
+    <section id="game" aria-label="Playable chessboard" hidden></section>
+  </main>
   <noscript><p>Enable JavaScript to play a chess variation.</p></noscript>
-  <script type="module" src="./chess.mjs"></script>
+  <script type="module" src="./chess.mjs?v=2"></script>
 </body>
 </html>

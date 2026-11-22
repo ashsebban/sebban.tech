@@ -51,7 +51,7 @@ export const projects: SiteProject[] = [
   },
   {
     id: "lancer-chess",
-    title: "Lancer Chess",
+    title: "Paladin Chess",
     collection: "chess",
     description: "Knights keep their L-shaped leap and gain a one-square sideways move.",
     category: "game",
@@ -62,7 +62,7 @@ export const projects: SiteProject[] = [
   },
   {
     id: "concord-chess",
-    title: "Concord Chess",
+    title: "Royal Court Chess",
     collection: "chess",
     description: "Both bishops and knights gain a one-square sideways move.",
     category: "game",
