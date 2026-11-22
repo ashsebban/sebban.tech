@@ -1,6 +1,6 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=32';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=33';
 
-import { lessons } from './lessons.mjs?v=32';
+import { lessons } from './lessons.mjs?v=33';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
@@ -239,7 +239,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=32',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=33',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -450,8 +450,8 @@ find('#practice').addEventListener('click',()=>{
 });
 find('#practice-bishop').addEventListener('click',()=>{
   rulesDialog.close();
-  reset(position({a1:'wr',h1:'wr',b1:'wk',e3:'wb',e4:'wp',f4:'wp',d3:'wp',
-    a8:'br',h8:'br',f8:'bk',e5:'bp',c3:'bp'}),'e3',
-  'Shoot e5 through e4, shoot c3 over d3, or sidestep to f3 along the e4–f4 phalanx.');
+  reset(position({a1:'wr',h1:'wr',b1:'wk',e3:'wb',e4:'wp',f4:'wp',g4:'wp',d3:'wp',
+    a8:'br',h8:'br',f8:'bk',e5:'bp',c3:'bp',c4:'bp'}),'e3',
+  'Shoot e5 through e4, angle a shot over d3 to c4, or slide to g3 behind the pawn line.');
 });
 reset(initial());

@@ -259,11 +259,15 @@ function candidateMoves(state, rules, selected = null, emptyShots = null) {
         if (!valid(x+2*dx,y+2*dy)) continue;
         const tower=get(x+dx,y+dy);
         const cover=board[tower];
-        if (cover===turn+'p' || cover===turn+'r') {
-          const targetSquare=get(x+2*dx,y+2*dy);
+        if (cover!==turn+'p' && cover!==turn+'r') continue;
+        const offsets=isWall(cover,tower) ? [-1,0,1] : [0];
+        for (const offset of offsets) {
+          const tx=x+2*dx+offset*dy, ty=y+2*dy+offset*dx;
+          if (!valid(tx,ty)) continue;
+          const targetSquare=get(tx,ty);
           const target=board[targetSquare];
           if (!target) emptyShots?.add(targetSquare);
-          if (target?.[0]===enemy && !isRoyal(target,rules)) add(x+2*dx,y+2*dy,'shot');
+          if (target?.[0]===enemy && !isRoyal(target,rules)) add(tx,ty,'shot');
         }
       }
     }
@@ -280,12 +284,16 @@ function candidateMoves(state, rules, selected = null, emptyShots = null) {
         }
       }
       for (const to of firingTargets) add(to%8,Math.floor(to/8),'shot');
-      for (const dx of [-1,1]) {
-        if (!valid(x+dx,y) || board[get(x+dx,y)]) continue;
-        const front = y+forward;
-        const followsPawnLine = rules.bishopWallSidestep && valid(x,front) &&
-          board[get(x,front)]===turn+'p' && board[get(x+dx,front)]===turn+'p';
-        if (canSidestep || followsPawnLine) add(x+dx,y);
+      const front=y+forward;
+      const behindLine=rules.bishopWallSidestep && valid(x,front) && board[get(x,front)]===turn+'p';
+      for (const direction of [-1,1]) {
+        if (behindLine) {
+          for (let tx=x+direction; valid(tx,front) && board[get(tx,front)]===turn+'p'; tx+=direction) {
+            if (!add(tx,y)) break;
+          }
+        } else if (canSidestep && valid(x+direction,y) && !board[get(x+direction,y)]) {
+          add(x+direction,y);
+        }
       }
     }
     const steps = type === 'n' ? knight : type === 'b' ? diagonal : compass;
