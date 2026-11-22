@@ -1,7 +1,7 @@
-import { VariantChess, borrowedPiece, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=12';
-import { chooseMove, difficulties } from './opponent.mjs?v=10';
-import { initializeOpenings } from './openings.mjs?v=10';
-import { initializeTutorials } from './tutorials.mjs?v=11';
+import { VariantChess, borrowedPiece, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=13';
+import { chooseMove, difficulties } from './opponent.mjs?v=11';
+import { initializeOpenings } from './openings.mjs?v=11';
+import { initializeTutorials } from './tutorials.mjs?v=12';
 
 const borrowing = { q:'queen slide', b:'bishop slide', r:'rook slide', n:'knight jump' };
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
@@ -233,7 +233,7 @@ function playComputer() {
   thinking = true;
   if (!worker) {
     try {
-      const engine = new Worker(new URL('./worker.mjs?v=10', import.meta.url), { type: 'module' });
+      const engine = new Worker(new URL('./worker.mjs?v=11', import.meta.url), { type: 'module' });
       worker = engine;
       engine.onmessage = ({ data }) => {
         if (engine !== worker) return;

@@ -40,9 +40,8 @@ export class VariantChess extends Chess {
     };
   }
 
-  *_borrowedDestinations(color, from) {
+  *_borrowedDestinations(color, from, powers = this.warriorPowers(color)) {
     if (from < 0 || from == null) return;
-    const powers = this.warriorPowers(color);
     for (const step of [...(powers.straight ? straight : []), ...(powers.diagonal ? diagonal : [])]) {
       for (let to=from+step; onBoard(to); to+=step) {
         if (to !== from+step) yield to;
@@ -105,9 +104,15 @@ export class VariantChess extends Chess {
     }
     if (!legal) return moves;
 
+    const enemy = fromColor === 'w' ? 'b' : 'w';
     return moves.filter(move => {
+      // A king cannot capture a piece by first relying on the capture to
+      // remove the opposing king's ability to defend that square.
+      const defendingPowers = this.variant === 'warrior' && move.piece === 'k' &&
+        move.captured && 'qrbn'.includes(move.captured) ? this.warriorPowers(enemy) : null;
       this._makeMove(move);
-      const safe = !this._isKingAttacked(fromColor);
+      const safe = !this._isKingAttacked(fromColor) && (!defendingPowers ||
+        ![...this._borrowedDestinations(enemy,this._kings[enemy],defendingPowers)].includes(move.to));
       this._undoMove();
       return safe;
     });
