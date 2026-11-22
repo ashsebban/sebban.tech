@@ -5,7 +5,7 @@ export const variants = {
   n: { name: 'Paladin Chess', pieces: ['n'] },
   bn: { name: 'Royal Court Chess', pieces: ['b', 'n'] },
   s: { name: 'Squire’s Chess', pieces: [] },
-  retinue: { name: 'Royal Retinue Chess', pieces: [] },
+  warrior: { name: 'Warrior King Chess', pieces: [] },
 };
 
 const squareIndex = Object.fromEntries(SQUARES.map((square, index) =>
@@ -31,7 +31,7 @@ export class VariantChess extends Chess {
     return variants[this.variant]?.pieces.includes(type) ?? false;
   }
 
-  retinuePowers(color) {
+  warriorPowers(color) {
     const army = new Set(this._board.filter(piece => piece?.color === color).map(piece => piece.type));
     return {
       straight: army.has('q') || army.has('r'),
@@ -42,7 +42,7 @@ export class VariantChess extends Chess {
 
   *_borrowedDestinations(color, from) {
     if (from < 0 || from == null) return;
-    const powers = this.retinuePowers(color);
+    const powers = this.warriorPowers(color);
     for (const step of [...(powers.straight ? straight : []), ...(powers.diagonal ? diagonal : [])]) {
       for (let to=from+step; onBoard(to); to+=step) {
         if (to !== from+step) yield to;
@@ -57,7 +57,7 @@ export class VariantChess extends Chess {
   _attacked(color, square, verbose = false) {
     const normal = super._attacked(color, square, verbose);
     if (!verbose && normal) return true;
-    if (this.variant === 'retinue') {
+    if (this.variant === 'warrior') {
       const king=this._kings[color];
       const attacks=[...this._borrowedDestinations(color,king)].includes(square);
       return verbose ? (attacks ? normal.concat(squareName(king)) : normal) : attacks;
@@ -78,7 +78,7 @@ export class VariantChess extends Chess {
     for (const from of fromSquares) {
       const source = this._board[from];
       if (source?.color !== fromColor || (piece && source.type !== piece.toLowerCase())) continue;
-      if (this.variant === 'retinue' && source.type === 'k') {
+      if (this.variant === 'warrior' && source.type === 'k') {
         for (const to of this._borrowedDestinations(fromColor,from)) {
           const target=this._board[to];
           if (target?.color === fromColor || target?.type === 'k') continue;
@@ -137,7 +137,7 @@ export class VariantChess extends Chess {
   }
 
   isInsufficientMaterial() {
-    if (this.variant === 'retinue' && this._board.some(piece => piece && 'bn'.includes(piece.type))) return false;
+    if (this.variant === 'warrior' && this._board.some(piece => piece && 'bn'.includes(piece.type))) return false;
     if (this._board.some(piece => piece && this.canSidestep(piece.type))) return false;
     return super.isInsufficientMaterial();
   }

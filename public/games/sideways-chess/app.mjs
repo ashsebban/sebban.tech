@@ -1,7 +1,7 @@
-import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=9';
-import { chooseMove, difficulties } from './opponent.mjs?v=9';
-import { initializeOpenings } from './openings.mjs?v=9';
-import { initializeTutorials } from './tutorials.mjs?v=9';
+import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=10';
+import { chooseMove, difficulties } from './opponent.mjs?v=10';
+import { initializeOpenings } from './openings.mjs?v=10';
+import { initializeTutorials } from './tutorials.mjs?v=10';
 
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 const files = 'abcdefgh';
@@ -137,13 +137,13 @@ function refresh() {
   const result = getResult();
   if (result) allMoves = [];
   activeRule.textContent = variants[game.variant].name;
-  const retinue=game.variant==='retinue';
-  document.querySelector('#special-key').hidden=retinue;
-  const powers=document.querySelector('#retinue-powers');
-  powers.hidden=!retinue;
-  if (retinue) {
+  const warrior=game.variant==='warrior';
+  document.querySelector('#special-key').hidden=warrior;
+  const powers=document.querySelector('#warrior-powers');
+  powers.hidden=!warrior;
+  if (warrior) {
     powers.textContent=['w','b'].map(side=>{
-      const {straight,diagonal,knight}=game.retinuePowers(side);
+      const {straight,diagonal,knight}=game.warriorPowers(side);
       const borrowed=[straight&&'straight slides',diagonal&&'diagonal slides',knight&&'knight jumps'].filter(Boolean);
       return (side==='w'?'White':'Black')+' king · '+(borrowed.join(', ') || 'one-square moves');
     }).join(' | ');
@@ -193,7 +193,7 @@ function playComputer() {
   thinking = true;
   if (!worker) {
     try {
-      const engine = new Worker(new URL('./worker.mjs?v=9', import.meta.url), { type: 'module' });
+      const engine = new Worker(new URL('./worker.mjs?v=10', import.meta.url), { type: 'module' });
       worker = engine;
       engine.onmessage = ({ data }) => {
         if (engine !== worker) return;

@@ -1,4 +1,4 @@
-import { VariantChess, variants } from './rules.mjs?v=9';
+import { VariantChess, variants } from './rules.mjs?v=10';
 
 const bishop = {
   fen: '7k/8/8/8/3B4/8/8/K7 w - - 0 1',
@@ -27,7 +27,7 @@ export const tutorials = {
     rule: 'Both pieces gain the same one-square sideways move, including captures. Regular moves still apply.',
     exercises: [bishop, knight],
   },
-  retinue: {
+  warrior: {
     summary: 'The king borrows its army’s moves',
     rule: 'A queen gives the king long straight and diagonal moves. Rooks give straight slides, bishops give diagonal slides, and knights give L-shaped jumps. The king keeps its one-square move, and all moves must leave it safe. Pawns still move normally.',
     exercises: [{

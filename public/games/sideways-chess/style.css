@@ -138,5 +138,5 @@ dialog form { display: flex; flex-wrap: wrap; gap: 6px; }
 .embedded main { padding-top:8px; }
 .embedded dialog { margin:min(10vh, 72px) auto auto; max-height:min(75vh, 500px); }
 
-.retinue-powers { margin:0 0 8px; }
+.warrior-powers { margin:0 0 8px; }
 #special-key[hidden] { display:none; }
