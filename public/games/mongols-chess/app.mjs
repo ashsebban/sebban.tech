@@ -1,6 +1,6 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=31';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=32';
 
-import { lessons } from './lessons.mjs?v=31';
+import { lessons } from './lessons.mjs?v=32';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
@@ -57,11 +57,15 @@ for(let i=0;i<64;i++) {
   image.alt='';
   image.className='piece';
   image.draggable=false;
-  cell.append(image);
+  const aim=document.createElement('span');
+  aim.className='aim-marker';
+  aim.setAttribute('aria-hidden','true');
+  aim.hidden=true;
+  cell.append(image,aim);
   const name=square(i);
   if(i%8===0) coordinate(cell,name[1],'rank');
   if(i>=56) coordinate(cell,name[0],'file');
-  cells.push({cell,image,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
+  cells.push({cell,image,aim,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
   board.append(cell);
 }
 
@@ -138,10 +142,18 @@ function openLesson(index,step=0) {
 
 function draw() {
   const targets=new Map();
+  const shots=new Set();
+  const range=pending || result || state.turn!=='w' || lesson?.complete
+    ? new Set() : emptyShotSquares(state,selected);
   if(pending) {
     for(const jump of pending.jumps) targets.set(jump.to,jump);
   } else {
-    for(const move of legal) if(move.from===selected) targets.set(move.kind==='jumpShot' ? move.captureAt : move.to,move);
+    for(const move of legal) {
+      if(move.from!==selected) continue;
+      if(move.kind==='jumpShot') shots.add(move.captureAt);
+      else if(move.kind==='shot') shots.add(move.to);
+      else targets.set(move.to,move);
+    }
   }
   const previous=history.at(-1);
   const threats=checkThreats(state);
@@ -158,7 +170,10 @@ function draw() {
   }
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   for(let i=0;i<64;i++) {
-    const {cell,image,base}=cells[i];
+    const {cell,image,aim,base}=cells[i];
+    const shootable=shots.has(i);
+    aim.hidden=!shootable && !range.has(i);
+    aim.classList.toggle('aim-live',shootable);
     const piece=pending?.target===i ? null : state.board[i];
     if(piece){
       const path='./pieces/'+piece[0]+piece[1].toUpperCase()+'.svg';
@@ -167,13 +182,13 @@ function draw() {
     image.hidden=!piece;
     const wall=isWall(piece,i);
     const move=targets.get(i);
-    const mark=move ? pending ? (move.landingCapture ? 'capture' : 'move') : (move.kind==='jumpShot' || move.kind==='shot') ? 'shot' : move.capture ? 'capture' : move.kind==='castle' ? 'move' : move.kind : '';
+    const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
     const active=selected;
     cell.className=[base,recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',wall&&'wall-square',wall&&piece[0]==='w'&&'wall-white',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+names[piece[1]]:'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
-    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(wall?', protected wall':'')+(checks.has(i)?', in check':'')+action);
+    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(wall?', protected wall':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
     cell.setAttribute('aria-pressed',String(i===active));
   }
   const count=side=> {
@@ -224,7 +239,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=31',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=32',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

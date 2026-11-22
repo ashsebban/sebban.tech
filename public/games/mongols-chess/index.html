@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the Khan and use castles to bring pawns back into play.">
   <title>Mongol’s Chess</title>
-  <link rel="stylesheet" href="./style.css?v=31">
+  <link rel="stylesheet" href="./style.css?v=32">
 </head>
 <body>
   <main>
@@ -42,7 +42,8 @@
         </div>
         <div class="legend">
           <span><i class="move-dot"></i> Move</span>
-          <span><i class="shot-dot"></i> Arrow shot</span>
+          <span><i class="aim-dot" aria-hidden="true"></i> In arrow range</span>
+          <span><i class="aim-dot aim-live" aria-hidden="true"></i> Can shoot now</span>
         </div>
       </section>
       <aside class="orders">
@@ -86,6 +87,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=31"></script>
+  <script type="module" src="./app.mjs?v=32"></script>
 </body>
 </html>

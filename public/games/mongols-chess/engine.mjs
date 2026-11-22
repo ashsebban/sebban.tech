@@ -142,7 +142,13 @@ export function khanPowers(board, side) {
   return { queen:board.includes(side+'q'), knight:board.includes(side+'n'), bishop:board.includes(side+'b') };
 }
 
-function candidateMoves(state, rules, selected = null) {
+export function emptyShotSquares(state, selected, rules = defaultRules) {
+  const squares = new Set();
+  if (selected!=null) candidateMoves(state,rules,selected,squares);
+  return squares;
+}
+
+function candidateMoves(state, rules, selected = null, emptyShots = null) {
   const { board, turn, ep, pawnStarts=startingPawns(board) } = state;
   const enemy = opposite(turn);
   const forward = turn === 'w' ? -1 : 1;
@@ -240,6 +246,7 @@ function candidateMoves(state, rules, selected = null) {
           const ax=shotX+2*sx, ay=shotY+2*sy;
           if (!valid(ax,ay) || board[get(shotX+sx,shotY+sy)]) continue;
           const captureAt=get(ax,ay), capture=board[captureAt];
+          if (!capture) emptyShots?.add(captureAt);
           if (capture?.[0]===enemy && !(rules.castlesRequireOccupation && capture[1]==='r') && !(rules.territoryWalls && isWall(capture,captureAt))) {
             found.push({from,to,kind:'jumpShot',capture,captureAt,landingCapture,promotion:false});
           }
@@ -253,7 +260,9 @@ function candidateMoves(state, rules, selected = null) {
         const tower=get(x+dx,y+dy);
         const cover=board[tower];
         if (cover===turn+'p' || cover===turn+'r') {
-          const target=board[get(x+2*dx,y+2*dy)];
+          const targetSquare=get(x+2*dx,y+2*dy);
+          const target=board[targetSquare];
+          if (!target) emptyShots?.add(targetSquare);
           if (target?.[0]===enemy && !isRoyal(target,rules)) add(x+2*dx,y+2*dy,'shot');
         }
       }
