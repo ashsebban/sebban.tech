@@ -5,12 +5,16 @@ export const variants = {
   n: { name: 'Paladin Chess', pieces: ['n'] },
   bn: { name: 'Royal Court Chess', pieces: ['b', 'n'] },
   s: { name: 'Squire’s Chess', pieces: [] },
+  retinue: { name: 'Royal Retinue Chess', pieces: [] },
 };
 
 const squareIndex = Object.fromEntries(SQUARES.map((square, index) =>
   [square, Math.floor(index / 8) * 16 + index % 8]));
 export const squareName = index => SQUARES[Math.floor(index / 16) * 8 + index % 16];
 const horizontal = [-1, 1];
+const diagonal = [-17,-15,15,17];
+const straight = [-16,16,-1,1];
+const leaps = [-33,-31,-18,-14,14,18,31,33];
 const onBoard = index => (index & 0x88) === 0;
 const NORMAL = 1;
 const CAPTURE = 2;
@@ -27,9 +31,37 @@ export class VariantChess extends Chess {
     return variants[this.variant]?.pieces.includes(type) ?? false;
   }
 
+  retinuePowers(color) {
+    const army = new Set(this._board.filter(piece => piece?.color === color).map(piece => piece.type));
+    return {
+      straight: army.has('q') || army.has('r'),
+      diagonal: army.has('q') || army.has('b'),
+      knight: army.has('n'),
+    };
+  }
+
+  *_borrowedDestinations(color, from) {
+    if (from < 0 || from == null) return;
+    const powers = this.retinuePowers(color);
+    for (const step of [...(powers.straight ? straight : []), ...(powers.diagonal ? diagonal : [])]) {
+      for (let to=from+step; onBoard(to); to+=step) {
+        if (to !== from+step) yield to;
+        if (this._board[to]) break;
+      }
+    }
+    if (powers.knight) {
+      for (const step of leaps) if (onBoard(from+step)) yield from+step;
+    }
+  }
+
   _attacked(color, square, verbose = false) {
     const normal = super._attacked(color, square, verbose);
     if (!verbose && normal) return true;
+    if (this.variant === 'retinue') {
+      const king=this._kings[color];
+      const attacks=[...this._borrowedDestinations(color,king)].includes(square);
+      return verbose ? (attacks ? normal.concat(squareName(king)) : normal) : attacks;
+    }
     const adjacent = horizontal.map(step => square + step).filter(index => {
       if (!onBoard(index)) return false;
       const piece = this._board[index];
@@ -46,6 +78,15 @@ export class VariantChess extends Chess {
     for (const from of fromSquares) {
       const source = this._board[from];
       if (source?.color !== fromColor || (piece && source.type !== piece.toLowerCase())) continue;
+      if (this.variant === 'retinue' && source.type === 'k') {
+        for (const to of this._borrowedDestinations(fromColor,from)) {
+          const target=this._board[to];
+          if (target?.color === fromColor || target?.type === 'k') continue;
+          if (moves.some(move => move.from===from && move.to===to)) continue;
+          moves.push({color:fromColor, from, to, piece:'k',
+            ...(target ? {captured:target.type} : {}), flags:target ? CAPTURE : NORMAL});
+        }
+      }
       if (this.variant === 's' && source.type === 'n') {
         this._addTandem(moves, from, fromColor);
       }
@@ -96,6 +137,7 @@ export class VariantChess extends Chess {
   }
 
   isInsufficientMaterial() {
+    if (this.variant === 'retinue' && this._board.some(piece => piece && 'bn'.includes(piece.type))) return false;
     if (this._board.some(piece => piece && this.canSidestep(piece.type))) return false;
     return super.isInsufficientMaterial();
   }

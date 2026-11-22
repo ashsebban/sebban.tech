@@ -1,4 +1,4 @@
-import { VariantChess, squareName } from './rules.mjs?v=8';
+import { VariantChess, squareName } from './rules.mjs?v=9';
 
 const material = { p: 100, n: 320, b: 335, r: 500, q: 930, k: 0 };
 const mate = 100000;

@@ -1,12 +1,19 @@
 const games = {
-  mongols: { name:'Mongol’s Chess', art:'mongols', url:'../mongols-chess/index.html', description:'Horse archers, fortifications, and a Khan who borrows powers.' },
+  mongols: { category:'experimental', name:'Mongol’s Chess', art:'mongols', url:'../mongols-chess/index.html', description:'Horse archers, fortifications, and a Khan who borrows powers.' },
   cathedral: { name:'Cathedral Chess', art:'cathedral', url:'../sideways-chess/index.html?variant=b', description:'Bishops can step sideways and switch square colors.' },
   lancer: { name:'Paladin Chess', art:'paladin', url:'../sideways-chess/index.html?variant=n', description:'Knights can step sideways as well as leap.' },
   concord: { name:'Royal Court Chess', art:'royal-court', url:'../sideways-chess/index.html?variant=bn', description:'Both bishops and knights can step sideways.' },
+  retinue: { name:'Royal Retinue Chess', art:'royal-court', url:'../sideways-chess/index.html?variant=retinue', description:'Your king borrows moves from the army still on the board.', emblem:'../sideways-chess/pieces/wK.svg' },
   squires: { name:'Squire’s Chess', art:'squires', url:'../sideways-chess/index.html?variant=s', description:'Knights can advance in tandem with friendly pawns.' },
 };
 
 const gallery=document.querySelector('#gallery');
+const categories=document.querySelector('#categories');
+const categoryBack=document.querySelector('#choose-category');
+const matchBack=document.querySelector('#choose-variation');
+const prompt=document.querySelector('#gallery-prompt');
+const cardByMode=new Map();
+const categoryNames={classical:'Classical variations',experimental:'Experimental variations'};
 const galleryHeading=document.querySelector('#gallery-heading');
 const matchHeading=document.querySelector('#match-heading');
 const modeName=document.querySelector('#mode-name');
@@ -19,7 +26,7 @@ function navigate(event) {
   history.pushState(null,'',event.currentTarget.href);
   readMode();
   window.scrollTo(0,0);
-  (matchHeading.hidden ? gallery.querySelector("a") : modeName)?.focus({preventScroll:true});
+  (matchHeading.hidden ? document.querySelector(categories.hidden ? "#gallery a:not([hidden])" : "#categories a") : modeName)?.focus({preventScroll:true});
 }
 
 for (const [id,mode] of Object.entries(games)) {
@@ -36,14 +43,30 @@ for (const [id,mode] of Object.entries(games)) {
   const description=document.createElement('span');
   description.textContent=mode.description;
   copy.append(title,description);
-  card.append(art,copy);
+  if (mode.emblem) {
+    const illustration=document.createElement('div');
+    illustration.className='card-emblem';
+    const emblem=document.createElement('img');
+    emblem.src=mode.emblem;
+    emblem.alt='';
+    illustration.append(art,emblem);
+    card.append(illustration);
+  } else {
+    card.append(art);
+  }
+  card.append(copy);
+  cardByMode.set(id,card);
   card.addEventListener('click',navigate);
   gallery.append(card);
 }
 
-function openMode(id) {
+function openMode(id,category) {
   const mode=games[id];
-  gallery.hidden=!!mode;
+  categories.hidden=!!mode || !!category;
+  gallery.hidden=!!mode || !category;
+  categoryBack.hidden=!category || !!mode;
+  prompt.textContent=category ? categoryNames[category] : 'Choose a category to play.';
+  for (const [key,card] of cardByMode) card.hidden=(games[key].category??'classical')!==category;
   galleryHeading.hidden=!!mode;
   matchHeading.hidden=!mode;
   game.hidden=!mode;
@@ -55,6 +78,7 @@ function openMode(id) {
   }
   if (!mode) return;
   modeName.textContent=mode.name;
+  matchBack.href='?category='+(mode.category??'classical');
   if (frames.has(id)) return;
   const url=new URL(mode.url,location.href);
   url.searchParams.set('embedded','1');
@@ -75,10 +99,15 @@ function openMode(id) {
 }
 
 function readMode() {
-  const requested=new URLSearchParams(location.search).get('mode');
-  openMode(Object.hasOwn(games,requested) ? requested : null);
+  const params=new URLSearchParams(location.search);
+  const requested=params.get('mode');
+  const category=params.get('category');
+  openMode(Object.hasOwn(games,requested) ? requested : null,
+    Object.hasOwn(categoryNames,category) ? category : null);
 }
 
-document.querySelector('#choose-variation').addEventListener('click',navigate);
+for (const link of [matchBack,categoryBack,...categories.querySelectorAll('a')]) {
+  link.addEventListener('click',navigate);
+}
 window.addEventListener('popstate',readMode);
 readMode();

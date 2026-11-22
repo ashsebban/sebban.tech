@@ -83,6 +83,17 @@ export const projects: SiteProject[] = [
     preview: { mode: "external" },
   },
   {
+    id: "royal-retinue-chess",
+    collection: "chess",
+    title: "Royal Retinue Chess",
+    description: "The king borrows standard moves from its surviving army.",
+    category: "game",
+    tech: ["Chess engine", "Variant design"],
+    status: "live",
+    deployUrl: "/games/chess/index.html?mode=retinue",
+    preview: { mode: "external" },
+  },
+  {
     id: "mongols-chess",
     collection: "chess",
     title: "Mongol’s Chess",

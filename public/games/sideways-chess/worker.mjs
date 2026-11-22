@@ -1,4 +1,4 @@
-import { chooseMove } from './opponent.mjs?v=8';
+import { chooseMove } from './opponent.mjs?v=9';
 
 self.onmessage = ({ data }) => {
   const { id, variant, fen, difficulty } = data;

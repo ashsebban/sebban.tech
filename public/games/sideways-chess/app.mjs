@@ -1,7 +1,7 @@
-import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=8';
-import { chooseMove, difficulties } from './opponent.mjs?v=8';
-import { initializeOpenings } from './openings.mjs?v=8';
-import { initializeTutorials } from './tutorials.mjs?v=8';
+import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=9';
+import { chooseMove, difficulties } from './opponent.mjs?v=9';
+import { initializeOpenings } from './openings.mjs?v=9';
+import { initializeTutorials } from './tutorials.mjs?v=9';
 
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 const files = 'abcdefgh';
@@ -137,6 +137,17 @@ function refresh() {
   const result = getResult();
   if (result) allMoves = [];
   activeRule.textContent = variants[game.variant].name;
+  const retinue=game.variant==='retinue';
+  document.querySelector('#special-key').hidden=retinue;
+  const powers=document.querySelector('#retinue-powers');
+  powers.hidden=!retinue;
+  if (retinue) {
+    powers.textContent=['w','b'].map(side=>{
+      const {straight,diagonal,knight}=game.retinuePowers(side);
+      const borrowed=[straight&&'straight slides',diagonal&&'diagonal slides',knight&&'knight jumps'].filter(Boolean);
+      return (side==='w'?'White':'Black')+' king · '+(borrowed.join(', ') || 'one-square moves');
+    }).join(' | ');
+  }
   specialLabel.textContent = game.variant === 's' ? 'Tandem advance' : 'Sidestep';
   status.textContent = result || (game.turn() === 'b' ? 'Computer is thinking…'
     : game.inCheck() ? 'Your king is in check.' : 'Your move · White');
@@ -182,7 +193,7 @@ function playComputer() {
   thinking = true;
   if (!worker) {
     try {
-      const engine = new Worker(new URL('./worker.mjs?v=8', import.meta.url), { type: 'module' });
+      const engine = new Worker(new URL('./worker.mjs?v=9', import.meta.url), { type: 'module' });
       worker = engine;
       engine.onmessage = ({ data }) => {
         if (engine !== worker) return;
