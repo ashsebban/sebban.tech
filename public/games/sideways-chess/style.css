@@ -140,3 +140,10 @@ dialog form { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .warrior-powers { margin:0 0 8px; }
 #special-key[hidden] { display:none; }
+
+.borrowed-piece {
+  position:absolute; inset:5% 5% auto auto; width:39%; height:39%; padding:2%;
+  z-index:3; border:1px solid #936324; border-radius:50%; background:#ffe6ad;
+  box-shadow:0 1px 3px #18140c80; pointer-events:none; object-fit:contain;
+}
+.borrowed-piece[hidden] { display:none; }

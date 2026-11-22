@@ -1,8 +1,9 @@
-import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=10';
+import { VariantChess, borrowedPiece, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=12';
 import { chooseMove, difficulties } from './opponent.mjs?v=10';
 import { initializeOpenings } from './openings.mjs?v=10';
 import { initializeTutorials } from './tutorials.mjs?v=11';
 
+const borrowing = { q:'queen slide', b:'bishop slide', r:'rook slide', n:'knight jump' };
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 const files = 'abcdefgh';
 const board = document.querySelector('#board');
@@ -57,10 +58,14 @@ for (let rank = 8; rank >= 1; rank--) {
     cell.className = baseClass;
     cell.dataset.square = square;
     piece.setAttribute('aria-hidden', 'true');
-    cell.append(piece);
+    const badge = document.createElement('img');
+    badge.className = 'borrowed-piece';
+    badge.alt = '';
+    badge.hidden = true;
+    cell.append(piece,badge);
     if (index === 0) addCoordinate(cell, String(rank), 'rank');
     if (rank === 1) addCoordinate(cell, files[index], 'file');
-    cells.set(square, { cell, piece, baseClass });
+    cells.set(square, { cell, piece, badge, baseClass });
     board.append(cell);
   }
 }
@@ -74,6 +79,8 @@ function addCoordinate(cell, text, className) {
 }
 
 function moveMarker(move) {
+  const borrowed=game.variant==='warrior' ? borrowedPiece(move) : null;
+  if(borrowed) return ' · '+borrowing[borrowed];
   return isSidestep(move) ? ' ◇' : isTandem(move) ? ' ⇈' : '';
 }
 
@@ -84,7 +91,15 @@ function drawBoard() {
   }
   const last = history.at(-1);
   const inCheck = game.inCheck();
-  for (const [square, { cell, piece, baseClass }] of cells) {
+  const borrowedSquares=new Map();
+  if(game.variant==='warrior'){
+    for(const side of ['w','b']){
+      const recent=history.findLast(move=>move.color===side);
+      const borrowed=borrowedPiece(recent);
+      if(borrowed) borrowedSquares.set(recent.to,borrowed);
+    }
+  }
+  for (const [square, { cell, piece, badge, baseClass }] of cells) {
     const occupant = game.get(square);
     const target = targets.get(square);
     const side = target && isSidestep(target);
@@ -96,12 +111,18 @@ function drawBoard() {
     if (image && piece.getAttribute('src') !== image) piece.setAttribute('src', image);
     if (!image && !piece.hidden) piece.removeAttribute('src');
     piece.hidden = !image;
+    const borrowed=occupant?.type==='k' && borrowedSquares.get(square);
+    badge.hidden=!borrowed;
+    if(borrowed){
+      const badgeSource='./pieces/'+occupant.color+borrowed.toUpperCase()+'.svg';
+      if(badge.getAttribute('src')!==badgeSource)badge.setAttribute('src',badgeSource);
+    }
     cell.className = [
       baseClass, last && (last.to === square || last.from === square || recentPawn) && 'recent',
       selection === square && 'selected', checkedKing && 'check', target && 'legal',
       target?.captured && 'capture', (side || tandem) && 'side', tandem && 'tandem',
     ].filter(Boolean).join(' ');
-    cell.setAttribute('aria-label', square + ', ' + name + (tandem ? ', tandem advance' : side ? ', sidestep' : target ? ', legal move' : ''));
+    cell.setAttribute('aria-label', square + ', ' + name + (tandem ? ', tandem advance' : side ? ', sidestep' : target ? ', legal move' : '') + (borrowed ? ', last move used a '+borrowing[borrowed] : ''));
     cell.setAttribute('aria-pressed', String(selection === square));
   }
 }

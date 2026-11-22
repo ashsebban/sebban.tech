@@ -155,3 +155,15 @@ export function isTandem(move) {
 export function tandemPawnDestination(move) {
   return move.to[0] + (2 * Number(move.to[1]) - Number(move.from[1]));
 }
+
+
+export function borrowedPiece(move) {
+  if (move?.piece !== 'k' || move.flags==='k' || move.flags==='q') return null;
+  const files = Math.abs(move.from.charCodeAt(0)-move.to.charCodeAt(0));
+  const ranks = Math.abs(Number(move.from[1])-Number(move.to[1]));
+  if (files*ranks===2) return 'n';
+  if (Math.max(files,ranks)<2) return null;
+  const queen=move.color==='w' ? 'Q' : 'q';
+  if (move.before.split(' ')[0].includes(queen)) return 'q';
+  return files===ranks ? 'b' : 'r';
+}
