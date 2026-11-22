@@ -33,6 +33,16 @@ h1 { font:700 clamp(2.35rem,8vw,4rem)/1 Georgia,serif; letter-spacing:-.045em; }
 .square:focus-visible { outline:2px solid #143f3a; outline-offset:-3px; z-index:3; }
 .piece { width:94%; height:94%; object-fit:contain; z-index:1; pointer-events:none; }
 .piece[hidden] { display:none; }
+.khan-badges { position:absolute; inset:0; z-index:1; pointer-events:none; }
+.khan-badge {
+  --badge-inset:3%; position:absolute; width:24%; height:24%; padding:1%;
+  border:1px solid #78664c; border-radius:50%; background:#f6edd2;
+  box-shadow:0 1px 3px #18140c70; object-fit:contain;
+}
+.khan-badge[hidden] { display:none; }
+.khan-badge-queen { top:var(--badge-inset); left:var(--badge-inset); }
+.khan-badge-bishop { bottom:var(--badge-inset); left:var(--badge-inset); }
+.khan-badge-knight { bottom:var(--badge-inset); right:var(--badge-inset); }
 .coord { position:absolute; font:700 clamp(.55rem,2vw,.7rem)/1 system-ui; z-index:2; pointer-events:none; }
 .rank { top:4px; left:3px; }
 .file { bottom:4px; right:3px; }

@@ -19,6 +19,25 @@ const cells = [];
 const names = { p:'pawn',n:'horse archer',b:'bishop',q:'queen',k:'Khan',r:'castle' };
 const color = { w:'White',b:'Black' };
 const cancelShot = find('#cancel-shot');
+const khanBadges = ['w','b'].map(side=>{
+  const group=document.createElement('span');
+  group.className='khan-badges';
+  group.setAttribute('aria-hidden','true');
+  const badges=[
+    ['queen','Q','Queen slides'],
+    ['knight','N','Knight jumps and shoot-and-jump'],
+    ['bishop','B','Wall shots'],
+  ].map(([power,type,label])=>{
+    const image=document.createElement('img');
+    image.className='khan-badge khan-badge-'+power;
+    image.src='./pieces/'+side+type+'.svg';
+    image.alt='';
+    image.draggable=false;
+    group.append(image);
+    return {power,label,image};
+  });
+  return {side,group,badges};
+});
 
 let state;
 let history;
@@ -160,13 +179,14 @@ function draw() {
   const checks=new Set(threats.map(threat=>threat.to));
   showCheckDetails(threats);
   showLesson();
-  for(const [side,selector] of [['w','#khan-powers'],['b','#black-khan-powers']]) {
+  for(const {side,group,badges} of khanBadges) {
     const powers=khanPowers(state.board,side);
-    find(selector).textContent=[
-      powers.queen && 'Queen slides',
-      powers.knight && 'Knight jumps and shoot-and-jump',
-      powers.bishop && 'Wall shots',
-    ].filter(Boolean).join(' · ') || 'One-square king moves';
+    for(const {power,image} of badges) image.hidden=!powers[power];
+    const cell=cells[state.board.indexOf(side+'k')]?.cell;
+    if(!cell) group.remove();
+    else if(group.parentElement!==cell) cell.append(group);
+    const selector=side==='w' ? '#khan-powers' : '#black-khan-powers';
+    find(selector).textContent=badges.filter(({power})=>powers[power]).map(({label})=>label).join(' · ') || 'One-square king moves';
   }
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   for(let i=0;i<64;i++) {
