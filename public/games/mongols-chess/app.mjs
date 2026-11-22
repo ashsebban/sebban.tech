@@ -1,4 +1,8 @@
-import { apply, castles, chooseMove, defaultRules, indexOf, initial, isWall, key, moves, outcome, passMove, position, square } from './engine.mjs?v=15';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=31';
+
+import { lessons } from './lessons.mjs?v=31';
+
+if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
 const find = selector => document.querySelector(selector);
 const board = find('#board');
@@ -12,7 +16,7 @@ const rulesDialog = find('#rules');
 const white = find('#white-castles');
 const black = find('#black-castles');
 const cells = [];
-const names = { p:'pawn',n:'horse archer',b:'bishop',q:'queen',k:'king',r:'castle' };
+const names = { p:'pawn',n:'horse archer',b:'bishop',q:'queen',k:'Khan',r:'castle' };
 const color = { w:'White',b:'Black' };
 const cancelShot = find('#cancel-shot');
 
@@ -24,8 +28,18 @@ let result;
 let selected;
 let worker=null;
 let epoch=0;
-let practicing=false;
+let practiceHint='';
 let pending=null;
+let lesson=null;
+let explanation='';
+let reviewMate=false;
+const learnDialog=find('#learn');
+const checkInfo=find('#check-info');
+const checkLines=document.createElementNS('http://www.w3.org/2000/svg','svg');
+checkLines.setAttribute('class','check-lines');
+checkLines.setAttribute('viewBox','0 0 8 8');
+checkLines.setAttribute('aria-hidden','true');
+board.append(checkLines);
 
 function coordinate(cell,text,type) {
   const label=document.createElement('span');
@@ -55,18 +69,71 @@ function description(move,before) {
   const who=color[before.turn];
   if(move.kind==='pass') return who+' had no move and passed.';
   const actor=names[before.board[move.from][1]];
+  if(move.kind==='castle') return who+' castled '+(move.to>move.from?'kingside.':'queenside.');
   if(move.kind==='spawn') return who+' castle returned the '+names[move.spawn]+' on '+square(move.to)+'.';
   if(move.kind==='shot') return who+' '+actor+' shot the '+names[move.capture[1]]+' on '+square(move.to)+'.';
   if(move.kind==='jumpShot') {
     const landing=move.landingCapture ? 'captured the '+names[move.landingCapture[1]]+' on ' : 'jumped to ';
-    return who+' shot the '+names[move.capture[1]]+' on '+square(move.captureAt)+' and '+landing+square(move.to)+'.';
+    return who+' '+actor+' on '+square(move.from)+' shot the '+names[move.capture[1]]+' on '+square(move.captureAt)+' and '+landing+square(move.to)+'.';
   }
   if(move.kind==='rally') {
     const ally=names[before.board[move.to][1]];
     return who+' king swapped with the '+ally+' on '+square(move.to)+(move.promotion?' and the pawn promoted.':'.');
   }
   const target=move.capture?' captured the '+names[move.capture[1]]+' on ':' moved to ';
-  return who+' '+actor+target+square(move.to)+(move.promotion?' and promoted to a queen.':'.');
+  return who+' '+actor+target+square(move.to)+(move.promotion?' and promoted to a '+names[move.promotion]+'.':'.');
+}
+
+function describeThreat(threat, boardState=state.board) {
+  const piece=boardState[threat.from];
+  const dx=Math.abs(threat.from%8-threat.to%8);
+  const dy=Math.abs(Math.floor(threat.from/8)-Math.floor(threat.to/8));
+  const mode=threat.kind==='jumpShot' ? 'shoot-and-jump' : threat.kind==='shot' ? 'arrow shot'
+    : dx*dy===2 ? 'knight jump' : piece[1]==='k' && Math.max(dx,dy)>1 ? 'queen slide' : 'direct attack';
+  return color[piece[0]]+' '+names[piece[1]]+' on '+square(threat.from)+' · '+mode;
+}
+
+function showCheckDetails(threats) {
+  const distinct=[...new Map(threats.map(t=>[[t.from,t.to,t.kind].join('/'),t])).values()];
+  checkLines.replaceChildren(...distinct.map(threat=>{
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    for (const [attribute,value] of Object.entries({x1:threat.from%8+.5,y1:Math.floor(threat.from/8)+.5,
+      x2:threat.to%8+.5,y2:Math.floor(threat.to/8)+.5})) line.setAttribute(attribute,value);
+    if (threat.kind!=='move' || Math.abs(threat.from%8-threat.to%8)*Math.abs(Math.floor(threat.from/8)-Math.floor(threat.to/8))===2) {
+      line.setAttribute('stroke-dasharray','.17 .12');
+    }
+    return line;
+  }));
+  const attack=[...new Set(distinct.map(t=>describeThreat(t)))].join(' · ');
+  const lines=[attack ? 'Check from '+attack+'.' : '',explanation];
+  if(reviewMate) {
+    const previous=history.at(-1);
+    if(previous) lines.push('Last move: '+previous.text);
+    const escapes=[...khanEscapeThreats(state)].map(([to,t])=>{
+      return square(to)+' is covered by '+describeThreat(t[0])+'.';
+    });
+    lines.push(escapes.join(' '),'No legal move removes the check.');
+  }
+  checkInfo.textContent=lines.filter(Boolean).join(' ');
+  checkInfo.hidden=!checkInfo.textContent;
+}
+
+function showLesson() {
+  find('#lesson').hidden=!lesson;
+  if(!lesson) return;
+  const {index,step,complete,feedback}=lesson;
+  const guide=lessons[index];
+  find('#lesson-title').textContent=guide.title;
+  find('#lesson-prompt').textContent=complete ? guide.success :
+    (feedback || ('Step '+(step+1)+' of '+guide.steps.length+' · '+guide.steps[step].prompt));
+}
+
+function openLesson(index,step=0) {
+  const exercise=lessons[index].steps[step];
+  const next=position(exercise.pieces);
+  if(exercise.reserve) next.reserves={wp:exercise.reserve};
+  reset(next,exercise.from,'',{index,step,complete:false,feedback:''});
+  if(step===0) find('#lesson-title').scrollIntoView({block:'nearest'});
 }
 
 function draw() {
@@ -77,6 +144,18 @@ function draw() {
     for(const move of legal) if(move.from===selected) targets.set(move.kind==='jumpShot' ? move.captureAt : move.to,move);
   }
   const previous=history.at(-1);
+  const threats=checkThreats(state);
+  const checks=new Set(threats.map(threat=>threat.to));
+  showCheckDetails(threats);
+  showLesson();
+  for(const [side,selector] of [['w','#khan-powers'],['b','#black-khan-powers']]) {
+    const powers=khanPowers(state.board,side);
+    find(selector).textContent=[
+      powers.queen && 'Queen slides',
+      powers.knight && 'Knight jumps and shoot-and-jump',
+      powers.bishop && 'Wall shots',
+    ].filter(Boolean).join(' · ') || 'One-square king moves';
+  }
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   for(let i=0;i<64;i++) {
     const {cell,image,base}=cells[i];
@@ -86,16 +165,15 @@ function draw() {
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
-    const castle=piece?.[1]==='r';
     const wall=isWall(piece,i);
     const move=targets.get(i);
-    const mark=move ? pending ? (move.landingCapture ? 'capture' : 'move') : (move.kind==='jumpShot' || move.kind==='shot') ? 'shot' : move.capture ? 'capture' : move.kind : '';
-    const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt].includes(i);
+    const mark=move ? pending ? (move.landingCapture ? 'capture' : 'move') : (move.kind==='jumpShot' || move.kind==='shot') ? 'shot' : move.capture ? 'capture' : move.kind==='castle' ? 'move' : move.kind : '';
+    const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
     const active=selected;
-    cell.className=[base,recent&&'last',i===active&&'selected',castle&&'castle-square',castle&&'castle-'+piece[0],wall&&'wall-square',mark].filter(Boolean).join(' ');
+    cell.className=[base,recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',wall&&'wall-square',wall&&piece[0]==='w'&&'wall-white',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+names[piece[1]]:'empty';
-    const action=mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
-    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(castle?', fixed in place':'')+(wall?', protected wall':'')+action);
+    const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
+    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(wall?', protected wall':'')+(checks.has(i)?', in check':'')+action);
     cell.setAttribute('aria-pressed',String(i===active));
   }
   const count=side=> {
@@ -105,10 +183,11 @@ function draw() {
   white.textContent=count('w');
   black.textContent=count('b');
   status.textContent=pending ? 'Choose where the archer jumps' : result ? (result.winner ? result.winner==='w' ? 'You won the siege.' : 'Black won the siege.' : 'Draw.')
+    : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>names[state.board[i][1]]+' '+square(i)).join(', ')
     : state.turn==='w' ? 'Your move · White' : 'Black is thinking…';
-  lastMove.textContent=result?.reason??previous?.text??(practicing?'Capture the castle on a8 with the horse archer on b6.':'');
+  lastMove.textContent=result?.reason??previous?.text??practiceHint;
   cancelShot.hidden=!pending;
-  undo.disabled=!!pending || !history.length;
+  undo.disabled=!!lesson || !!pending || !history.length;
 }
 
 function refresh() {
@@ -116,13 +195,14 @@ function refresh() {
   result=outcome(state,defaultRules,seen[key(state)],legal);
   if(result || state.turn==='b') legal=[];
   const justEnded=Boolean(result) && gameEnd.hidden;
-  gameEnd.hidden=!result;
+  gameEnd.hidden=!result || !!lesson;
+  find('#why-mate').hidden=result?.reason!=='Checkmate.';
   if(result) {
     find('#game-end-title').textContent=result.winner==='w'?'You won':result.winner==='b'?'Computer wins':'Draw';
     find('#game-end-reason').textContent=result.reason;
   }
   draw();
-  if(justEnded) playAgain.focus();
+  if(justEnded && !lesson) playAgain.focus();
 }
 
 function abortEngine() {
@@ -133,7 +213,7 @@ function abortEngine() {
 function inspectResponse(token,move) {
   if(token!==epoch || state.turn!=='b' || result) return;
   const available=moves(state);
-  const answer=available.find(entry=>entry.kind===move?.kind && entry.from===move.from && entry.to===move.to && entry.captureAt===move.captureAt && entry.spawn===move.spawn);
+  const answer=available.find(entry=>entry.kind===move?.kind && entry.from===move.from && entry.to===move.to && entry.captureAt===move.captureAt && entry.spawn===move.spawn && entry.promotion===move.promotion);
   if(answer) play(answer);
   else if(available[0]) play(available[0]);
 }
@@ -144,7 +224,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=15',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=31',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -192,6 +272,27 @@ function animateArrow(move) {
 }
 
 function play(move) {
+  explanation='';
+  if(lesson) {
+    const guide=lessons[lesson.index];
+    const step=guide.steps[lesson.step];
+    if(move.from!==indexOf(step.from) || move.kind!==step.kind ||
+      (step.to && move.to!==indexOf(step.to)) || (step.shot && move.captureAt!==indexOf(step.shot))) {
+      lesson.feedback='Try the move described above. '+step.prompt;
+      pending=null;
+      draw();
+      return;
+    }
+    if(lesson.step+1<guide.steps.length) {
+      openLesson(lesson.index,lesson.step+1);
+      return;
+    }
+    advance(move);
+    lesson.complete=true;
+    refresh();
+    if(move.kind==='shot' || move.kind==='jumpShot') animateArrow(move);
+    return;
+  }
   advance(move);
   const choices=moves(state);
   if(!choices.length && !outcome(state,defaultRules,seen[key(state)],choices)) advance(passMove);
@@ -204,7 +305,9 @@ function focusCell(index) {
   for(let i=0;i<64;i++) cells[i].cell.tabIndex=i===index?0:-1;
 }
 function choose(index) {
-  if(result || state.turn!=='w') return;
+  if(result || state.turn!=='w' || lesson?.complete) return;
+  explanation='';
+  if(lesson) lesson.feedback='';
   if(pending) {
     const jump=pending.jumps.find(option=>option.to===index);
     if(jump) play(jump);
@@ -212,26 +315,36 @@ function choose(index) {
   }
   const options=legal.filter(entry=>entry.from===selected);
   const jumps=options.filter(entry=>entry.kind==='jumpShot' && entry.captureAt===index);
-  if(jumps.length) {
+  const choices=options.filter(entry=>entry.kind!=='jumpShot' && entry.to===index);
+  const chooseJump=()=>{
     pending={target:index,jumps};
     draw();
-    return;
-  }
-  const choices=options.filter(entry=>entry.kind!=='jumpShot' && entry.to===index);
-  if(choices.length>1) {
-    const buttons=choices.map(move=>{
+  };
+  if(jumps.length && !choices.length) { chooseJump(); return; }
+  if(choices.length+jumps.length>1) {
+    const buttonFor=(label,action)=>{
       const button=document.createElement('button');
       button.type='button';
-      button.textContent=move.kind==='spawn' ? 'Return '+names[move.spawn]
-        : move.kind==='shot' ? 'Shoot and stay' : 'Move and capture';
-      button.addEventListener('click',()=>{ choiceDialog.close(); play(move); });
+      button.textContent=label;
+      button.addEventListener('click',()=>{ choiceDialog.close(); action(); });
       return button;
-    });
+    };
+    const buttons=choices.map(move=>buttonFor(move.kind==='castle' ? 'Castle '+(move.to>move.from?'kingside':'queenside') : move.promotion ? 'Promote to '+names[move.promotion] : move.kind==='spawn' ? 'Return '+names[move.spawn]
+      : move.kind==='shot' ? 'Shoot and stay' : (move.capture ? 'Move and capture' : 'Move here'),()=>play(move)));
+    if(jumps.length) buttons.push(buttonFor('Shoot and jump',chooseJump));
     find('#move-options').replaceChildren(...buttons);
     choiceDialog.showModal();
     return;
   }
   if(choices.length===1) { play(choices[0]); return; }
+  if(state.board[selected]==='wk' && state.board[index]?.[0]!=='w') {
+    const threats=khanEscapeThreats(state).get(index);
+    if(threats?.length) {
+      explanation=square(index)+' is unsafe: '+describeThreat(threats[0])+' would give check.';
+      draw();
+      return;
+    }
+  }
   selected=selected!==index && state.board[index]?.[0]==='w'?index:null;
   draw();
 }
@@ -257,15 +370,18 @@ board.addEventListener('keydown',event=>{
   cells[next].cell.focus();
 });
 
-function reset(next,practice=false) {
+function reset(next,practiceSquare=null,hint='',activeLesson=null) {
+  lesson=activeLesson;
+  explanation='';
+  reviewMate=false;
   abortEngine();
   state=next;
   history=[];
   seen={ [key(state)]:1 };
-  practicing=practice;
+  practiceHint=hint;
   pending=null;
-  selected=practice?indexOf('b6'):null;
-  focusCell(practice?indexOf('b6'):indexOf('e2'));
+  selected=practiceSquare ? indexOf(practiceSquare) : null;
+  focusCell(selected ?? indexOf('e2'));
   refresh();
 }
 cancelShot.addEventListener('click',()=>{
@@ -277,6 +393,8 @@ cancelShot.addEventListener('click',()=>{
 });
 undo.addEventListener('click',()=>{
   if(!history.length) return;
+  explanation='';
+  reviewMate=false;
   abortEngine();
   do {
     const signature=key(state);
@@ -286,6 +404,25 @@ undo.addEventListener('click',()=>{
   selected=null;
   refresh();
 });
+for(const [index,guide] of lessons.entries()) {
+  const button=document.createElement('button');
+  button.type='button';
+  const title=document.createElement('strong');
+  title.textContent=guide.title;
+  const description=document.createElement('span');
+  description.textContent=guide.description;
+  button.append(title,description);
+  button.addEventListener('click',()=>{learnDialog.close();openLesson(index);});
+  find('#lessons').append(button);
+}
+find('#show-learn').addEventListener('click',()=>learnDialog.showModal());
+find('#lesson-retry').addEventListener('click',()=>openLesson(lesson.index));
+find('#lesson-exit').addEventListener('click',()=>reset(initial()));
+find('#why-mate').addEventListener('click',()=>{
+  reviewMate=!reviewMate;
+  draw();
+  if(reviewMate) checkInfo.scrollIntoView({block:'nearest'});
+});
 find('#show-rules').addEventListener('click',()=>rulesDialog.showModal());
 playAgain.addEventListener('click',()=>{
   reset(initial());
@@ -294,7 +431,12 @@ playAgain.addEventListener('click',()=>{
 find('#new-game').addEventListener('click',()=>reset(initial()));
 find('#practice').addEventListener('click',()=>{
   rulesDialog.close();
-  reset(position({a1:'wr',h1:'wr',a2:'wk',b2:'wp',d4:'wq',b6:'wn',d2:'wb',
-    a8:'br',h8:'br',h6:'bk',f7:'bp',g6:'bn',d8:'bq',h7:'bp'}),true);
+  reset(position({a1:'wr',h1:'wr',b1:'wn',d1:'wq',d4:'wk',a8:'br',h8:'br',f4:'bn',e3:'bb',g8:'bk'}),'d4','Shoot f4 with the Khan, then jump to c6.');
+});
+find('#practice-bishop').addEventListener('click',()=>{
+  rulesDialog.close();
+  reset(position({a1:'wr',h1:'wr',b1:'wk',e3:'wb',e4:'wp',f4:'wp',d3:'wp',
+    a8:'br',h8:'br',f8:'bk',e5:'bp',c3:'bp'}),'e3',
+  'Shoot e5 through e4, shoot c3 over d3, or sidestep to f3 along the e4–f4 phalanx.');
 });
 reset(initial());

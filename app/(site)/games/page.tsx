@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 const games = projects.filter((game) => game.category === "game" && game.status === "live");
-const chess = games.filter((game) => game.collection === "chess");
 const arcade = games.filter((game) => !game.collection);
 
 export default function GameCenter() {
@@ -18,27 +17,22 @@ export default function GameCenter() {
       <h1 className="mb-3 text-5xl font-extrabold tracking-tight md:text-7xl">Game Center</h1>
       <p className="mb-8 text-lg text-muted">Original browser games by Asher Sebban.</p>
       <GameCenterFeature />
-      {[
-        { id: "chess-variations", title: "Asher’s Chess Variations", entries: chess },
-        { id: "arcade", title: "Arcade", entries: arcade },
-      ].map(({ id, title, entries }) => (
-        <section key={id} id={id} aria-labelledby={id + "-title"} className="mt-12 scroll-mt-28 sm:scroll-mt-24">
-          <h2 id={id + "-title"} className="mb-4 text-2xl font-bold">{title}</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {entries.map((game) => (
-              <article key={game.id} className="flex flex-col rounded-2xl border border-border bg-card p-5">
-                <h3 className="text-xl font-semibold">{game.title}</h3>
-                <p className="mt-2 flex-1 text-muted">{game.description}</p>
-                <PersonalBest gameId={game.id} />
-                <a href={game.deployUrl} aria-label={"Play " + game.title}
-                  className="mt-5 self-start rounded-lg border border-zinc-600 px-5 py-2.5 font-semibold hover:border-blue-400 hover:text-blue-300">
-                  Play
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+      <section id="arcade" aria-labelledby="arcade-title" className="mt-12 scroll-mt-28 sm:scroll-mt-24">
+        <h2 id="arcade-title" className="mb-4 text-2xl font-bold">Arcade</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {arcade.map((game) => (
+            <article key={game.id} className="flex flex-col rounded-2xl border border-border bg-card p-5">
+              <h3 className="text-xl font-semibold">{game.title}</h3>
+              <p className="mt-2 flex-1 text-muted">{game.description}</p>
+              <PersonalBest gameId={game.id} />
+              <a href={game.deployUrl} aria-label={"Play " + game.title}
+                className="mt-5 self-start rounded-lg border border-zinc-600 px-5 py-2.5 font-semibold hover:border-blue-400 hover:text-blue-300">
+                Play
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

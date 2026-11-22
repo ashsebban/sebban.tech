@@ -46,7 +46,7 @@ export const projects: SiteProject[] = [
     category: "game",
     tech: ["Chess engine", "Variant design"],
     status: "live",
-    deployUrl: "/games/sideways-chess/index.html?variant=b",
+    deployUrl: "/games/chess/index.html?mode=cathedral",
     preview: { mode: "external" },
   },
   {
@@ -57,7 +57,7 @@ export const projects: SiteProject[] = [
     category: "game",
     tech: ["Chess engine", "Variant design"],
     status: "live",
-    deployUrl: "/games/sideways-chess/index.html?variant=n",
+    deployUrl: "/games/chess/index.html?mode=lancer",
     preview: { mode: "external" },
   },
   {
@@ -68,7 +68,7 @@ export const projects: SiteProject[] = [
     category: "game",
     tech: ["Chess engine", "Variant design"],
     status: "live",
-    deployUrl: "/games/sideways-chess/index.html?variant=bn",
+    deployUrl: "/games/chess/index.html?mode=concord",
     preview: { mode: "external" },
   },
   {
@@ -79,7 +79,7 @@ export const projects: SiteProject[] = [
     category: "game",
     tech: ["Chess engine", "Variant design"],
     status: "live",
-    deployUrl: "/games/sideways-chess/index.html?variant=s",
+    deployUrl: "/games/chess/index.html?mode=squires",
     preview: { mode: "external" },
   },
   {
@@ -90,7 +90,7 @@ export const projects: SiteProject[] = [
     category: "game",
     tech: ["Chess engine", "Variant design"],
     status: "live",
-    deployUrl: "/games/mongols-chess/index.html",
+    deployUrl: "/games/chess/index.html?mode=mongols",
     preview: { mode: "external" },
   },
   {

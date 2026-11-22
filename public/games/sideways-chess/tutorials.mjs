@@ -38,7 +38,7 @@ export const tutorials = {
   },
 };
 
-export function initializeTutorials({ activeVariant, startGame }) {
+export function initializeTutorials({ activeVariant, startGame, fixedVariant }) {
   const settings = document.querySelector('#settings');
   const overview = document.querySelector('#settings-overview');
   const options = document.querySelector('#variant-options');
@@ -115,6 +115,7 @@ export function initializeTutorials({ activeVariant, startGame }) {
   }
 
   for (const [id, lesson] of Object.entries(tutorials)) {
+    if (fixedVariant && id!==fixedVariant) continue;
     const button = document.createElement('button');
     const title = document.createElement('strong');
     const summary = document.createElement('small');

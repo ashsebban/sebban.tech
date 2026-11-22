@@ -133,3 +133,7 @@ dialog form { display: flex; flex-wrap: wrap; gap: 6px; }
 .square.tandem::after { top: 5px; right: 5px; width: 18%; height: 18%; }
 
 .catalog-back { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 8px; color: var(--muted); font-size: .9rem; }
+
+.embedded .intro { display:none; }
+.embedded main { padding-top:8px; }
+.embedded dialog { margin:min(10vh, 72px) auto auto; max-height:min(75vh, 500px); }

@@ -1,0 +1,12 @@
+:root { color-scheme:dark; font:1rem/1.45 system-ui,sans-serif; color:#f6edda; background:#151e22; }
+* { box-sizing:border-box; }
+body { margin:0; }
+.shell { width:min(100% - 32px, 980px); margin:auto; padding:20px 0 10px; }
+.shell a { color:#b8d9d2; text-underline-offset:.24em; }
+h1 { margin:8px 0 14px; font-size:clamp(1.8rem,5vw,3.25rem); line-height:1.12; letter-spacing:-.035em; }
+.mode-bar { display:flex; align-items:center; flex-wrap:wrap; gap:8px 14px; padding:12px; border:1px solid #3d5358; border-radius:12px; background:#202d32; }
+label { font-weight:650; }
+select { max-width:100%; min-height:44px; padding:8px 10px; border:1px solid #61797c; border-radius:8px; background:#151e22; color:inherit; font:inherit; }
+#mode-description { flex:1 1 15rem; margin:0; color:#c1cfce; }
+iframe { display:block; width:100%; min-height:420px; border:0; background:#151e22; }
+iframe[hidden] { display:none; }

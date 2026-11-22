@@ -1,10 +1,10 @@
 const files = 'abcdefgh';
+const rookHomes = [0,7,56,63];
 const orthogonal = [[1,0],[-1,0],[0,1],[0,-1]];
 const diagonal = [[1,1],[1,-1],[-1,1],[-1,-1]];
 const compass = [...orthogonal,...diagonal];
 const knight = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
-const castleSquares = { w: [56,63], b: [0,7] };
-const value = { p:100, b:335, n:450, k:380, q:900, r:1500 };
+const value = { p:100, b:335, n:450, k:380, q:900, r:550 };
 export const profiles = {
   siege: { jumpShot:true, shootFirst:true, captureOnLanding:true, emptyShotLanding:true,
     castleDefense:true, reinforcements:true, pawnReinforcementsOnly:true, territoryWalls:true },
@@ -17,7 +17,7 @@ export const profiles = {
   escort: { min:2, max:3, rally:true, escort:true },
   bishopWard: { min:2, max:2, rally:true, escort:true, bishopWard:true },
 };
-export const defaultRules = { ...profiles.siege, firstCastleWins:true, castlesRequireOccupation:true, bishopWallSidestep:true };
+export const defaultRules = { ...profiles.siege, jumpShot:true, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, royalCheck:true, superKhan:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
 export const passMove = Object.freeze({from:-1,to:-1,kind:'pass',capture:null});
 export const opposite = side => side === 'w' ? 'b' : 'w';
 export const square = index => files[index % 8] + (8 - Math.floor(index / 8));
@@ -48,12 +48,12 @@ export function initial() {
       ...back.map(type=>'b'+type), ...Array(8).fill('bp'), ...Array(32).fill(null),
       ...Array(8).fill('wp'), ...back.map(type=>'w'+type),
     ],
-    turn:'w', ep:null, quiet:0, pawnStarts:0xffff,
+    turn:'w', ep:null, quiet:0, pawnStarts:0xffff, castlingRights:15,
   };
 }
 
 export function key(state) {
-  return state.turn + ' ' + state.ep + ' ' + (state.pawnStarts ?? startingPawns(state.board)) + ' ' + JSON.stringify(Object.entries(state.reserves ?? {}).sort()) + ' ' + (state.freshPawns ?? []).join(',') + ' ' + state.board.map(piece=>piece ?? '--').join('');
+  return state.turn + ' ' + (state.castlingRights ?? 0) + ' ' + state.ep + ' ' + (state.pawnStarts ?? startingPawns(state.board)) + ' ' + JSON.stringify(Object.entries(state.reserves ?? {}).sort()) + ' ' + (state.freshPawns ?? []).join(',') + ' ' + state.board.map(piece=>piece ?? '--').join('');
 }
 
 function guarded(board, target, defender) {
@@ -69,32 +69,93 @@ export function bishopGuardsCastle(board, target) {
     valid(x+dx,y+dy) && board[get(x+dx,y+dy)] === castle[0]+'b');
 }
 
+const isRoyal = (piece, rules) => piece?.[1]==='k' || (rules.royalCastles && piece?.[1]==='r');
+
+export function checkThreats(state, rules = defaultRules) {
+  const threats = candidateMoves({...state,turn:opposite(state.turn),ep:null},rules);
+  const checks = [];
+  for (const move of threats) {
+    if (isRoyal(move.capture,rules)) checks.push({from:move.from,to:move.captureAt ?? move.to,kind:move.kind});
+    if (isRoyal(move.landingCapture,rules)) checks.push({from:move.from,to:move.to,kind:'move'});
+  }
+  return checks;
+}
+
+export function checkedPieces(state, rules = defaultRules) {
+  return new Set(checkThreats(state,rules).map(threat=>threat.to));
+}
+
+export function khanEscapeThreats(state, rules = defaultRules) {
+  const from=state.board.indexOf(state.turn+'k');
+  if (from<0) return new Map();
+  const blocked=new Map();
+  for (const move of candidateMoves(state,rules,from)) {
+    if (move.kind!=='move' || isRoyal(move.capture,rules)) continue;
+    const after={...apply(state,move),turn:state.turn};
+    const threats=checkThreats(after,rules);
+    if (threats.length) blocked.set(move.to,threats);
+  }
+  return blocked;
+}
+
 export function inCheck(state, rules = defaultRules) {
-  const king = state.board.indexOf(state.turn+'k');
-  if (king<0) return false;
-  return candidateMoves({...state,turn:opposite(state.turn),ep:null},rules).some(move =>
-    move.capture?.[1]==='k' || move.landingCapture?.[1]==='k');
+  return checkedPieces(state,rules).size>0;
+}
+
+function castleMoves(state, rules, selected) {
+  const {board,turn,castlingRights=0}=state;
+  const home=turn==='w' ? 56 : 0;
+  const from=home+4;
+  const rights=castlingRights & (turn==='w' ? 12 : 3);
+  if (!rights || (selected!==null && selected!==from) || board[from]!==turn+'k') return [];
+  const options=[];
+  for (const direction of [-1,1]) {
+    const rookFrom=home+(direction===1 ? 7 : 0);
+    const right=1 << rookHomes.indexOf(rookFrom);
+    if (!(rights & right) || board[rookFrom]!==turn+'r') continue;
+    const between=board.slice(Math.min(rookFrom,from)+1,Math.max(rookFrom,from));
+    if (between.some(Boolean)) continue;
+    const rookTo=from+direction;
+    const crossing=board.slice();
+    crossing[from]=null;
+    crossing[rookTo]=turn+'k';
+    if (inCheck({...state,board:crossing},rules)) continue;
+    options.push({from,to:from+2*direction,kind:'castle',rookFrom,rookTo,capture:null,captureAt:null,promotion:false});
+  }
+  return options.length && !inCheck(state,rules) ? options : [];
 }
 
 export function moves(state, rules = defaultRules, selected = null) {
   const candidates=candidateMoves(state,rules,selected);
+  if (rules.castling) candidates.push(...castleMoves(state,rules,selected));
   if (!rules.royalCheck) return candidates;
+  const canSpawn = !rules.emergencyPawns || (candidates.some(move=>move.kind==='spawn') &&
+    [...checkedPieces(state,rules)].some(square=>state.board[square]?.[1]==='r'));
   return candidates.filter(move => {
-    if (move.capture?.[1]==='k' || move.landingCapture?.[1]==='k') return false;
+    if (move.kind==='spawn' && !canSpawn) return false;
+    if (isRoyal(move.capture,rules) || isRoyal(move.landingCapture,rules)) return false;
     return !inCheck({...apply(state,move),turn:state.turn},rules);
   });
+}
+
+export function khanPowers(board, side) {
+  return { queen:board.includes(side+'q'), knight:board.includes(side+'n'), bishop:board.includes(side+'b') };
 }
 
 function candidateMoves(state, rules, selected = null) {
   const { board, turn, ep, pawnStarts=startingPawns(board) } = state;
   const enemy = opposite(turn);
   const forward = turn === 'w' ? -1 : 1;
+  const promotionRank = turn === 'w' ? 0 : 7;
   const found = [];
   const first = selected ?? 0, last = selected ?? 63;
   for (let from = first; from <= last; from++) {
     const piece = board[from];
     if (!piece || piece[0] !== turn) continue;
     const type = piece[1], x = from%8, y = Math.floor(from/8);
+    const powers = type==='k' && rules.superKhan ? khanPowers(board,turn) : null;
+    const canBreakWall = (kind) => (kind==='move' && ((rules.superKhan && type==='k') || (rules.mobileCastles && type==='r'))) ||
+      (rules.infantryBreach ? type==='p' : isWall(piece,from));
     const add = (tx,ty,kind='move',captureAt=null) => {
       if (!valid(tx,ty)) return false;
       const to = get(tx,ty);
@@ -102,17 +163,19 @@ function candidateMoves(state, rules, selected = null) {
       if (target?.[0] === turn) return false;
       const capture = board[captureAt ?? to];
       if (rules.castlesRequireOccupation && kind==='shot' && capture?.[1]==='r') return false;
-      if (rules.territoryWalls && isWall(capture,captureAt ?? to) && !isWall(piece,from)) return false;
-      found.push({from,to,kind,capture,captureAt,
-        promotion:type==='p' && ty===(turn==='w'?0:7)});
+      if (rules.territoryWalls && isWall(capture,captureAt ?? to) && !canBreakWall(kind)) return false;
+      const promotions=type==='p' && ty===promotionRank ? ['q','r','b','n'] : [false];
+      for (const promotion of promotions) found.push({from,to,kind,capture,captureAt,promotion});
       return !target;
     };
     if (type === 'r') {
       if (rules.reinforcements) {
         for (const type of rules.pawnReinforcementsOnly ? ['p'] : ['p','n','b']) {
           if (!(state.reserves?.[turn+type]>0)) continue;
+          if (type==='p' && rules.pawnCap && board.filter(piece=>piece===turn+'p').length>=rules.pawnCap) continue;
           for (const [dx,dy] of compass) {
             if (!valid(x+dx,y+dy)) continue;
+            if (type==='p' && y+dy===promotionRank) continue;
             const to=get(x+dx,y+dy);
             if (!board[to]) found.push({from,to,kind:'spawn',spawn:type,capture:null,captureAt:null,promotion:false});
           }
@@ -127,6 +190,13 @@ function candidateMoves(state, rules, selected = null) {
             if (!target) continue;
             if (target[0]===enemy) add(tx,ty,'shot');
             break;
+          }
+        }
+      }
+      if (rules.mobileCastles) {
+        for (const [dx,dy] of orthogonal) {
+          for (let distance=1; distance<8; distance++) {
+            if (!add(x+dx*distance,y+dy*distance)) break;
           }
         }
       }
@@ -151,16 +221,17 @@ function candidateMoves(state, rules, selected = null) {
         if (board[target]?.[0] === enemy) add(x+dx,ny);
         else if (target === ep && !board[target] && board[get(x+dx,y)] === enemy+'p') {
           add(x+dx,ny,'move',get(x+dx,y));
+
         }
       }
       continue;
     }
-    if (type === 'n' && rules.jumpShot) {
+    if ((type === 'n' && rules.jumpShot) || powers?.knight) {
       for (const [dx,dy] of knight) {
         const tx=x+dx, ty=y+dy;
         if (!valid(tx,ty)) continue;
         const to=get(tx,ty), landingCapture=board[to];
-        if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && isWall(landingCapture,to)))) continue;
+        if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && isWall(landingCapture,to) && !canBreakWall('move')))) continue;
         add(tx,ty);
         if (landingCapture && rules.emptyShotLanding) continue;
         const shotX=rules.shootFirst ? x : tx;
@@ -174,14 +245,25 @@ function candidateMoves(state, rules, selected = null) {
           }
         }
       }
-      continue;
+      if (type==='n') continue;
+    }
+    if (rules.towerShots && (type==='b' || powers?.bishop)) {
+      for (const [dx,dy] of orthogonal) {
+        if (!valid(x+2*dx,y+2*dy)) continue;
+        const tower=get(x+dx,y+dy);
+        const cover=board[tower];
+        if (cover===turn+'p' || cover===turn+'r') {
+          const target=board[get(x+2*dx,y+2*dy)];
+          if (target?.[0]===enemy && !isRoyal(target,rules)) add(x+2*dx,y+2*dy,'shot');
+        }
+      }
     }
     if (type==='b' && (rules.bishopWalls || rules.bishopWallSidestep)) {
       const firingTargets=new Set();
-      let hasWall=false;
+      let canSidestep=false;
       for (const [dx,dy] of [[-1,0],[1,0],[-1,forward],[0,forward],[1,forward]]) {
         if (!valid(x+dx,y+dy) || board[get(x+dx,y+dy)]!==turn+'p') continue;
-        if (rules.bishopWalls || (dy && isWall(board[get(x+dx,y+dy)],get(x+dx,y+dy)))) hasWall=true;
+        if (rules.bishopWalls) canSidestep=true;
         if (!dy || !rules.bishopWalls) continue;
         for (const offset of [-1,0,1]) {
           const tx=x+dx+offset, ty=y+2*forward;
@@ -189,15 +271,17 @@ function candidateMoves(state, rules, selected = null) {
         }
       }
       for (const to of firingTargets) add(to%8,Math.floor(to/8),'shot');
-      if (hasWall) {
-        for (const dx of [-1,1]) {
-          if (valid(x+dx,y) && !board[get(x+dx,y)]) add(x+dx,y);
-        }
+      for (const dx of [-1,1]) {
+        if (!valid(x+dx,y) || board[get(x+dx,y)]) continue;
+        const front = y+forward;
+        const followsPawnLine = rules.bishopWallSidestep && valid(x,front) &&
+          board[get(x,front)]===turn+'p' && board[get(x+dx,front)]===turn+'p';
+        if (canSidestep || followsPawnLine) add(x+dx,y);
       }
     }
     const steps = type === 'n' ? knight : type === 'b' ? diagonal : compass;
     for (const [dx,dy] of steps) {
-      const limit = type === 'b' || type === 'q' ? 7 : 1;
+      const limit = type === 'b' || type === 'q' || powers?.queen ? 7 : 1;
       for (let distance=1; distance<=limit; distance++) {
         if (!add(x+dx*distance,y+dy*distance)) break;
       }
@@ -240,6 +324,20 @@ export function apply(state, move) {
   if (move.kind==='pass') return {...state,turn:opposite(state.turn),ep:null,quiet:state.quiet+1};
   const board = state.board.slice();
   const piece = board[move.from];
+  let castlingRights=state.castlingRights ?? 0;
+  if (move.kind!=='shot' && move.kind!=='spawn') {
+    if (piece[1]==='k') castlingRights &= state.turn==='w' ? 3 : 12;
+    const homeIndex=rookHomes.indexOf(move.from);
+    if (piece[1]==='r' && homeIndex>=0) castlingRights &= ~(1 << homeIndex);
+  }
+  if (move.capture?.[1]==='r') {
+    const homeIndex=rookHomes.indexOf(move.captureAt ?? move.to);
+    if (homeIndex>=0) castlingRights &= ~(1 << homeIndex);
+  }
+  if (move.landingCapture?.[1]==='r') {
+    const homeIndex=rookHomes.indexOf(move.to);
+    if (homeIndex>=0) castlingRights &= ~(1 << homeIndex);
+  }
   let pawnStarts=state.pawnStarts ?? startingPawns(board);
   if (piece[1]==='p') pawnStarts &= ~startingPawnBit(move.from,state.turn);
   if (move.capture?.[1]==='p') pawnStarts &= ~startingPawnBit(move.captureAt ?? move.to,opposite(state.turn));
@@ -264,16 +362,20 @@ export function apply(state, move) {
     board[move.to]=piece;
   } else {
     board[move.from]=null;
-    board[move.to]=move.promotion ? state.turn+'q' : piece;
+    board[move.to]=move.promotion ? state.turn+(move.promotion===true?'q':move.promotion) : piece;
     if (move.captureAt!==null) board[move.captureAt]=null;
+  }
+  if (move.kind==='castle') {
+    board[move.rookTo]=board[move.rookFrom];
+    board[move.rookFrom]=null;
   }
   const pawnMove=piece[1]==='p' && move.kind==='move';
   const ep=pawnMove && Math.abs(move.from-move.to)===16 ? (move.from+move.to)/2 : null;
-  return {board,turn:opposite(state.turn),ep,pawnStarts,reserves,freshPawns,quiet:move.capture || pawnMove || pawnRally || move.kind==='spawn' ? 0 : state.quiet+1};
+  return {board,turn:opposite(state.turn),ep,pawnStarts,castlingRights,reserves,freshPawns,quiet:move.capture || pawnMove || pawnRally || move.kind==='spawn' ? 0 : state.quiet+1};
 }
 
 export function castles(state,side) {
-  return castleSquares[side].filter(i=>state.board[i]===side+'r').length;
+  return state.board.filter(piece=>piece===side+'r').length;
 }
 
 export function outcome(state,rules=defaultRules,repetitions=0,legal=null) {
@@ -281,8 +383,8 @@ export function outcome(state,rules=defaultRules,repetitions=0,legal=null) {
     if (castles(state,'w')<2) return {winner:'b',reason:'Black took a White castle.'};
     if (castles(state,'b')<2) return {winner:'w',reason:'White took a Black castle.'};
   }
-  if (!castles(state,'w')) return {winner:'b',reason:'Both White castles fell.'};
-  if (!castles(state,'b')) return {winner:'w',reason:'Both Black castles fell.'};
+  if (!rules.mobileCastles && !castles(state,'w')) return {winner:'b',reason:'Both White castles fell.'};
+  if (!rules.mobileCastles && !castles(state,'b')) return {winner:'w',reason:'Both Black castles fell.'};
   if (rules.royalCheck && !(legal ?? moves(state,rules)).length) {
     return inCheck(state,rules)
       ? {winner:opposite(state.turn),reason:'Checkmate.'}
@@ -310,17 +412,21 @@ function evaluate(state, rules) {
     if(type==='r' && rules.bishopWard && bishopGuardsCastle(board,index)) bonus+=30;
     if(type==='k') {
       let nearest=8;
-      for(const home of castleSquares[side]) if(board[home]===side+'r') {
+      for(const [home, ally] of board.entries()) if(ally===side+'r') {
         nearest=Math.min(nearest,Math.max(Math.abs(x-home%8),Math.abs(y-Math.floor(home/8))));
       }
       bonus+=(8-nearest)*4;
+    }
+    if(type==='k' && rules.superKhan) {
+      const powers=khanPowers(board,side);
+      bonus+=(powers.queen ? 520 : 0)+(powers.knight ? 270 : 0)+(powers.bishop ? 80 : 0);
     }
     score+=(value[type]+bonus)*(side===turn ? 1 : -1);
   }
   return score;
 }
 const priority=move=>2*((move.capture ? value[move.capture[1]] : 0)
-  +(move.landingCapture ? value[move.landingCapture[1]] : 0))+(move.promotion ? 700 : 0);
+  +(move.landingCapture ? value[move.landingCapture[1]] : 0))+(move.promotion ? (value[move.promotion] ?? value.q)-value.p : 0);
 const sorted=actions=>actions.sort((a,b)=>priority(b)-priority(a));
 const exhausted=Symbol('search exhausted');
 
@@ -330,7 +436,7 @@ export function chooseMove(state,{rules=defaultRules,depth=3,budget=6500,seen={}
   let nodes=0, best=actions[0];
   function search(current,left,alpha,beta,ply) {
     if(++nodes>budget) throw exhausted;
-    if(castles(current,current.turn)<(rules.firstCastleWins?2:1)) return -100000+ply;
+    if(!rules.mobileCastles && castles(current,current.turn)<(rules.firstCastleWins?2:1)) return -100000+ply;
     if(current.quiet>=60 || seen[key(current)]>=2) return 0;
     if(!left) {
       if(rules.royalCheck && inCheck(current,rules) && !moves(current,rules).length) return -100000+ply;

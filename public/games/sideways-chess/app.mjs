@@ -1,7 +1,7 @@
-import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=6';
-import { chooseMove, difficulties } from './opponent.mjs?v=6';
-import { initializeOpenings } from './openings.mjs?v=6';
-import { initializeTutorials } from './tutorials.mjs?v=6';
+import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=7';
+import { chooseMove, difficulties } from './opponent.mjs?v=7';
+import { initializeOpenings } from './openings.mjs?v=7';
+import { initializeTutorials } from './tutorials.mjs?v=7';
 
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 const files = 'abcdefgh';
@@ -23,7 +23,10 @@ try {
 }
 const cells = new Map();
 
-const requestedVariant = new URLSearchParams(window.location.search).get('variant');
+const params = new URLSearchParams(window.location.search);
+const requestedVariant = params.get('variant');
+const embedded = params.get('embedded')==='1';
+if (embedded) document.documentElement.classList.add('embedded');
 const initialVariant = Object.hasOwn(variants, requestedVariant) ? requestedVariant : 'bn';
 let game = new VariantChess(initialVariant);
 if (requestedVariant && Object.hasOwn(variants, requestedVariant)) {
@@ -179,7 +182,7 @@ function playComputer() {
   thinking = true;
   if (!worker) {
     try {
-      const engine = new Worker(new URL('./worker.mjs?v=6', import.meta.url), { type: 'module' });
+      const engine = new Worker(new URL('./worker.mjs?v=7', import.meta.url), { type: 'module' });
       worker = engine;
       engine.onmessage = ({ data }) => {
         if (engine !== worker) return;
@@ -286,6 +289,7 @@ difficulty.addEventListener('change', () => {
 
 initializeTutorials({
   activeVariant: () => game.variant,
+  fixedVariant: embedded ? initialVariant : undefined,
   startGame: variant => {
     cancelComputer();
     game = new VariantChess(variant);
