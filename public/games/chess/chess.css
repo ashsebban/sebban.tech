@@ -59,9 +59,6 @@ iframe { display:block; width:100%; min-height:420px; border:0; background:#151e
 .category strong { font:700 clamp(1.65rem,4vw,2.8rem)/1 Georgia,serif; }
 .category span { max-width:27ch; color:#f0ddc1; }
 .category:is(:hover,:focus-visible) { border-color:#f5ce84; box-shadow:0 0 0 2px #b0824840; }
-.card-emblem { position:relative; }
-.card-emblem img:first-child { filter:brightness(.52) saturate(.75); }
-.card-emblem img:last-child { position:absolute; inset:10% 13%; width:74%; height:80%; object-fit:contain; border:0; background:none; filter:drop-shadow(0 0 15px #e3b267); }
 @media (max-width:530px) {
   .categories { grid-template-columns:1fr; gap:12px; }
   .category { min-height:175px; padding:18px; }

@@ -1,7 +1,7 @@
 import { VariantChess, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=10';
 import { chooseMove, difficulties } from './opponent.mjs?v=10';
 import { initializeOpenings } from './openings.mjs?v=10';
-import { initializeTutorials } from './tutorials.mjs?v=10';
+import { initializeTutorials } from './tutorials.mjs?v=11';
 
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 const files = 'abcdefgh';

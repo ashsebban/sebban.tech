@@ -31,6 +31,10 @@ export const tutorials = {
     summary: 'The king borrows its army’s moves',
     rule: 'A queen gives the king long straight and diagonal moves. Rooks give straight slides, bishops give diagonal slides, and knights give L-shaped jumps. The king keeps its one-square move, and all moves must leave it safe. Pawns still move normally.',
     exercises: [{
+      fen: '7k/8/8/8/3K4/8/Q7/8 w - - 0 1',
+      from: 'd4', to: 'f6', piece: 'king',
+      result: 'The queen on a2 gives the king long slides in all eight directions. Try a knight jump next.',
+    }, {
       fen: '7k/8/8/8/3K4/8/N7/8 w - - 0 1',
       from: 'd4', to: 'f5', piece: 'king',
       result: 'The knight on a2 gives the king its leap. Lose your last knight and the king loses this move.',

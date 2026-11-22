@@ -3,7 +3,7 @@ const games = {
   cathedral: { name:'Cathedral Chess', art:'cathedral', url:'../sideways-chess/index.html?variant=b', description:'Bishops can step sideways and switch square colors.' },
   lancer: { name:'Paladin Chess', art:'paladin', url:'../sideways-chess/index.html?variant=n', description:'Knights can step sideways as well as leap.' },
   concord: { name:'Royal Court Chess', art:'royal-court', url:'../sideways-chess/index.html?variant=bn', description:'Both bishops and knights can step sideways.' },
-  warrior: { name:'Warrior King Chess', art:'royal-court', url:'../sideways-chess/index.html?variant=warrior', description:'Your king borrows moves from the army still on the board.', emblem:'../sideways-chess/pieces/wK.svg' },
+  warrior: { name:'Warrior King Chess', art:'warrior-king', url:'../sideways-chess/index.html?variant=warrior', description:'Your king borrows moves from surviving pieces, including the queen’s long slides.' },
   squires: { name:'Squire’s Chess', art:'squires', url:'../sideways-chess/index.html?variant=s', description:'Knights can advance in tandem with friendly pawns.' },
 };
 
@@ -43,18 +43,7 @@ for (const [id,mode] of Object.entries(games)) {
   const description=document.createElement('span');
   description.textContent=mode.description;
   copy.append(title,description);
-  if (mode.emblem) {
-    const illustration=document.createElement('div');
-    illustration.className='card-emblem';
-    const emblem=document.createElement('img');
-    emblem.src=mode.emblem;
-    emblem.alt='';
-    illustration.append(art,emblem);
-    card.append(illustration);
-  } else {
-    card.append(art);
-  }
-  card.append(copy);
+  card.append(art,copy);
   cardByMode.set(id,card);
   card.addEventListener('click',navigate);
   gallery.append(card);
