@@ -141,9 +141,17 @@ dialog form { display: flex; flex-wrap: wrap; gap: 6px; }
 .warrior-powers { margin:0 0 8px; }
 #special-key[hidden] { display:none; }
 
+.king-badges { position:absolute; inset:0; z-index:3; pointer-events:none; }
+.king-with-badges > .piece { width:69%; height:69%; }
 .borrowed-piece {
-  position:absolute; inset:5% 5% auto auto; width:39%; height:39%; padding:2%;
-  z-index:3; border:1px solid #936324; border-radius:50%; background:#ffe6ad;
-  box-shadow:0 1px 3px #18140c80; pointer-events:none; object-fit:contain;
+  --badge-inset:4%; position:absolute; width:31%; height:31%; padding:1%;
+  border:1px solid #78664c; border-radius:50%; background:#f6edd2;
+  box-shadow:0 1px 3px #18140c70; object-fit:contain;
 }
+.borrowed-q { top:var(--badge-inset); left:var(--badge-inset); }
+.borrowed-r { top:var(--badge-inset); right:var(--badge-inset); }
+.borrowed-b { bottom:var(--badge-inset); left:var(--badge-inset); }
+.borrowed-n { bottom:var(--badge-inset); right:var(--badge-inset); }
+.borrowed-recent { background:#ffce65; border-color:#724308; outline:1px solid #4b2c0a; }
 .borrowed-piece[hidden] { display:none; }
+.king-with-badges .coord { z-index:4; }
