@@ -142,9 +142,8 @@ dialog form { display: flex; flex-wrap: wrap; gap: 6px; }
 #special-key[hidden] { display:none; }
 
 .king-badges { position:absolute; inset:0; z-index:3; pointer-events:none; }
-.king-with-badges > .piece { width:69%; height:69%; }
 .borrowed-piece {
-  --badge-inset:4%; position:absolute; width:31%; height:31%; padding:1%;
+  --badge-inset:3%; position:absolute; width:24%; height:24%; padding:1%;
   border:1px solid #78664c; border-radius:50%; background:#f6edd2;
   box-shadow:0 1px 3px #18140c70; object-fit:contain;
 }
