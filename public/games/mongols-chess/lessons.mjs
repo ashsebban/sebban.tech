@@ -6,10 +6,10 @@ export const lessons = [
         prompt:'Advance your pawn from e2 to e4 to set up a phalanx.'},
       {pieces:{a1:'wk',h8:'bk',e3:'wb',e4:'wp',e5:'bp'},from:'e3',to:'e5',kind:'shot',
         prompt:'Shoot the pawn on e5 through your phalanx on e4.'},
-      {pieces:{a1:'wk',h8:'bk',d4:'wn',f4:'bp'},from:'d4',shot:'f4',kind:'jumpShot',
-        prompt:'Shoot the pawn on f4, then choose any highlighted landing square.'},
+      {pieces:{a1:'wk',h8:'bk',g5:'wn',e5:'bp',e4:'bn'},from:'g5',shot:'e5',to:'e4',kind:'jumpShot',
+        prompt:'Shoot the pawn on e5, then jump to e4 to capture the horse archer.'},
     ],
-    success:'You advanced infantry, used it for a bishop shot, and landed a shoot-and-jump.',
+    success:'You advanced infantry, used it for a bishop shot, and captured twice in one turn with a horse archer.',
   },
   {
     title:'Why am I in check?', description:'Read a check and find a safe escape.',

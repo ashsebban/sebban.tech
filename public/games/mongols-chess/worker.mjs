@@ -1,4 +1,4 @@
-import { chooseMove } from './engine.mjs?v=33';
+import { chooseMove } from './engine.mjs?v=34';
 self.onmessage=({data:{token,state,seen}})=>{
   try { self.postMessage({token,move:chooseMove(state,{seen})}); }
   catch { self.postMessage({token,failed:true}); }

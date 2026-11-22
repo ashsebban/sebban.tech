@@ -17,7 +17,7 @@ export const profiles = {
   escort: { min:2, max:3, rally:true, escort:true },
   bishopWard: { min:2, max:2, rally:true, escort:true, bishopWard:true },
 };
-export const defaultRules = { ...profiles.siege, jumpShot:true, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, royalCheck:true, superKhan:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
+export const defaultRules = { ...profiles.siege, jumpShot:true, emptyShotLanding:false, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, royalCheck:true, superKhan:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
 export const passMove = Object.freeze({from:-1,to:-1,kind:'pass',capture:null});
 export const opposite = side => side === 'w' ? 'b' : 'w';
 export const square = index => files[index % 8] + (8 - Math.floor(index / 8));

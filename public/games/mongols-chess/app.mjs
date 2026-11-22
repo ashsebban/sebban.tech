@@ -1,6 +1,6 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=33';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=34';
 
-import { lessons } from './lessons.mjs?v=33';
+import { lessons } from './lessons.mjs?v=34';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
@@ -197,7 +197,7 @@ function draw() {
   };
   white.textContent=count('w');
   black.textContent=count('b');
-  status.textContent=pending ? 'Choose where the archer jumps' : result ? (result.winner ? result.winner==='w' ? 'You won the siege.' : 'Black won the siege.' : 'Draw.')
+  status.textContent=pending ? 'Choose where to jump or capture' : result ? (result.winner ? result.winner==='w' ? 'You won the siege.' : 'Black won the siege.' : 'Draw.')
     : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>names[state.board[i][1]]+' '+square(i)).join(', ')
     : state.turn==='w' ? 'Your move · White' : 'Black is thinking…';
   lastMove.textContent=result?.reason??previous?.text??practiceHint;
@@ -239,7 +239,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=33',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=34',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

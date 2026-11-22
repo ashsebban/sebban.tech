@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the Khan and use castles to bring pawns back into play.">
   <title>Mongol’s Chess</title>
-  <link rel="stylesheet" href="./style.css?v=33">
+  <link rel="stylesheet" href="./style.css?v=34">
 </head>
 <body>
   <main>
@@ -51,7 +51,7 @@
           <h2 id="tactics-title">Siege tactics</h2>
           <dl>
             <dt>White Khan</dt><dd id="khan-powers"></dd><dt>Black Khan</dt><dd id="black-khan-powers"></dd><dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square.</dd>
-            <dt>Horse archers</dt><dd>Move and capture like a knight, or shoot and then jump.</dd>
+            <dt>Horse archers</dt><dd>Move like a knight, or shoot and then jump, capturing on landing if possible.</dd>
           </dl>
         </section>
         <button type="button" id="new-game" class="primary">New game</button>
@@ -75,7 +75,7 @@
       <li><strong>Pawn reinforcements.</strong> A castle can spend its turn returning a captured friendly pawn to an empty adjacent square off that pawn’s promotion rank. Each side can have up to eight pawns on the board.</li>
       <li><strong>Pawns and walls.</strong> Pawns advance straight and capture diagonally. They keep the initial straight double step. On the far rank, choose a queen, castle, bishop, or horse archer. Home-rank pawns on White’s ranks 1–3 or Black’s ranks 6–8 become walls. Enemy pawns, castles, and the Khan can capture walls by moving onto them. Arrows cannot break walls.</li>
       <li><strong>Bishops.</strong> Slide horizontally along an unbroken line of friendly pawns directly ahead, stopping at a gap or a piece. A bishop may capture an enemy at the end of its slide. Shoot straight through a friendly infantry pawn, or shoot at any of the three squares just beyond a fortified wall. The supporting wall must be directly next to the shooter in the same row or column. Wall and phalanx shots cannot give check.</li>
-      <li><strong>Horse archers.</strong> Move or capture like a knight, or shoot an enemy exactly two squares away in a clear row or column and then make a knight jump to an empty square.</li>
+      <li><strong>Horse archers.</strong> Move or capture like a knight, or shoot an enemy exactly two squares away in a clear row or column and then make a knight jump. The archer can capture an enemy on its landing square as part of the same turn.</li>
       <li><strong>Draws.</strong> Threefold repetition, stalemate, or 60 turns without a pawn move, reinforcement, or capture is a draw.</li>
     </ul>
     <button type="button" id="practice" class="primary">Start practice siege</button>
@@ -87,6 +87,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=33"></script>
+  <script type="module" src="./app.mjs?v=34"></script>
 </body>
 </html>
