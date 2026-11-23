@@ -1,4 +1,4 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=34';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=35';
 
 import { lessons } from './lessons.mjs?v=34';
 
@@ -259,7 +259,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=34',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=35',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

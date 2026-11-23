@@ -72,13 +72,33 @@ export function bishopGuardsCastle(board, target) {
 const isRoyal = (piece, rules) => piece?.[1]==='k' || (rules.royalCastles && piece?.[1]==='r');
 
 export function checkThreats(state, rules = defaultRules) {
-  const threats = candidateMoves({...state,turn:opposite(state.turn),ep:null},rules);
+  return royalThreats(candidateMoves({...state,turn:opposite(state.turn),ep:null},rules),rules);
+}
+
+function royalThreats(threats, rules) {
   const checks = [];
   for (const move of threats) {
     if (isRoyal(move.capture,rules)) checks.push({from:move.from,to:move.captureAt ?? move.to,kind:move.kind});
     if (isRoyal(move.landingCapture,rules)) checks.push({from:move.from,to:move.to,kind:'move'});
   }
   return checks;
+}
+
+function moveThreats(state, move, rules) {
+  const after={...apply(state,move),turn:state.turn};
+  const threats=checkThreats(after,rules);
+  if (threats.length || !rules.superKhan || state.board[move.from]!==state.turn+'k' ||
+      (move.kind!=='move' && move.kind!=='jumpShot') ||
+      ![move.capture,move.landingCapture].some(piece=>piece && 'qnb'.includes(piece[1]))) return threats;
+
+  const enemy=opposite(state.turn);
+  const enemyKhan=after.board.indexOf(enemy+'k');
+  if (enemyKhan<0) return threats;
+  // The attacker cannot erase a borrowed defense by capturing its source
+  // on the same turn that the Khan enters the defended square.
+  const powers=khanPowers(state.board,enemy);
+  const defenses=candidateMoves({...after,turn:enemy,ep:null},rules,enemyKhan,null,powers);
+  return royalThreats(defenses,rules).filter(threat=>threat.to===move.to);
 }
 
 export function checkedPieces(state, rules = defaultRules) {
@@ -91,8 +111,7 @@ export function khanEscapeThreats(state, rules = defaultRules) {
   const blocked=new Map();
   for (const move of candidateMoves(state,rules,from)) {
     if (move.kind!=='move' || isRoyal(move.capture,rules)) continue;
-    const after={...apply(state,move),turn:state.turn};
-    const threats=checkThreats(after,rules);
+    const threats=moveThreats(state,move,rules);
     if (threats.length) blocked.set(move.to,threats);
   }
   return blocked;
@@ -134,7 +153,7 @@ export function moves(state, rules = defaultRules, selected = null) {
   return candidates.filter(move => {
     if (move.kind==='spawn' && !canSpawn) return false;
     if (isRoyal(move.capture,rules) || isRoyal(move.landingCapture,rules)) return false;
-    return !inCheck({...apply(state,move),turn:state.turn},rules);
+    return !moveThreats(state,move,rules).length;
   });
 }
 
@@ -148,7 +167,7 @@ export function emptyShotSquares(state, selected, rules = defaultRules) {
   return squares;
 }
 
-function candidateMoves(state, rules, selected = null, emptyShots = null) {
+function candidateMoves(state, rules, selected = null, emptyShots = null, inheritedPowers = null) {
   const { board, turn, ep, pawnStarts=startingPawns(board) } = state;
   const enemy = opposite(turn);
   const forward = turn === 'w' ? -1 : 1;
@@ -159,7 +178,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null) {
     const piece = board[from];
     if (!piece || piece[0] !== turn) continue;
     const type = piece[1], x = from%8, y = Math.floor(from/8);
-    const powers = type==='k' && rules.superKhan ? khanPowers(board,turn) : null;
+    const powers = type==='k' && rules.superKhan ? inheritedPowers ?? khanPowers(board,turn) : null;
     const canBreakWall = (kind) => (kind==='move' && ((rules.superKhan && type==='k') || (rules.mobileCastles && type==='r'))) ||
       (rules.infantryBreach ? type==='p' : isWall(piece,from));
     const add = (tx,ty,kind='move',captureAt=null) => {
