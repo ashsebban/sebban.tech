@@ -210,7 +210,7 @@ export function hasBow(board,from,rules=defaultRules) {
   const [side,type]=piece;
   const powers=type==='k' && sideRule(rules,side,'superKhan') ? khanPowers(board,side) : null;
   if (sideRule(rules,side,'horseArchery')!==false && (type==='n' || powers?.knight)) return true;
-  if (!powers?.bishop && (type!=='b' || sideRule(rules,side,'bishopArchery')===false)) return false;
+  if (sideRule(rules,side,'bishopArchery')===false || (type!=='b' && !powers?.bishop)) return false;
   return orthogonal.some(([dx,dy])=>firingCover(board,from%8,Math.floor(from/8),dx,dy,side)!==null);
 }
 
@@ -331,7 +331,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       }
       if (type==='n') continue;
     }
-    if (rules.towerShots && ((type==='b' && bishopArchery) || powers?.bishop)) {
+    if (rules.towerShots && bishopArchery && (type==='b' || powers?.bishop)) {
       for (const [dx,dy] of orthogonal) {
         const tower=firingCover(board,x,y,dx,dy,turn);
         if (tower===null) continue;
@@ -382,8 +382,10 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       }
     }
     const steps = type === 'n' ? knight : type === 'b' ? diagonal : compass;
+    const borrowsDiagonals = powers?.bishop && !bishopArchery;
     for (const [dx,dy] of steps) {
-      const limit = type === 'b' || type === 'q' || powers?.queen ? 7 : 1;
+      const longSlide = type==='b' || type==='q' || powers?.queen || (borrowsDiagonals && dx!==0 && dy!==0);
+      const limit = longSlide ? 7 : 1;
       for (let distance=1; distance<=limit; distance++) {
         if (!add(x+dx*distance,y+dy*distance)) break;
       }

@@ -1,5 +1,5 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=46';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=47';
 
 import { chineseLessons, frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=37';
 
@@ -98,7 +98,7 @@ const khanBadges = ['w','b'].filter(side=>sideRule(rules,side,'superKhan')).map(
   const badges=[
     ['queen','Q','Queen slides'],
     ['knight','N','Knight jumps and shoot-and-jump'],
-    ['bishop','B','Wall shots'],
+    ['bishop','B',sideRule(rules,side,'bishopArchery')===false?'Diagonal slides':'Wall shots'],
   ].map(([power,type,label])=>{
     const image=document.createElement('img');
     image.className='khan-badge khan-badge-'+power;
@@ -195,7 +195,7 @@ function describeThreat(threat, boardState=state.board) {
   const dx=Math.abs(threat.from%8-threat.to%8);
   const dy=Math.abs(Math.floor(threat.from/8)-Math.floor(threat.to/8));
   const mode=threat.kind==='jumpShot' ? 'shoot-and-jump' : threat.kind==='shot' ? 'arrow shot'
-    : dx*dy===2 ? 'knight jump' : piece[1]==='k' && Math.max(dx,dy)>1 ? 'queen slide' : 'direct attack';
+    : dx*dy===2 ? 'knight jump' : piece[1]==='k' && Math.max(dx,dy)>1 ? (boardState.includes(piece[0]+'q')?'queen slide':'bishop slide') : 'direct attack';
   return color[piece[0]]+' '+nameOf(piece)+' on '+square(threat.from)+' · '+mode;
 }
 
@@ -376,7 +376,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=68',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=70',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
