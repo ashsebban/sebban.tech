@@ -1,16 +1,27 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=39';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=40';
 
 import { lessons as siegeLessons } from './lessons.mjs?v=34';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
 const medieval=document.documentElement.dataset.variant==='medieval';
-const rules=medieval ? {...defaultRules,horseArchery:false,straightBishopShots:false} : defaultRules;
+const rules=medieval
+  ? {...defaultRules,horseArchery:false,straightBishopShots:false,superKhan:false,kingBreachesWalls:true}
+  : defaultRules;
 const lessons=medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
   lessons[0].description='Advance infantry, shoot a longbow from cover, and capture with a knight.';
   lessons[0].steps[2]={pieces:{a1:'wk',h8:'bk',g5:'wn',e4:'bn'},from:'g5',to:'e4',kind:'move',prompt:'Jump from g5 to e4 to capture the black knight.'};
   lessons[0].success='You advanced infantry, fired from cover, and made a knight capture.';
+  lessons[2]={
+    title:'Defend with the king',
+    description:'Capture an undefended piece to escape check.',
+    steps:[
+      {pieces:{e1:'wk',e2:'br',a8:'bk'},from:'e1',to:'e2',kind:'move',
+        prompt:'The castle on e2 gives check. Move your king one square to e2 to capture it.'},
+    ],
+    success:'Your king captured the undefended castle and escaped check.',
+  };
 }
 const find = selector => document.querySelector(selector);
 const board = find('#board');
@@ -41,13 +52,13 @@ const names = { p:'pawn',n:medieval?'knight':'horse archer',b:'bishop',q:'queen'
 const miniature = medieval ? {k:'king',q:'queen',r:'castle',n:'knight',b:'captain',p:'infantry'} : { k:'khan', q:'khatun', r:'gate', n:'horse', b:'captain', p:'infantry' };
 const color = { w:'White',b:'Black' };
 const cancelShot = find('#cancel-shot');
-const khanBadges = ['w','b'].map(side=>{
+const khanBadges = (rules.superKhan ? ['w','b'] : []).map(side=>{
   const group=document.createElement('span');
   group.className='khan-badges';
   group.setAttribute('aria-hidden','true');
   const badges=[
     ['queen','Q','Queen slides'],
-    ['knight','N',medieval?'Knight jumps':'Knight jumps and shoot-and-jump'],
+    ['knight','N','Knight jumps and shoot-and-jump'],
     ['bishop','B','Wall shots'],
   ].map(([power,type,label])=>{
     const image=document.createElement('img');
@@ -303,7 +314,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=39',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=40',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

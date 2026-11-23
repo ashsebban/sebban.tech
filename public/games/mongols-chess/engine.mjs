@@ -173,7 +173,7 @@ export function hasBow(board,from,rules=defaultRules) {
   const piece=board[from];
   if (!piece) return false;
   const [side,type]=piece;
-  const powers=type==='k' ? khanPowers(board,side) : null;
+  const powers=type==='k' && rules.superKhan ? khanPowers(board,side) : null;
   if (rules.horseArchery!==false && (type==='n' || powers?.knight)) return true;
   if (type!=='b' && !powers?.bishop) return false;
   return orthogonal.some(([dx,dy])=>firingCover(board,from%8,Math.floor(from/8),dx,dy,side,rules)!==null);
@@ -197,7 +197,8 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
     if (!piece || piece[0] !== turn) continue;
     const type = piece[1], x = from%8, y = Math.floor(from/8);
     const powers = type==='k' && rules.superKhan ? inheritedPowers ?? khanPowers(board,turn) : null;
-    const canBreakWall = (kind) => (kind==='move' && ((rules.superKhan && type==='k') || (rules.mobileCastles && type==='r'))) ||
+    const kingBreachesWall = type==='k' && (rules.superKhan || rules.kingBreachesWalls);
+    const canBreakWall = (kind) => (kind==='move' && (kingBreachesWall || (rules.mobileCastles && type==='r'))) ||
       (rules.infantryBreach ? type==='p' : isWall(piece,from));
     const add = (tx,ty,kind='move',captureAt=null) => {
       if (!valid(tx,ty)) return false;

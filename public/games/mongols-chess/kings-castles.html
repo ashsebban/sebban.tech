@@ -56,7 +56,7 @@
         <section class="panel" aria-labelledby="tactics-title">
           <h2 id="tactics-title">Siege tactics</h2>
           <dl>
-            <dt>White king</dt><dd id="khan-powers"></dd><dt>Black king</dt><dd id="black-khan-powers"></dd><dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square.</dd>
+            <dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square.</dd>
             <dt>Knights</dt><dd>Leap in an L shape and capture on landing.</dd>
           </dl>
         </section>
@@ -76,8 +76,8 @@
     </div>
     <ul>
       <li><strong>Checkmate.</strong> Checkmate the enemy king to win. Castles move and capture like rooks.</li>
-      <li><strong>The king.</strong> The king can always step one square like a king. A friendly queen on the board gives him long slides, at least one friendly knight gives him knight jumps, and at least one friendly bishop lets him shoot over walls. A pawn that promotes to queen restores the queen power.</li>
-      <li><strong>Castling.</strong> Move the king two squares toward an original corner castle. Both pieces must be unmoved, with empty squares between them. The king cannot castle out of, through, or into check. If a normal king move also reaches that square, choose Castling from the move menu.</li>
+      <li><strong>The king.</strong> The king moves or captures one square in any direction. It cannot move into check.</li>
+      <li><strong>Castling.</strong> Move the king two squares toward an original corner castle. Both pieces must be unmoved, with empty squares between them. The king cannot castle out of, through, or into check.</li>
       <li><strong>Pawn reinforcements.</strong> A castle can spend its turn returning a captured friendly pawn to an empty adjacent square off that pawn’s promotion rank. Its gate lights up when it can return a pawn. Each side can have up to eight pawns on the board.</li>
       <li><strong>Pawns and walls.</strong> Pawns advance straight and capture diagonally. They keep the initial straight double step. On the far rank, choose a queen, castle, bishop, or knight. Home-rank pawns on White’s ranks 1–3 or Black’s ranks 6–8 become walls. Enemy pawns, castles, and the king can capture walls by moving onto them. Arrows cannot break walls.</li>
       <li><strong>Bishops.</strong> Slide horizontally along an unbroken line of friendly pawns directly ahead, stopping at a gap or a piece. A bishop may capture an enemy at the end of its slide. Shoot straight through a friendly infantry pawn, or shoot at any of the three squares just beyond a fortified wall. The supporting wall must be directly next to the shooter in the same row or column. Wall and phalanx shots can give check.</li>
@@ -93,6 +93,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=54"></script>
+  <script type="module" src="./app.mjs?v=55"></script>
 </body>
 </html>
