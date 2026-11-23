@@ -24,7 +24,7 @@ export const frontierRules = {
   firstTurn:'b',
   siegeLimit:12,
   sides: {
-    w:{horseArchery:false,superKhan:false},
+    w:{horseArchery:false,superKhan:false,backRankSwap:true},
     b:{pawnWalls:false,bishopArchery:false},
   },
 };
@@ -407,6 +407,14 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
             add(tx,ty,'shot');
           }
           break;
+        }
+      }
+    }
+    if (type==='k' && y===(turn==='w'?7:0) && sideRule(rules,turn,'backRankSwap')) {
+      for (let file=0; file<8; file++) {
+        const to=get(file,y);
+        if (to!==from && board[to]?.[0]===turn) {
+          found.push({from,to,kind:'rally',capture:null,captureAt:null,promotion:false});
         }
       }
     }

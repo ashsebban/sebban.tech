@@ -1,5 +1,5 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=48';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=49';
 
 import { chineseLessons, frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=37';
 
@@ -311,7 +311,7 @@ function draw() {
     const hinted=hintMove && i===(hintMove.kind==='jumpShot' ? hintMove.captureAt : hintMove.to);
     cell.className=[base,hinted && 'hint-target',classicPieces && wall && 'fortified-pawn',classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':nameOf(piece)):'empty';
-    const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
+    const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', swap with the king':mark==='capture'?', legal capture':mark?', legal move':'';
     cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(hinted?', suggested target':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
     cell.setAttribute('aria-pressed',String(i===active));
   }
@@ -344,6 +344,7 @@ function hintText(move) {
   if(move.kind==='shot') return 'Hint: shoot '+to+' from '+from+'.';
   if(move.kind==='jumpShot') return 'Hint: shoot '+square(move.captureAt)+' from '+from+', then jump to '+to+'.';
   if(move.kind==='spawn') return 'Hint: use the castle on '+from+' to return a pawn to '+to+'.';
+  if(move.kind==='rally') return 'Hint: swap the king on '+from+' with the piece on '+to+'.';
   if(move.kind==='castle') return 'Hint: castle '+(move.to>move.from?'kingside.':'queenside.');
   return 'Hint: move '+from+' to '+to+(move.promotion?' and promote to '+nameOf(state.turn+move.promotion):'')+'.';
 }
@@ -385,7 +386,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=71',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=72',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
