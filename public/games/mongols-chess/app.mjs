@@ -520,7 +520,6 @@ cancelShot.addEventListener('click',()=>{
 });
 undo.addEventListener('click',()=>{
   if(undo.disabled) return;
-  menu.close();
   hintMove=null;
   explanation='';
   reviewMate=false;
@@ -610,6 +609,7 @@ find('#new-game').addEventListener('click',()=>{
 resignButton.addEventListener('click',()=>{
   if(resignButton.disabled) return;
   confirmMatchAction('Resign this game?', 'The computer will win this match.', 'Resign', ()=>{
+    if(result) return;
     abortEngine();
     resigned=true;
     pending=null;
@@ -623,7 +623,6 @@ hintButton.addEventListener('click',()=>{
   if(hintButton.disabled) return;
   const move=chooseMove(state,{rules,seen,depth:2,budget:1200});
   if(!move) return;
-  menu.close();
   hintMove=move;
   selected=move.from;
   explanation='';

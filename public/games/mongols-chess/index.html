@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the Khan and use castles to bring pawns back into play.">
   <title>Duel of Khans</title>
-  <link rel="stylesheet" href="./style.css?v=61">
+  <link rel="stylesheet" href="./style.css?v=62">
 </head>
 <body>
   <main>
@@ -14,7 +14,6 @@
     <section class="field" aria-label="The match">
       <div class="match-bar">
         <p id="status" class="status" role="status">Your move</p>
-        <button type="button" id="open-menu" class="menu-trigger" aria-haspopup="dialog">Menu</button>
       </div>
       <section id="lesson" class="panel lesson" hidden aria-labelledby="lesson-title">
         <h2 id="lesson-title"></h2>
@@ -22,6 +21,12 @@
         <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
       </section>
       <div id="board" class="board" role="group" aria-label="Game board"></div>
+      <div class="match-actions" role="group" aria-label="Game actions">
+        <button type="button" id="open-menu" aria-haspopup="dialog"><span class="action-icon" aria-hidden="true">≡</span>Options</button>
+        <button type="button" id="resign"><span class="action-icon" aria-hidden="true">⚑</span>Resign</button>
+        <button type="button" id="hint"><span class="action-icon" aria-hidden="true">✧</span>Hint</button>
+        <button type="button" id="undo"><span class="action-icon" aria-hidden="true">↶</span>Undo</button>
+      </div>
       <div class="below-board">
         <p id="last-move" class="last-move" aria-live="polite"></p>
         <button type="button" id="cancel-shot" hidden>Cancel shot</button>
@@ -36,15 +41,10 @@
     </section>
   </main>
   <dialog id="match-menu" aria-labelledby="match-menu-title">
-    <div class="dialog-head"><h2 id="match-menu-title">Game menu</h2><form method="dialog"><button>Done</button></form></div>
+    <div class="dialog-head"><h2 id="match-menu-title">Options</h2><form method="dialog"><button>Done</button></form></div>
     <section class="menu-section" aria-labelledby="match-actions-title">
       <h3 id="match-actions-title">Match</h3>
-      <div class="menu-actions">
-        <button type="button" id="hint">Get a hint</button>
-        <button type="button" id="undo">Undo</button>
-        <button type="button" id="new-game">Restart</button>
-        <button type="button" id="resign" class="danger">Resign</button>
-      </div>
+      <button type="button" id="new-game">Restart game</button>
     </section>
     <section class="menu-section" aria-labelledby="settings-title">
       <h3 id="settings-title">Settings</h3>
@@ -127,6 +127,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=61"></script>
+  <script type="module" src="./app.mjs?v=62"></script>
 </body>
 </html>

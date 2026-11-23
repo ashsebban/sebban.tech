@@ -74,3 +74,7 @@ iframe { display:block; width:100%; min-height:420px; border:0; background:#151e
   .experimental-match header.shell { width:min(620px,100% - 24px,max(300px,100svh - 124px)); }
   .experimental-match iframe { max-width:min(644px,max(324px,100svh - 100px)); }
 }
+
+@media (max-width:510px) {
+  .experimental-match header.shell { width:calc(100% - 16px); }
+}
