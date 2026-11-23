@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#161a1c">
   <meta name="description" content="Choose a chess variation and play against the computer.">
   <title>Asher’s Chess Variations</title>
-  <link rel="stylesheet" href="./chess.css?v=7">
+  <link rel="stylesheet" href="./chess.css?v=8">
 </head>
 <body>
   <header class="shell">
@@ -18,7 +18,10 @@
     </div>
     <div id="match-heading" class="match-heading" hidden>
       <h1 id="mode-name" tabindex="-1"></h1>
-      <a id="choose-variation" href="./index.html">Variations</a>
+      <div class="match-tools">
+        <button id="match-piece-style" type="button" hidden></button>
+        <a id="choose-variation" href="./index.html">Variations</a>
+      </div>
     </div>
   </header>
   <main>
@@ -30,6 +33,6 @@
     <section id="game" aria-label="Playable chessboard" hidden></section>
   </main>
   <noscript><p>Enable JavaScript to play a chess variation.</p></noscript>
-  <script type="module" src="./chess.mjs?v=8"></script>
+  <script type="module" src="./chess.mjs?v=9"></script>
 </body>
 </html>

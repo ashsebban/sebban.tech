@@ -18,6 +18,8 @@ body { margin:0; }
 main { width:min(620px,100% - 24px); margin:auto; padding:16px 0 12px; }
 h1,h2,h3,p,dl,dd { margin:0; }
 h1 { margin-bottom:8px; font:700 clamp(1.5rem,5vw,2.35rem)/1.1 Georgia,serif; letter-spacing:-.035em; }
+.game-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px; }
+.game-heading h1 { margin:0; }
 .match-bar { min-height:36px; display:flex; align-items:center; margin-bottom:4px; }
 .match-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:6px; border:1px solid var(--edge); border-radius:8px; background:var(--panel); }
 .match-actions button:not(.square) { display:grid; place-content:center; justify-items:center; gap:3px; min-height:56px; padding:4px 2px; background:transparent; border:0; border-radius:6px; font-size:.83rem; }
@@ -133,7 +135,7 @@ dialog li { margin-bottom:10px; }
 .check-info { margin-top:10px; line-height:1.5; border-color:#ad6654; }
 .check-lines { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; }
 .check-lines line { stroke:#9b3625; stroke-width:.10; stroke-linecap:round; opacity:.83; }
-.embedded main > h1 { display:none; }
+.embedded .game-heading { display:none; }
 .embedded main { width:min(620px,100% - 24px); padding-top:0; }
 @media (max-width:510px) {
   main,.embedded main { width:calc(100% - 16px); }
@@ -163,19 +165,13 @@ dialog li { margin-bottom:10px; }
 [data-variant="mongols"] .piece:is([data-role="khan"],[data-role="khatun"]) { height:89%; }
 [data-variant="mongols"] .piece.reinforcement-ready { filter:none; }
 
-.piece-style { border:0; padding:0; margin:12px 0 0; display:flex; flex-wrap:wrap; gap:8px; min-width:0; }
-.piece-style legend { padding:0; margin-bottom:5px; font-weight:650; }
-.piece-style button[aria-pressed="true"] { background:#efe1bd; border-color:#efe1bd; color:#202b29; }
-.piece-style button:focus-visible { outline:2px solid var(--mint); outline-offset:2px; }
 /* The classic SVGs share a 45-unit canvas with their own optical margins. */
 :is([data-variant="mongols"],[data-variant="medieval"]) .classic-pieces .piece[data-role] { width:100%; height:100%; bottom:0; }
 :is([data-variant="mongols"],[data-variant="medieval"]) .classic-pieces .piece:is([data-role="wall"],[data-role="infantry"]) { width:92%; height:92%; bottom:3%; }
-.classic-pieces .square:is(.wall-north,.wall-south)::before {
-  content:""; position:absolute; left:11%; width:78%; height:22%;
-  background:url("./pieces/parapet.svg") center / contain no-repeat; pointer-events:none;
+.classic-pieces .fortified-pawn::before {
+  content:""; position:absolute; z-index:2; left:10%; bottom:7%; width:80%; height:22%;
+  background:url("./pieces/parapet.svg?v=2") center bottom / contain no-repeat; pointer-events:none;
 }
-.classic-pieces .wall-north::before { top:10%; z-index:0; }
-.classic-pieces .wall-south::before { bottom:7%; z-index:2; }
 :is([data-variant="mongols"],[data-variant="medieval"]) :is(.bow-badge,.legend .bow-icon) {
   font-size:0; border:0; border-radius:0;
   background:transparent url("./pieces/bow-badge.svg") center / contain no-repeat;

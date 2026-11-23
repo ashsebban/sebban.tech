@@ -25,19 +25,23 @@ if(medieval) {
 }
 const find = selector => document.querySelector(selector);
 const board = find('#board');
-const styleButtons=document.querySelectorAll('.piece-style button[data-piece-style]');
+const styleButton=find('#piece-style-toggle');
 const styleKey=medieval?'kings-castles.piece-style':'mongols-chess.piece-style';
 let classicPieces=false;
-if(styleButtons.length) {
-  try { classicPieces=localStorage.getItem(styleKey)==='classic'; } catch {}
-  for(const button of styleButtons) {
-    button.addEventListener('click',()=>{
-      classicPieces=button.dataset.pieceStyle==='classic';
-      try { localStorage.setItem(styleKey,button.dataset.pieceStyle); } catch {}
-      draw();
-    });
-  }
+try { classicPieces=localStorage.getItem(styleKey)==='classic'; } catch {}
+
+function labelStyleButton() {
+  const style=classicPieces?'Illustrated':'Classic';
+  styleButton.textContent=style;
+  styleButton.setAttribute('aria-label','Switch to '+style+' pieces');
 }
+labelStyleButton();
+styleButton.addEventListener('click',()=>{
+  classicPieces=!classicPieces;
+  try { localStorage.setItem(styleKey,classicPieces?'classic':'illustrated'); } catch {}
+  labelStyleButton();
+  draw();
+});
 const choiceDialog = find('#move-choice');
 const status = find('#status');
 const lastMove = find('#last-move');
@@ -215,9 +219,6 @@ function openLesson(index,step=0) {
 }
 
 function draw() {
-  for(const button of styleButtons) {
-    button.setAttribute('aria-pressed',String(button.dataset.pieceStyle===(classicPieces?'classic':'illustrated')));
-  }
   board.classList.toggle('classic-pieces',classicPieces);
   const targets=new Map();
   const shots=new Set();
@@ -279,7 +280,7 @@ function draw() {
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
     const active=selected;
     const hinted=hintMove && i===(hintMove.kind==='jumpShot' ? hintMove.captureAt : hintMove.to);
-    cell.className=[base,hinted && 'hint-target',classicPieces && wall && (piece[0]==='w'?'wall-north':'wall-south'),classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
+    cell.className=[base,hinted && 'hint-target',classicPieces && wall && 'fortified-pawn',classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':names[piece[1]]):'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
     cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(hinted?', suggested target':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));

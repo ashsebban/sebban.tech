@@ -6,11 +6,14 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the Khan and use castles to bring pawns back into play.">
   <title>Duel of Khans</title>
-  <link rel="stylesheet" href="./style.css?v=62">
+  <link rel="stylesheet" href="./style.css?v=63">
 </head>
 <body>
   <main>
-    <h1>Duel of Khans</h1>
+    <header class="game-heading">
+      <h1>Duel of Khans</h1>
+      <button type="button" id="piece-style-toggle" aria-label="Switch to Classic pieces">Classic</button>
+    </header>
     <section class="field" aria-label="The match">
       <div class="match-bar">
         <p id="status" class="status" role="status">Your move</p>
@@ -59,11 +62,6 @@
           <button type="submit" id="apply-difficulty" disabled>Start new game</button>
         </div>
       </form>
-        <fieldset class="piece-style">
-          <legend>Piece style</legend>
-          <button type="button" data-piece-style="illustrated">Illustrated</button>
-          <button type="button" data-piece-style="classic">Classic</button>
-        </fieldset>
     </section>
     <section class="menu-section" aria-labelledby="help-title">
       <h3 id="help-title">Help</h3>
@@ -127,6 +125,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=63"></script>
+  <script type="module" src="./app.mjs?v=64"></script>
 </body>
 </html>

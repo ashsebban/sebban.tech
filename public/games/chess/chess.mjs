@@ -20,6 +20,23 @@ const matchHeading=document.querySelector('#match-heading');
 const modeName=document.querySelector('#mode-name');
 const game=document.querySelector('#game');
 const frames=new Map();
+const matchPieceStyle=document.querySelector('#match-piece-style');
+let activeMode;
+
+function syncPieceStyle() {
+  const control=frames.get(activeMode)?.contentDocument?.querySelector('#piece-style-toggle');
+  matchPieceStyle.hidden=!control;
+  if(control) {
+    matchPieceStyle.textContent=control.textContent;
+    matchPieceStyle.setAttribute('aria-label',control.getAttribute('aria-label'));
+  }
+  return control;
+}
+
+matchPieceStyle.addEventListener('click',()=>{
+  syncPieceStyle()?.click();
+  syncPieceStyle();
+});
 
 function navigate(event) {
   if (event.button!==0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -52,6 +69,7 @@ for (const [id,mode] of Object.entries(games)) {
 
 function openMode(id,category) {
   const mode=games[id];
+  activeMode=id;
   document.body.classList.toggle('experimental-match',mode?.category==='experimental');
   categories.hidden=!!mode || !!category;
   gallery.hidden=!!mode || !category;
@@ -67,6 +85,7 @@ function openMode(id,category) {
       for(const dialog of frame.contentDocument.querySelectorAll('dialog[open]')) dialog.close();
     }
   }
+  syncPieceStyle();
   if (!mode) return;
   modeName.textContent=mode.name;
   matchBack.href='?category='+(mode.category??'classical');
@@ -76,6 +95,7 @@ function openMode(id,category) {
   const frame=document.createElement('iframe');
   frame.title=mode.name;
   frame.addEventListener('load',()=>{
+    if(id===activeMode) syncPieceStyle();
     const content=frame.contentDocument.querySelector('main');
     if(!content) return;
     const fit=()=>{
