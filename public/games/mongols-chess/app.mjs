@@ -1,4 +1,4 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=35';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=36';
 
 import { lessons } from './lessons.mjs?v=34';
 
@@ -80,11 +80,16 @@ for(let i=0;i<64;i++) {
   aim.className='aim-marker';
   aim.setAttribute('aria-hidden','true');
   aim.hidden=true;
-  cell.append(image,aim);
+  const bow=document.createElement('span');
+  bow.className='bow-badge';
+  bow.textContent='🏹';
+  bow.setAttribute('aria-hidden','true');
+  bow.hidden=true;
+  cell.append(image,aim,bow);
   const name=square(i);
   if(i%8===0) coordinate(cell,name[1],'rank');
   if(i>=56) coordinate(cell,name[0],'file');
-  cells.push({cell,image,aim,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
+  cells.push({cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
   board.append(cell);
 }
 
@@ -189,12 +194,15 @@ function draw() {
     find(selector).textContent=badges.filter(({power})=>powers[power]).map(({label})=>label).join(' · ') || 'One-square king moves';
   }
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
+  const visibleBoard=pending ? state.board.map((piece,i)=>i===pending.target ? null : piece) : state.board;
   for(let i=0;i<64;i++) {
-    const {cell,image,aim,base}=cells[i];
+    const {cell,image,aim,bow,base}=cells[i];
     const shootable=shots.has(i);
     aim.hidden=!shootable && !range.has(i);
     aim.classList.toggle('aim-live',shootable);
-    const piece=pending?.target===i ? null : state.board[i];
+    const piece=visibleBoard[i];
+    const archer=hasBow(visibleBoard,i);
+    bow.hidden=!archer;
     if(piece){
       const path='./pieces/'+piece[0]+piece[1].toUpperCase()+'.svg';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
@@ -208,7 +216,7 @@ function draw() {
     cell.className=[base,recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',wall&&'wall-square',wall&&piece[0]==='w'&&'wall-white',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+names[piece[1]]:'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
-    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(wall?', protected wall':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
+    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(wall?', protected wall':'')+(archer?', bow equipped':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
     cell.setAttribute('aria-pressed',String(i===active));
   }
   const count=side=> {
@@ -259,7 +267,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=35',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=36',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

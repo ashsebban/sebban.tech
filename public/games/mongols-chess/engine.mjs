@@ -161,6 +161,23 @@ export function khanPowers(board, side) {
   return { queen:board.includes(side+'q'), knight:board.includes(side+'n'), bishop:board.includes(side+'b') };
 }
 
+function firingCover(board,x,y,dx,dy,side) {
+  if (!valid(x+2*dx,y+2*dy)) return null;
+  const index=get(x+dx,y+dy);
+  const piece=board[index];
+  return piece===side+'p' || piece===side+'r' ? index : null;
+}
+
+export function hasBow(board,from) {
+  const piece=board[from];
+  if (!piece) return false;
+  const [side,type]=piece;
+  const powers=type==='k' ? khanPowers(board,side) : null;
+  if (type==='n' || powers?.knight) return true;
+  if (type!=='b' && !powers?.bishop) return false;
+  return orthogonal.some(([dx,dy])=>firingCover(board,from%8,Math.floor(from/8),dx,dy,side)!==null);
+}
+
 export function emptyShotSquares(state, selected, rules = defaultRules) {
   const squares = new Set();
   if (selected!=null) candidateMoves(state,rules,selected,squares);
@@ -275,11 +292,9 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
     }
     if (rules.towerShots && (type==='b' || powers?.bishop)) {
       for (const [dx,dy] of orthogonal) {
-        if (!valid(x+2*dx,y+2*dy)) continue;
-        const tower=get(x+dx,y+dy);
-        const cover=board[tower];
-        if (cover!==turn+'p' && cover!==turn+'r') continue;
-        const offsets=isWall(cover,tower) ? [-1,0,1] : [0];
+        const tower=firingCover(board,x,y,dx,dy,turn);
+        if (tower===null) continue;
+        const offsets=isWall(board[tower],tower) ? [-1,0,1] : [0];
         for (const offset of offsets) {
           const tx=x+2*dx+offset*dy, ty=y+2*dy+offset*dx;
           if (!valid(tx,ty)) continue;
