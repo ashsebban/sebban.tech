@@ -75,10 +75,10 @@
       </details>
       <details><summary>Match details</summary>
         <dl class="match-details">
-          <dt>Mongol castles</dt><dd id="white-castles"></dd>
-          <dt>Chinese castles</dt><dd id="black-castles"></dd>
+          <dt>Chinese castles</dt><dd id="white-castles"></dd>
+          <dt>Mongol castles</dt><dd id="black-castles"></dd>
           <dt>Your reserve</dt><dd id="reserve"></dd>
-          <dt>Genghis Khan</dt><dd id="khan-powers"></dd>
+          <dt>Genghis Khan</dt><dd id="black-khan-powers"></dd>
         </dl>
       </details>
       <footer>Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> and Wikimedia Commons contributors, via the <a href="https://github.com/lichess-org/lila/tree/master/public/piece/cburnett">Cburnett set</a>. <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</footer>
@@ -102,10 +102,10 @@
       <form method="dialog"><button value="close">Done</button></form>
     </div>
     <ul>
-      <li><strong>Checkmate.</strong> You play Genghis Khan’s Mongol army as White. The computer plays the Chinese army as Black. Checkmate the opposing ruler to win.</li>
+      <li><strong>Checkmate.</strong> You play Genghis Khan’s Mongol army as Black and move first. The computer plays the Chinese army as White. Checkmate the opposing ruler to win.</li>
       <li><strong>Mongol horse archers.</strong> Move or capture like a knight, or shoot exactly two squares along a clear rank or file and then jump. A landing capture can happen on the same turn.</li>
       <li><strong>Genghis Khan.</strong> A friendly queen grants long slides, a friendly knight grants knight jumps and shoot-and-jump, and a friendly bishop grants the Khan the ability to shoot over friendly pawns. Mongol pawns and bishops use their regular chess moves.</li>
-      <li><strong>Chinese army.</strong> The Chinese king and knights use their regular chess moves. Pawns on Black’s second rank are walls. Friendly pawns through Black’s fourth rank are walls while a horizontal or diagonal chain connects them to that second rank. Cut the connection and the isolated pawns become infantry.</li>
+      <li><strong>Chinese army.</strong> The Chinese king and knights use their regular chess moves. Pawns on White’s second rank are walls. Friendly pawns through White’s fourth rank are walls while a horizontal or diagonal chain connects them to that second rank. Cut the connection and the isolated pawns become infantry.</li>
       <li><strong>Chinese bishops.</strong> A friendly pawn immediately ahead or beside the bishop lets it shoot straight over that pawn. With a fortified wall as cover, it can also shoot one lane left or right where a friendly pawn supports that lane. It can step forward or sideways behind a friendly wall, or slide behind an unbroken pawn line. Arrows cannot break walls.</li>
       <li><strong>Castles.</strong> Castles move like rooks. Either army can spend a castle’s turn returning a captured friendly pawn to an empty adjacent square in its own half (White’s ranks 1–4 or Black’s ranks 5–8), up to eight pawns. Standard castling is available to both rulers.</li>
       <li><strong>Draws.</strong> Threefold repetition, stalemate, or 60 turns without a pawn move, reinforcement, or capture is a draw.</li>
@@ -118,6 +118,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=67"></script>
+  <script type="module" src="./app.mjs?v=68"></script>
 </body>
 </html>

@@ -43,16 +43,16 @@ export const frontierLessons = [
   {
     title:'Horse-archer raid', description:'Shoot and land a cavalry capture on the same turn.',
     steps:[
-      {pieces:{a1:'wk',h8:'bk',g5:'wn',e5:'bp',e4:'bn'},from:'g5',shot:'e5',to:'e4',kind:'jumpShot',
-        prompt:'Shoot the infantry on e5, then jump to e4 to capture the Chinese knight.'},
+      {pieces:{a8:'bk',h1:'wk',g4:'bn',e4:'wp',e5:'wn'},from:'g4',shot:'e4',to:'e5',kind:'jumpShot',
+        prompt:'Shoot the infantry on e4, then jump to e5 to capture the Chinese knight.'},
     ],
     success:'Your horse archer took two pieces in one turn.',
   },
   {
     title:'Escape an arrow check', description:'See how a Chinese bishop guards a lane from behind a wall.',
     steps:[
-      {pieces:{f5:'wk',a8:'bk',f7:'bb',f6:'bp',e7:'bp'},from:'f5',to:'f4',kind:'move',
-        prompt:'The Chinese bishop on f7 shoots over the wall on f6. Move the Khan from f5 to f4.'},
+      {pieces:{f4:'bk',a1:'wk',f2:'wb',f3:'wp',e2:'wp'},from:'f4',to:'f5',kind:'move',
+        prompt:'The Chinese bishop on f2 shoots over the wall on f3. Move the Khan from f4 to f5.'},
     ],
     success:'The Khan stepped out of arrow range.',
   },

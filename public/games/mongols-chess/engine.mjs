@@ -21,9 +21,10 @@ export const profiles = {
 export const defaultRules = { ...profiles.siege, jumpShot:true, emptyShotLanding:false, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, bishopWallMount:true, royalCheck:true, superKhan:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
 export const frontierRules = {
   ...defaultRules,
+  firstTurn:'b',
   sides: {
-    w:{pawnWalls:false,bishopArchery:false},
-    b:{horseArchery:false,superKhan:false},
+    w:{horseArchery:false,superKhan:false},
+    b:{pawnWalls:false,bishopArchery:false},
   },
 };
 export const sideRule = (rules,side,ability) => rules.sides?.[side]?.[ability] ?? rules[ability];
@@ -76,14 +77,14 @@ export function position(placements, turn = 'w', ep = null, quiet = 0) {
   return { board, turn, ep, quiet, pawnStarts:startingPawns(board) };
 }
 
-export function initial() {
+export function initial(rules = defaultRules) {
   const back = [...'rnbqkbnr'];
   return {
     board: [
       ...back.map(type=>'b'+type), ...Array(8).fill('bp'), ...Array(32).fill(null),
       ...Array(8).fill('wp'), ...back.map(type=>'w'+type),
     ],
-    turn:'w', ep:null, quiet:0, pawnStarts:0xffff, castlingRights:15,
+    turn:rules.firstTurn ?? 'w', ep:null, quiet:0, pawnStarts:0xffff, castlingRights:15,
   };
 }
 

@@ -1,7 +1,7 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=45';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=46';
 
-import { frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=35';
+import { frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=36';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
@@ -11,6 +11,10 @@ const frontier=variant==='frontier';
 const rules=frontier ? frontierRules : medieval
   ? {...defaultRules,horseArchery:false,superKhan:false,kingBreachesWalls:true}
   : defaultRules;
+const playerSide=frontier?'b':'w';
+const computerSide=playerSide==='w'?'b':'w';
+const homeFocus=indexOf(frontier?'e7':'e2');
+const viewSquare=index=>playerSide==='b' ? 63-index : index;
 const lessons=frontier ? frontierLessons : medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
   lessons[0].description='Advance infantry, shoot a longbow from cover, and capture with a knight.';
@@ -80,7 +84,7 @@ const nameOf = ([side,type]) => {
 };
 const armoredPieces = {k:'king',q:'queen',r:'castle',n:'knight',b:'captain',p:'infantry'};
 const mongolPieces = {k:'khan',q:'khatun',r:'gate',n:'horse',b:'captain',p:'infantry'};
-const color = frontier ? {w:'Mongol',b:'Chinese'} : {w:'White',b:'Black'};
+const color = frontier ? {w:'Chinese',b:'Mongol'} : {w:'White',b:'Black'};
 const cancelShot = find('#cancel-shot');
 const khanBadges = ['w','b'].filter(side=>sideRule(rules,side,'superKhan')).map(side=>{
   const group=document.createElement('span');
@@ -131,12 +135,13 @@ function coordinate(cell,text,type) {
   label.setAttribute('aria-hidden','true');
   cell.append(label);
 }
-for(let i=0;i<64;i++) {
+for(let view=0;view<64;view++) {
+  const i=viewSquare(view);
   const cell=document.createElement('button');
   const image=document.createElement('img');
   cell.type='button';
   cell.dataset.square=String(i);
-  cell.tabIndex=square(i)==='e2'?0:-1;
+  cell.tabIndex=i===homeFocus?0:-1;
   image.alt='';
   image.className='piece';
   image.draggable=false;
@@ -151,9 +156,9 @@ for(let i=0;i<64;i++) {
   bow.hidden=true;
   cell.append(image,aim,bow);
   const name=square(i);
-  if(i%8===0) coordinate(cell,name[1],'rank');
-  if(i>=56) coordinate(cell,name[0],'file');
-  cells.push({cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
+  if(view%8===0) coordinate(cell,name[1],'rank');
+  if(view>=56) coordinate(cell,name[0],'file');
+  cells[i]={cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')};
   board.append(cell);
 }
 
@@ -189,8 +194,9 @@ function showCheckDetails(threats) {
   const distinct=[...new Map(threats.map(t=>[[t.from,t.to,t.kind].join('/'),t])).values()];
   checkLines.replaceChildren(...distinct.map(threat=>{
     const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-    for (const [attribute,value] of Object.entries({x1:threat.from%8+.5,y1:Math.floor(threat.from/8)+.5,
-      x2:threat.to%8+.5,y2:Math.floor(threat.to/8)+.5})) line.setAttribute(attribute,value);
+    const from=viewSquare(threat.from), to=viewSquare(threat.to);
+    for (const [attribute,value] of Object.entries({x1:from%8+.5,y1:Math.floor(from/8)+.5,
+      x2:to%8+.5,y2:Math.floor(to/8)+.5})) line.setAttribute(attribute,value);
     if (threat.kind!=='move' || Math.abs(threat.from%8-threat.to%8)*Math.abs(Math.floor(threat.from/8)-Math.floor(threat.to/8))===2) {
       line.setAttribute('stroke-dasharray','.17 .12');
     }
@@ -222,8 +228,8 @@ function showLesson() {
 
 function openLesson(index,step=0) {
   const exercise=lessons[index].steps[step];
-  const next=position(exercise.pieces);
-  if(exercise.reserve) next.reserves={wp:exercise.reserve};
+  const next=position(exercise.pieces,playerSide);
+  if(exercise.reserve) next.reserves={[playerSide+'p']:exercise.reserve};
   reset(next,exercise.from,'',{index,step,complete:false,feedback:''});
   if(step===0) find('#lesson-title').scrollIntoView({block:'nearest'});
 }
@@ -232,7 +238,7 @@ function draw() {
   board.classList.toggle('classic-pieces',classicPieces);
   const targets=new Map();
   const shots=new Set();
-  const range=pending || result || state.turn!=='w' || lesson?.complete
+  const range=pending || result || state.turn!==playerSide || lesson?.complete
     ? new Set() : emptyShotSquares(state,selected,rules);
   if(pending) {
     for(const jump of pending.jumps) targets.set(jump.to,jump);
@@ -258,7 +264,7 @@ function draw() {
     const selector=side==='w' ? '#khan-powers' : '#black-khan-powers';
     find(selector).textContent=badges.filter(({power})=>powers[power]).map(({label})=>label).join(' · ') || 'One-square king moves';
   }
-  find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
+  find('#reserve').textContent=(state.reserves?.[playerSide+'p']??0)+' captured pawns';
   const visibleBoard=pending ? state.board.map((piece,i)=>i===pending.target ? null : piece) : state.board;
   const walls=wallSquares(visibleBoard,rules);
   for(let i=0;i<64;i++) {
@@ -273,7 +279,7 @@ function draw() {
     const archer=hasBow(visibleBoard,i,rules);
     bow.hidden=!archer || (!classicPieces && piece?.[1]==='k');
     if(piece) {
-      const chinese=frontier && piece[0]==='b';
+      const chinese=frontier && piece[0]==='w';
       const armored=medieval || chinese;
       let role=(armored?armoredPieces:mongolPieces)[piece[1]];
       if(wall) role='wall';
@@ -307,11 +313,11 @@ function draw() {
   black.textContent=count('b');
   status.textContent=pending ? 'Choose where to jump or capture' : result ? 'Match over'
     : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>nameOf(state.board[i])+' '+square(i)).join(', ')
-    : state.turn==='w' ? 'Your move' : 'Computer thinking…';
+    : state.turn===playerSide ? (frontier?'Your move · Black':'Your move') : 'Computer thinking…';
   lastMove.textContent=hintMove ? hintText(hintMove) : result ? '' : (previous?.text ?? practiceHint);
   cancelShot.hidden=!pending;
   undo.disabled=!!lesson || !!pending || resigned || !history.length;
-  hintButton.disabled=!!lesson || !!result || !!pending || state.turn!=='w' || !legal.length;
+  hintButton.disabled=!!lesson || !!result || !!pending || state.turn!==playerSide || !legal.length;
   resignButton.disabled=!!lesson || !!result;
 }
 
@@ -326,14 +332,14 @@ function hintText(move) {
 
 function refresh() {
   legal=resigned ? [] : moves(state,rules);
-  result=resigned ? {winner:'b',reason:'You resigned.'} : outcome(state,rules,seen[key(state)],legal);
+  result=resigned ? {winner:computerSide,reason:'You resigned.'} : outcome(state,rules,seen[key(state)],legal);
   reinforcementCastles=new Set(result ? [] : legal.filter(move=>move.kind==='spawn').map(move=>move.from));
-  if(result || state.turn==='b') legal=[];
+  if(result || state.turn===computerSide) legal=[];
   const justEnded=Boolean(result) && gameEnd.hidden;
   gameEnd.hidden=!result || !!lesson;
   find('#why-mate').hidden=result?.reason!=='Checkmate.';
   if(result) {
-    find('#game-end-title').textContent=result.winner==='w'?'You won':result.winner==='b'?'Computer wins':'Draw';
+    find('#game-end-title').textContent=result.winner===playerSide?'You won':result.winner===computerSide?'Computer wins':'Draw';
     find('#game-end-reason').textContent=result.reason;
   }
   draw();
@@ -346,14 +352,14 @@ function abortEngine() {
   worker=null;
 }
 function inspectResponse(token,move) {
-  if(token!==epoch || state.turn!=='b' || result) return;
+  if(token!==epoch || state.turn!==computerSide || result) return;
   const available=moves(state,rules);
   const answer=available.find(entry=>entry.kind===move?.kind && entry.from===move.from && entry.to===move.to && entry.captureAt===move.captureAt && entry.spawn===move.spawn && entry.promotion===move.promotion);
   if(answer) play(answer);
   else if(available[0]) play(available[0]);
 }
 function fallback(token) {
-  if(token!==epoch || state.turn!=='b' || result) return;
+  if(token!==epoch || state.turn!==computerSide || result) return;
   const {depth,budget}=difficultyLevels[difficulty];
   inspectResponse(token,chooseMove(state,{rules,seen,depth,budget:Math.min(budget,4500)}));
 }
@@ -361,7 +367,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=66',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=68',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -396,7 +402,7 @@ function animateArrow(move) {
   arrow.setAttribute('aria-hidden','true');
   arrow.textContent='➝';
   const center=index=>({x:(index%8+.5)*12.5,y:(Math.floor(index/8)+.5)*12.5});
-  const from=center(move.from), to=center(target);
+  const from=center(viewSquare(move.from)), to=center(viewSquare(target));
   const angle=Math.atan2(to.y-from.y,to.x-from.x);
   const transform='translate(-50%, -50%) rotate('+angle+'rad)';
   const start={left:from.x+'%',top:from.y+'%',transform};
@@ -436,14 +442,14 @@ function play(move) {
   if(!choices.length && !outcome(state,rules,seen[key(state)],choices)) advance(passMove);
   refresh();
   if(move.kind==='shot' || move.kind==='jumpShot') animateArrow(move);
-  if(!result && state.turn==='b') computer();
+  if(!result && state.turn===computerSide) computer();
 }
 
 function focusCell(index) {
   for(let i=0;i<64;i++) cells[i].cell.tabIndex=i===index?0:-1;
 }
 function choose(index) {
-  if(result || state.turn!=='w' || lesson?.complete) return;
+  if(result || state.turn!==playerSide || lesson?.complete) return;
   hintMove=null;
   explanation='';
   if(lesson) lesson.feedback='';
@@ -476,7 +482,7 @@ function choose(index) {
     return;
   }
   if(choices.length===1) { play(choices[0]); return; }
-  if(state.board[selected]==='wk' && state.board[index]?.[0]!=='w') {
+  if(state.board[selected]===playerSide+'k' && state.board[index]?.[0]!==playerSide) {
     const threats=khanEscapeThreats(state,rules).get(index);
     if(threats?.length) {
       explanation=square(index)+' is unsafe: '+describeThreat(threats[0])+' would give check.';
@@ -484,7 +490,7 @@ function choose(index) {
       return;
     }
   }
-  selected=selected!==index && state.board[index]?.[0]==='w'?index:null;
+  selected=selected!==index && state.board[index]?.[0]===playerSide?index:null;
   draw();
 }
 
@@ -502,9 +508,10 @@ board.addEventListener('keydown',event=>{
   const step=directions[event.key];
   if(!step || !Number.isInteger(index)) return;
   event.preventDefault();
-  const x=index%8+step[0], y=Math.floor(index/8)+step[1];
+  const view=viewSquare(index);
+  const x=view%8+step[0], y=Math.floor(view/8)+step[1];
   if(x<0 || x>=8 || y<0 || y>=8) return;
-  const next=y*8+x;
+  const next=viewSquare(y*8+x);
   focusCell(next);
   cells[next].cell.focus();
 });
@@ -522,7 +529,7 @@ function reset(next,practiceSquare=null,hint='',activeLesson=null) {
   practiceHint=hint;
   pending=null;
   selected=practiceSquare ? indexOf(practiceSquare) : null;
-  focusCell(selected ?? indexOf('e2'));
+  focusCell(selected ?? homeFocus);
   refresh();
 }
 cancelShot.addEventListener('click',()=>{
@@ -542,10 +549,10 @@ undo.addEventListener('click',()=>{
     const signature=key(state);
     seen[signature]--;
     state=history.pop().before;
-  } while(history.length && (state.turn!=='w' || !moves(state,rules).length));
+  } while(history.length && (state.turn!==playerSide || !moves(state,rules).length));
   selected=null;
   refresh();
-  cells[indexOf('e2')].cell.focus();
+  cells[homeFocus].cell.focus();
 });
 for(const [index,guide] of lessons.entries()) {
   const button=document.createElement('button');
@@ -560,7 +567,7 @@ for(const [index,guide] of lessons.entries()) {
 }
 find('#show-learn').addEventListener('click',()=>{ menu.close(); learnDialog.showModal(); });
 find('#lesson-retry').addEventListener('click',()=>openLesson(lesson.index));
-find('#lesson-exit').addEventListener('click',()=>reset(initial()));
+find('#lesson-exit').addEventListener('click',()=>reset(initial(rules)));
 find('#why-mate').addEventListener('click',()=>{
   reviewMate=!reviewMate;
   draw();
@@ -568,8 +575,8 @@ find('#why-mate').addEventListener('click',()=>{
 });
 find('#show-rules').addEventListener('click',()=>{ menu.close(); rulesDialog.showModal(); });
 function startMatch() {
-  reset(initial());
-  cells[indexOf('e2')].cell.focus();
+  reset(initial(rules));
+  cells[homeFocus].cell.focus();
 }
 playAgain.addEventListener('click',startMatch);
 
@@ -657,4 +664,4 @@ find('#practice-bishop').addEventListener('click',()=>{
     a8:'br',h8:'br',f8:'bk',e5:'bp',f5:'bp',c3:'bp',c2:'wp'}),'e3',
   'Shoot straight over e4 to e5 or angle a shot over f4 to f5. You can also slide to g3 behind the pawn line.');
 });
-reset(initial());
+reset(initial(rules));
