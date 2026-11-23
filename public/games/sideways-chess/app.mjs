@@ -1,14 +1,22 @@
+import { mountMatchActions } from '../chess/match.mjs?v=1';
 import { VariantChess, borrowedPiece, isSidestep, isTandem, tandemPawnDestination, variants } from './rules.mjs?v=13';
 import { chooseMove, difficulties } from './opponent.mjs?v=11';
 import { initializeOpenings } from './openings.mjs?v=11';
-import { initializeTutorials } from './tutorials.mjs?v=12';
+import { initializeTutorials } from './tutorials.mjs?v=13';
 
 const borrowing = { q:'queen slide', b:'bishop slide', r:'rook slide', n:'knight jump' };
 const pieces = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 const files = 'abcdefgh';
 const board = document.querySelector('#board');
 const status = document.querySelector('#status');
-const activeRule = document.querySelector('#active-rule');
+mountMatchActions(document.querySelector('.match-actions'));
+const settings = document.querySelector('#settings');
+const applyDifficulty = document.querySelector('#apply-difficulty');
+const hintButton = document.querySelector('#hint');
+const resignButton = document.querySelector('#resign');
+const confirmDialog = document.querySelector('#confirm-match');
+const gameEnd = document.querySelector('#game-end');
+const playAgain = document.querySelector('#play-again');
 const undo = document.querySelector('#undo');
 const moveList = document.querySelector('#moves');
 const emptyMoves = document.querySelector('#empty-moves');
@@ -16,9 +24,10 @@ const promotion = document.querySelector('#promotion');
 const difficulty = document.querySelector('#difficulty');
 const specialLabel = document.querySelector('#special-label');
 const lastMove = document.querySelector('#last-move');
+let activeDifficulty = 'standard';
 try {
   const saved = localStorage.getItem('sideways-chess-difficulty');
-  if (Object.hasOwn(difficulties, saved)) difficulty.value = saved;
+  if (Object.hasOwn(difficulties, saved)) activeDifficulty = saved;
 } catch {
   // The control still works in browsing contexts that block storage.
 }
@@ -30,10 +39,11 @@ const embedded = params.get('embedded')==='1';
 if (embedded) document.documentElement.classList.add('embedded');
 const initialVariant = Object.hasOwn(variants, requestedVariant) ? requestedVariant : 'bn';
 let game = new VariantChess(initialVariant);
-if (requestedVariant && Object.hasOwn(variants, requestedVariant)) {
-  document.title = variants[initialVariant].name;
-  document.querySelector('.intro h1').textContent = variants[initialVariant].name;
+function showVariantTitle() {
+  document.title = variants[game.variant].name;
+  document.querySelector('.intro h1').textContent = variants[game.variant].name;
 }
+showVariantTitle();
 
 let history = [];
 let allMoves = [];
@@ -42,6 +52,10 @@ let promotionTarget = null;
 let worker = null;
 let epoch = 0;
 let thinking = false;
+let result = '';
+let resigned = false;
+let hint = null;
+let confirmedAction = null;
 
 for (let rank = 8; rank >= 1; rank--) {
   for (let index = 0; index < 8; index++) {
@@ -138,10 +152,10 @@ function drawBoard() {
     }
     cell.className = [
       baseClass, last && (last.to === square || last.from === square || recentPawn) && 'recent',
-      selection === square && 'selected', checkedKing && 'check', target && 'legal',
+      selection === square && 'selected', hint?.to === square && 'hint-target', checkedKing && 'check', target && 'legal',
       powers.length && 'king-with-badges', target?.captured && 'capture', (side || tandem) && 'side', tandem && 'tandem',
     ].filter(Boolean).join(' ');
-    cell.setAttribute('aria-label', square + ', ' + name + (tandem ? ', tandem advance' : side ? ', sidestep' : target ? ', legal move' : '') + (powers.length ? ', borrows from '+powers.map(type=>pieces[type]).join(', ') : '') + (latest ? ', last move used a '+borrowing[latest] : ''));
+    cell.setAttribute('aria-label', square + ', ' + name + (tandem ? ', tandem advance' : side ? ', sidestep' : target ? ', legal move' : '') + (hint?.to === square ? ', suggested target' : '') + (powers.length ? ', borrows from '+powers.map(type=>pieces[type]).join(', ') : '') + (latest ? ', last move used a '+borrowing[latest] : ''));
     cell.setAttribute('aria-pressed', String(selection === square));
   }
 }
@@ -174,9 +188,10 @@ function getResult() {
 
 function refresh() {
   allMoves = game.moves({ verbose: true });
-  const result = getResult();
+  result = resigned ? 'You resigned. The computer wins.' : getResult();
   if (result) allMoves = [];
-  activeRule.textContent = variants[game.variant].name;
+  gameEnd.hidden = !result;
+  document.querySelector('#game-end-title').textContent = result;
   const warrior=game.variant==='warrior';
   document.querySelector('#special-key').hidden=warrior;
   const powers=document.querySelector('#warrior-powers');
@@ -189,15 +204,16 @@ function refresh() {
     }).join(' | ');
   }
   specialLabel.textContent = game.variant === 's' ? 'Tandem advance' : 'Sidestep';
-  status.textContent = result || (game.turn() === 'b' ? 'Computer is thinking…'
-    : game.inCheck() ? 'Your king is in check.' : 'Your move · White');
+  status.textContent = result ? 'Match over' : game.turn() === 'b' ? 'Computer thinking…'
+    : game.inCheck() ? 'Your king is in check.' : 'Your move';
   const recent = history.at(-1);
-  lastMove.hidden = !recent;
-  lastMove.textContent = recent
-    ? (recent.color === 'w' ? 'You played ' : 'Computer played ') + recent.san +
-      moveMarker(recent)
+  lastMove.hidden = !hint && !recent;
+  lastMove.textContent = hint ? 'Hint: '+hint.san+moveMarker(hint)
+    : recent ? (recent.color === 'w' ? 'You played ' : 'Computer played ') + recent.san + moveMarker(recent)
     : '';
-  undo.disabled = history.length === 0;
+  undo.disabled = resigned || history.length === 0;
+  resignButton.disabled = !!result;
+  hintButton.disabled = !!result || game.turn() !== 'w';
   drawBoard();
   drawMoves();
   return result;
@@ -222,7 +238,7 @@ function finishComputer(id, move) {
 function localComputer(id) {
   if (id !== epoch) return;
   try {
-    finishComputer(id, chooseMove(game.variant, game.fen(), difficulty.value, 100));
+    finishComputer(id, chooseMove(game.variant, game.fen(), activeDifficulty, 100));
   } catch {
     finishComputer(id, null);
   }
@@ -251,10 +267,11 @@ function playComputer() {
       return;
     }
   }
-  worker.postMessage({ id, fen: game.fen(), variant: game.variant, difficulty: difficulty.value });
+  worker.postMessage({ id, fen: game.fen(), variant: game.variant, difficulty: activeDifficulty });
 }
 
 function makePlayerMove(move) {
+  hint = null;
   history.push(game.move(move));
   selection = null;
   if (!refresh()) playComputer();
@@ -262,6 +279,10 @@ function makePlayerMove(move) {
 
 function chooseSquare(square) {
   if (game.turn() !== 'w' || !allMoves.length || promotion.open) return;
+  if (hint) {
+    hint = null;
+    refresh();
+  }
   const candidate = allMoves.find(move => move.from === selection && move.to === square);
   if (candidate?.promotion) {
     promotion.returnValue = '';
@@ -291,7 +312,8 @@ board.addEventListener('click', event => {
 board.addEventListener('keydown', event => {
   if (event.key === 'Escape') {
     selection = null;
-    drawBoard();
+    hint = null;
+    refresh();
     return;
   }
   const step = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[event.key];
@@ -315,6 +337,8 @@ promotion.addEventListener('close', () => {
 });
 
 undo.addEventListener('click', () => {
+  if (undo.disabled) return;
+  hint = null;
   cancelComputer();
   game.undo();
   history.pop();
@@ -326,29 +350,100 @@ undo.addEventListener('click', () => {
   refresh();
 });
 
+function startMatch(variant = game.variant) {
+  cancelComputer();
+  game = new VariantChess(variant);
+  history = [];
+  selection = null;
+  promotionTarget = null;
+  hint = null;
+  resigned = false;
+  showVariantTitle();
+  refresh();
+  const cell = cells.get('e2').cell;
+  giveFocus(cell);
+  cell.focus();
+}
+
+function confirmMatchAction(title, description, label, action) {
+  settings.close();
+  document.querySelector('#confirm-title').textContent = title;
+  document.querySelector('#confirm-copy').textContent = description;
+  document.querySelector('#confirm-action').textContent = label;
+  confirmedAction = action;
+  confirmDialog.returnValue = '';
+  confirmDialog.showModal();
+}
+confirmDialog.addEventListener('close', () => {
+  const action = confirmedAction;
+  confirmedAction = null;
+  if (confirmDialog.returnValue === 'confirm') action?.();
+});
+
+function requestRestart(variant = game.variant) {
+  if (history.length && !result) {
+    confirmMatchAction('Start a new game?', 'Your current position will be lost.', 'Start new game', () => startMatch(variant));
+  } else {
+    settings.close();
+    startMatch(variant);
+  }
+}
+document.querySelector('#restart-game').addEventListener('click', () => requestRestart());
+playAgain.addEventListener('click', () => startMatch());
+document.querySelector('#open-menu').addEventListener('click', () => {
+  difficulty.value = activeDifficulty;
+  applyDifficulty.disabled = true;
+});
 difficulty.addEventListener('change', () => {
-  try {
-    localStorage.setItem('sideways-chess-difficulty', difficulty.value);
-  } catch {
-    // The selected level applies for the current page visit.
+  applyDifficulty.disabled = difficulty.value === activeDifficulty;
+});
+document.querySelector('#difficulty-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const next = difficulty.value;
+  if (!Object.hasOwn(difficulties,next) || next === activeDifficulty) return;
+  const start = () => {
+    activeDifficulty = next;
+    try { localStorage.setItem('sideways-chess-difficulty', next); } catch {}
+    startMatch();
+  };
+  if (history.length && !result) {
+    confirmMatchAction('Change difficulty?', 'A new game will replace this position.', 'Start new game', start);
+  } else {
+    settings.close();
+    start();
   }
-  if (thinking) {
+});
+resignButton.addEventListener('click', () => {
+  if (result) return;
+  confirmMatchAction('Resign this game?', 'The computer will win this match.', 'Resign', () => {
+    if (result) return;
     cancelComputer();
-    playComputer();
-  }
+    resigned = true;
+    selection = null;
+    hint = null;
+    refresh();
+    playAgain.focus();
+  });
+});
+hintButton.addEventListener('click', () => {
+  if (hintButton.disabled) return;
+  const move = chooseMove(game.variant, game.fen(), 'standard', 120);
+  hint = allMoves.find(candidate => candidate.from === move?.from &&
+    candidate.to === move?.to && candidate.promotion === move?.promotion);
+  if (!hint) return;
+  selection = hint.from;
+  refresh();
+  const cell = cells.get(selection).cell;
+  giveFocus(cell);
+  cell.focus();
 });
 
 initializeTutorials({
   activeVariant: () => game.variant,
   fixedVariant: embedded ? initialVariant : undefined,
-  startGame: variant => {
-    cancelComputer();
-    game = new VariantChess(variant);
-    history = [];
-    selection = null;
-    refresh();
-  },
+  startGame: requestRestart,
 });
+document.querySelector('#show-openings').addEventListener('click', () => settings.close());
 
 initializeOpenings();
 refresh();

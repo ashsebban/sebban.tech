@@ -6,10 +6,11 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the Khan and use castles to bring pawns back into play.">
   <title>Duel of Khans</title>
-  <link rel="stylesheet" href="./style.css?v=63">
+  <link rel="stylesheet" href="../chess/match.css?v=1">
+  <link rel="stylesheet" href="./style.css?v=64">
 </head>
 <body>
-  <main>
+  <main class="match-shell">
     <header class="game-heading">
       <h1>Duel of Khans</h1>
       <button type="button" id="piece-style-toggle" aria-label="Switch to Classic pieces">Classic</button>
@@ -24,12 +25,7 @@
         <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
       </section>
       <div id="board" class="board" role="group" aria-label="Game board"></div>
-      <div class="match-actions" role="group" aria-label="Game actions">
-        <button type="button" id="open-menu" aria-haspopup="dialog"><span class="action-icon" aria-hidden="true">≡</span>Options</button>
-        <button type="button" id="resign"><span class="action-icon" aria-hidden="true">⚑</span>Resign</button>
-        <button type="button" id="hint"><span class="action-icon" aria-hidden="true">✧</span>Hint</button>
-        <button type="button" id="undo"><span class="action-icon" aria-hidden="true">↶</span>Undo</button>
-      </div>
+      <div class="match-actions" role="group" aria-label="Game actions"></div>
       <div class="below-board">
         <p id="last-move" class="last-move" aria-live="polite"></p>
         <button type="button" id="cancel-shot" hidden>Cancel shot</button>
@@ -125,6 +121,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=64"></script>
+  <script type="module" src="./app.mjs?v=65"></script>
 </body>
 </html>

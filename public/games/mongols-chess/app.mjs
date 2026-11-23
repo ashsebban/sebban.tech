@@ -1,3 +1,4 @@
+import { mountMatchActions } from '../chess/match.mjs?v=1';
 import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, square, wallSquares } from './engine.mjs?v=44';
 
 import { lessons as siegeLessons } from './lessons.mjs?v=34';
@@ -25,6 +26,7 @@ if(medieval) {
 }
 const find = selector => document.querySelector(selector);
 const board = find('#board');
+mountMatchActions(find('.match-actions'));
 const styleButton=find('#piece-style-toggle');
 const styleKey=medieval?'kings-castles.piece-style':'mongols-chess.piece-style';
 let classicPieces=false;

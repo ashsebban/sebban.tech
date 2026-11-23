@@ -64,25 +64,25 @@ iframe { display:block; width:100%; min-height:420px; border:0; background:#151e
   .category { min-height:175px; padding:18px; }
 }
 
-.experimental-match header.shell { width:min(620px,100% - 24px); padding-top:10px; }
-.experimental-match .home { display:none; }
-.experimental-match .match-heading { gap:8px; padding-bottom:3px; }
-.experimental-match .match-heading h1 { margin:0; font-size:clamp(1.4rem,5vw,2.2rem); }
-.experimental-match .match-heading a { display:grid; place-items:center; min-height:44px; padding:0 9px; font-size:.9rem; }
-.experimental-match iframe { max-width:644px; min-height:0; margin-inline:auto; }
+.chess-match header.shell { width:min(620px,100% - 24px); padding-top:10px; }
+.chess-match .home { display:none; }
+.chess-match .match-heading { gap:8px; padding-bottom:3px; }
+.chess-match .match-heading h1 { margin:0; font-size:clamp(1.4rem,5vw,2.2rem); }
+.chess-match .match-heading a { display:grid; place-items:center; min-height:44px; padding:0 9px; font-size:.9rem; }
+.chess-match iframe { max-width:644px; min-height:0; margin-inline:auto; }
 @media (orientation:landscape) and (max-height:720px) {
-  .experimental-match header.shell { width:min(620px,100% - 24px,max(300px,100svh - 124px)); }
-  .experimental-match iframe { max-width:min(644px,max(324px,100svh - 100px)); }
+  .chess-match header.shell { width:min(620px,100% - 24px,max(300px,100svh - 124px)); }
+  .chess-match iframe { max-width:min(644px,max(324px,100svh - 100px)); }
 }
 
 @media (max-width:510px) {
-  .experimental-match header.shell { width:calc(100% - 16px); }
+  .chess-match header.shell { width:calc(100% - 16px); }
 }
 
 .match-tools { display:flex; gap:6px; margin-inline-start:auto; align-items:center; }
 #match-piece-style { min-width:78px; min-height:44px; padding:0 8px; border:1px solid #756447; border-radius:8px; background:#292820; color:#f5ddaf; font:650 .9rem system-ui; cursor:pointer; }
 #match-piece-style:is(:hover,:focus-visible) { background:#3a3425; }
 @media (max-width:510px) {
-  .experimental-match .match-heading h1 { font-size:clamp(1.15rem,4.9vw,1.45rem); }
-  .experimental-match .match-tools { gap:5px; }
+  .chess-match .match-heading h1 { font-size:clamp(1.15rem,4.9vw,1.45rem); }
+  .chess-match .match-tools { gap:5px; }
 }

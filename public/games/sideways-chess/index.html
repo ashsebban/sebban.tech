@@ -6,70 +6,73 @@
   <meta name="description" content="Play chess against the computer with one extra move for bishops, knights, or both.">
   <meta name="theme-color" content="#161c18">
   <title>Sideways Chess</title>
-  <link rel="stylesheet" href="./style.css?v=14">
+  <link rel="stylesheet" href="../chess/match.css?v=1">
+  <link rel="stylesheet" href="./style.css?v=15">
 </head>
 <body>
-  <main>
+  <main class="match-shell">
     <header class="intro">
-      <a href="/games/" class="catalog-back">Chess variations</a>
-      <h1>Sideways Chess</h1>
-      <p>Same board. One extra move.</p>
+      <h1>Royal Court Chess</h1>
+      <a href="../chess/index.html?category=classical" class="catalog-back">Variations</a>
     </header>
-
-    <div class="layout">
-      <section class="match" aria-label="Chess match">
-        <div class="match-header">
-          <div class="match-label">
-            <span class="opponent">vs. computer</span>
-            <strong id="active-rule">Royal Court Chess</strong>
-          </div>
-          <button type="button" id="show-settings" class="toolbar-button" aria-haspopup="dialog">Game settings</button>
-        </div>
-        <p class="rule warrior-powers" id="warrior-powers" hidden></p>
-        <div id="board" class="board" role="group" aria-label="Chessboard"></div>
-        <div class="match-footer">
-          <div>
-            <p id="status" class="status" role="status"></p>
-            <p id="last-move" class="last-move" hidden></p>
-          </div>
-          <button type="button" id="undo" class="secondary">Undo</button>
-        </div>
-        <div class="board-tools">
-          <div class="board-key">
-          <span><i class="key-dot"></i> Legal move</span>
-          <span id="special-key"><i class="key-diamond"></i> <span id="special-label">Sidestep</span></span>
-          </div>
-          <button type="button" id="show-openings" class="toolbar-button" aria-haspopup="dialog">Opening lab</button>
-        </div>
+    <section aria-label="Chess match">
+      <div class="match-bar">
+        <p id="status" class="status" role="status">Your move</p>
+      </div>
+      <div id="board" class="board" role="group" aria-label="Chessboard"></div>
+      <div class="match-actions" role="group" aria-label="Game actions"></div>
+      <div class="below-board">
+        <p id="last-move" class="last-move" aria-live="polite"></p>
+      </div>
+      <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
+        <h2 id="game-end-title"></h2>
+        <button type="button" id="play-again" class="toolbar-button">Play again</button>
       </section>
-
-      <aside class="controls">
-        <section class="panel score-sheet" aria-labelledby="moves-title">
-          <h2 id="moves-title">Moves</h2>
-          <ol id="moves" class="moves"></ol>
-          <p id="empty-moves">You play White.</p>
-        </section>
-      </aside>
-    </div>
-
-    <footer class="credits">Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> · <a href="./pieces/credits.html">Artwork license</a></footer>
+    </section>
 
     <dialog id="settings" class="game-dialog" aria-labelledby="settings-title">
       <div class="dialog-header">
-        <h2 id="settings-title">Game settings</h2>
+        <h2 id="settings-title">Options</h2>
         <form method="dialog"><button value="close">Done</button></form>
       </div>
       <div id="settings-overview">
-      <label class="difficulty" for="difficulty">
-            <span>Difficulty</span>
-            <select id="difficulty">
-              <option value="easy">Easy</option>
-              <option value="standard" selected>Standard</option>
-              <option value="strong">Strong</option>
-            </select>
-          </label>
-      <h3>Variant for the next game</h3>
-      <div id="variant-options" class="variant-options"></div>
+        <section class="menu-section" aria-labelledby="match-actions-title">
+          <h3 id="match-actions-title">Match</h3>
+          <button type="button" id="restart-game">Restart game</button>
+        </section>
+        <section class="menu-section" aria-labelledby="difficulty-title">
+          <h3 id="difficulty-title">Settings</h3>
+          <form id="difficulty-form">
+            <label for="difficulty">Difficulty</label>
+            <div class="difficulty-controls">
+              <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="standard" selected>Standard</option>
+                <option value="strong">Hard</option>
+              </select>
+              <button type="submit" id="apply-difficulty" disabled>Start new game</button>
+            </div>
+          </form>
+        </section>
+        <section class="menu-section" aria-labelledby="help-title">
+          <h3 id="help-title">Rules &amp; practice</h3>
+          <div id="variant-options" class="variant-options"></div>
+          <button type="button" id="show-openings" class="toolbar-button" aria-haspopup="dialog">Opening lab</button>
+          <details>
+            <summary>Board symbols</summary>
+            <div class="board-key">
+              <span><i class="key-dot"></i> Legal move</span>
+              <span id="special-key"><i class="key-diamond"></i> <span id="special-label">Sidestep</span></span>
+            </div>
+          </details>
+          <details>
+            <summary>Move history</summary>
+            <p class="rule warrior-powers" id="warrior-powers" hidden></p>
+            <ol id="moves" class="moves"></ol>
+            <p id="empty-moves">You play White.</p>
+          </details>
+          <footer class="credits">Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> · <a href="./pieces/credits.html">Artwork license</a></footer>
+        </section>
       </div>
 
       <section id="variant-tutorial" hidden aria-labelledby="tutorial-name">
@@ -83,6 +86,15 @@
           <button type="button" id="new-game" class="primary">Start new game</button>
         </div>
       </section>
+    </dialog>
+
+    <dialog id="confirm-match" class="game-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-copy"></p>
+      <form method="dialog" class="confirm-actions">
+        <button value="cancel" autofocus>Cancel</button>
+        <button value="confirm" id="confirm-action"></button>
+      </form>
     </dialog>
 
     <dialog id="opening-explorer" class="game-dialog" aria-labelledby="opening-title">
@@ -120,6 +132,6 @@
       </form>
     </dialog>
   </main>
-  <script type="module" src="./app.mjs?v=14"></script>
+  <script type="module" src="./app.mjs?v=15"></script>
 </body>
 </html>

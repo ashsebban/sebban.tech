@@ -171,7 +171,7 @@ export function initializeTutorials({ activeVariant, startGame, fixedVariant }) 
     buttons.get(mode)?.focus();
   });
 
-  document.querySelector('#show-settings').addEventListener('click', () => {
+  document.querySelector('#open-menu').addEventListener('click', () => {
     tutorial.hidden = true;
     overview.hidden = false;
     for (const [id, button] of buttons) button.classList.toggle('active-variant', id === activeVariant());
