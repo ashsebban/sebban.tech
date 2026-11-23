@@ -6,65 +6,97 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the king and use castles to bring pawns back into play.">
   <title>Kings &amp; Castles</title>
-  <link rel="stylesheet" href="./style.css?v=53">
+  <link rel="stylesheet" href="./style.css?v=61">
 </head>
 <body>
   <main>
-    <header class="title">
-      <div><h1>Kings &amp; Castles</h1><p>Checkmate the enemy king.</p></div>
-      <div class="header-actions"><button type="button" id="show-learn" aria-haspopup="dialog">Learn to play</button><button type="button" id="show-rules" aria-haspopup="dialog">Rules</button></div>
-    </header>
-    <div class="game">
-      <section class="field" aria-label="The match">
-        <div class="goal">
-          <div><span>White · You</span><strong id="white-castles"></strong></div>
-          <div><span>Black · Computer</span><strong id="black-castles"></strong></div>
+    <h1>Kings &amp; Castles</h1>
+    <section class="field" aria-label="The match">
+      <div class="match-bar">
+        <p id="status" class="status" role="status">Your move</p>
+        <button type="button" id="open-menu" class="menu-trigger" aria-haspopup="dialog">Menu</button>
+      </div>
+      <section id="lesson" class="panel lesson" hidden aria-labelledby="lesson-title">
+        <h2 id="lesson-title"></h2>
+        <p id="lesson-prompt" role="status"></p>
+        <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
+      </section>
+      <div id="board" class="board" role="group" aria-label="Game board"></div>
+      <div class="below-board">
+        <p id="last-move" class="last-move" aria-live="polite"></p>
+        <button type="button" id="cancel-shot" hidden>Cancel shot</button>
+      </div>
+      <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
+        <h2 id="game-end-title"></h2>
+        <p id="game-end-reason"></p>
+        <button id="why-mate" type="button" hidden>Why is this mate?</button>
+        <button id="play-again" type="button" class="primary">Play again</button>
+      </section>
+      <section id="check-info" class="panel check-info" hidden aria-live="polite"></section>
+    </section>
+  </main>
+  <dialog id="match-menu" aria-labelledby="match-menu-title">
+    <div class="dialog-head"><h2 id="match-menu-title">Game menu</h2><form method="dialog"><button>Done</button></form></div>
+    <section class="menu-section" aria-labelledby="match-actions-title">
+      <h3 id="match-actions-title">Match</h3>
+      <div class="menu-actions">
+        <button type="button" id="hint">Get a hint</button>
+        <button type="button" id="undo">Undo</button>
+        <button type="button" id="new-game">Restart</button>
+        <button type="button" id="resign" class="danger">Resign</button>
+      </div>
+    </section>
+    <section class="menu-section" aria-labelledby="settings-title">
+      <h3 id="settings-title">Settings</h3>
+      <form id="difficulty-form">
+        <label for="difficulty">Difficulty</label>
+        <div class="settings-row">
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="standard" selected>Standard</option>
+            <option value="hard">Hard</option>
+          </select>
+          <button type="submit" id="apply-difficulty" disabled>Start new game</button>
         </div>
-        <section id="lesson" class="panel lesson" hidden aria-labelledby="lesson-title">
-          <h2 id="lesson-title"></h2>
-          <p id="lesson-prompt" role="status"></p>
-          <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
-        </section>
+      </form>
         <fieldset class="piece-style">
           <legend>Piece style</legend>
           <button type="button" data-piece-style="illustrated">Illustrated</button>
           <button type="button" data-piece-style="classic">Classic</button>
         </fieldset>
-        <div id="board" class="board" role="group" aria-label="Game board"></div>
-        <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
-          <h2 id="game-end-title"></h2>
-          <p id="game-end-reason"></p>
-          <button id="why-mate" type="button" hidden>Why is this mate?</button>
-          <button id="play-again" type="button" class="primary">Play again</button>
-        </section>
-        <section id="check-info" class="panel check-info" hidden aria-live="polite"></section>
-        <div class="below-board">
-          <div>
-            <p id="status" class="status" role="status">White to move</p>
-            <p id="last-move" class="last-move"></p>
-          </div>
-          <div class="turn-controls"><button type="button" id="cancel-shot" hidden>Cancel shot</button><button type="button" id="undo" disabled>Undo</button></div>
-        </div>
+    </section>
+    <section class="menu-section" aria-labelledby="help-title">
+      <h3 id="help-title">Help</h3>
+      <div class="menu-actions">
+        <button type="button" id="show-learn" aria-haspopup="dialog">Learn to play</button>
+        <button type="button" id="show-rules" aria-haspopup="dialog">Rules</button>
+      </div>
+      <details><summary>Board symbols</summary>
         <div class="legend">
           <span><i class="move-dot"></i> Move</span>
           <span><i class="bow-icon" aria-hidden="true">🏹</i> Has a bow</span>
           <span><i class="aim-dot" aria-hidden="true"></i> In arrow range</span>
           <span><i class="aim-dot aim-live" aria-hidden="true"></i> Can shoot now</span>
         </div>
-      </section>
-      <aside class="orders">
-        <section class="panel" aria-labelledby="tactics-title">
-          <h2 id="tactics-title">Siege tactics</h2>
-          <dl>
-            <dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square in friendly territory.</dd>
-            <dt>Knights</dt><dd>Leap in an L shape and capture on landing.</dd>
-          </dl>
-        </section>
-        <button type="button" id="new-game" class="primary">New game</button>
-      </aside>
-    </div>
-    <footer>Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> and Wikimedia Commons contributors, via the <a href="https://github.com/lichess-org/lila/tree/master/public/piece/cburnett">Cburnett set</a>. <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</footer>
-  </main>
+      </details>
+      <details><summary>Match details</summary>
+        <dl class="match-details">
+          <dt>White castles</dt><dd id="white-castles"></dd>
+          <dt>Black castles</dt><dd id="black-castles"></dd>
+          <dt>Your reserve</dt><dd id="reserve"></dd>
+        </dl>
+      </details>
+      <footer>Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> and Wikimedia Commons contributors, via the <a href="https://github.com/lichess-org/lila/tree/master/public/piece/cburnett">Cburnett set</a>. <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</footer>
+    </section>
+  </dialog>
+  <dialog id="confirm-match" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-copy"></p>
+    <form method="dialog" class="confirm-actions">
+      <button value="cancel" autofocus>Cancel</button>
+      <button value="confirm" id="confirm-action" class="primary"></button>
+    </form>
+  </dialog>
   <dialog id="learn" aria-labelledby="learn-title">
     <div class="dialog-head"><h2 id="learn-title">Learn to play</h2><form method="dialog"><button>Done</button></form></div>
     <div id="lessons" class="lessons"></div>
@@ -93,6 +125,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=60"></script>
+  <script type="module" src="./app.mjs?v=61"></script>
 </body>
 </html>

@@ -52,6 +52,7 @@ for (const [id,mode] of Object.entries(games)) {
 
 function openMode(id,category) {
   const mode=games[id];
+  document.body.classList.toggle('experimental-match',mode?.category==='experimental');
   categories.hidden=!!mode || !!category;
   gallery.hidden=!!mode || !category;
   categoryBack.hidden=!category || !!mode;

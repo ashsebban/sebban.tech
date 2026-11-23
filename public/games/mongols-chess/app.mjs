@@ -42,6 +42,22 @@ const choiceDialog = find('#move-choice');
 const status = find('#status');
 const lastMove = find('#last-move');
 const undo = find('#undo');
+const menu = find('#match-menu');
+const menuButton = find('#open-menu');
+const confirmDialog = find('#confirm-match');
+const difficultySelect = find('#difficulty');
+const applyDifficulty = find('#apply-difficulty');
+const hintButton = find('#hint');
+const resignButton = find('#resign');
+const difficultyLevels = {
+  easy:{depth:1,budget:800},
+  standard:{depth:3,budget:6500},
+  hard:{depth:5,budget:22000},
+};
+let difficulty='standard';
+let confirmedAction=null;
+let hintMove=null;
+let resigned=false;
 const gameEnd = find('#game-end');
 const playAgain = find('#play-again');
 const rulesDialog = find('#rules');
@@ -262,10 +278,11 @@ function draw() {
     const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
     const active=selected;
-    cell.className=[base,classicPieces && wall && (piece[0]==='w'?'wall-north':'wall-south'),classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
+    const hinted=hintMove && i===(hintMove.kind==='jumpShot' ? hintMove.captureAt : hintMove.to);
+    cell.className=[base,hinted && 'hint-target',classicPieces && wall && (piece[0]==='w'?'wall-north':'wall-south'),classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':names[piece[1]]):'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
-    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
+    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(hinted?', suggested target':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
     cell.setAttribute('aria-pressed',String(i===active));
   }
   const count=side=> {
@@ -274,17 +291,28 @@ function draw() {
   };
   white.textContent=count('w');
   black.textContent=count('b');
-  status.textContent=pending ? 'Choose where to jump or capture' : result ? (result.winner ? result.winner==='w' ? 'You won the siege.' : 'Black won the siege.' : 'Draw.')
+  status.textContent=pending ? 'Choose where to jump or capture' : result ? 'Match over'
     : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>names[state.board[i][1]]+' '+square(i)).join(', ')
-    : state.turn==='w' ? 'Your move · White' : 'Black is thinking…';
-  lastMove.textContent=result?.reason??previous?.text??practiceHint;
+    : state.turn==='w' ? 'Your move' : 'Computer thinking…';
+  lastMove.textContent=hintMove ? hintText(hintMove) : result ? '' : (previous?.text ?? practiceHint);
   cancelShot.hidden=!pending;
-  undo.disabled=!!lesson || !!pending || !history.length;
+  undo.disabled=!!lesson || !!pending || resigned || !history.length;
+  hintButton.disabled=!!lesson || !!result || !!pending || state.turn!=='w' || !legal.length;
+  resignButton.disabled=!!lesson || !!result;
+}
+
+function hintText(move) {
+  const from=square(move.from), to=square(move.to);
+  if(move.kind==='shot') return 'Hint: shoot '+to+' from '+from+'.';
+  if(move.kind==='jumpShot') return 'Hint: shoot '+square(move.captureAt)+' from '+from+', then jump to '+to+'.';
+  if(move.kind==='spawn') return 'Hint: use the castle on '+from+' to return a pawn to '+to+'.';
+  if(move.kind==='castle') return 'Hint: castle '+(move.to>move.from?'kingside.':'queenside.');
+  return 'Hint: move '+from+' to '+to+(move.promotion?' and promote to '+names[move.promotion]:'')+'.';
 }
 
 function refresh() {
-  legal=moves(state,rules);
-  result=outcome(state,rules,seen[key(state)],legal);
+  legal=resigned ? [] : moves(state,rules);
+  result=resigned ? {winner:'b',reason:'You resigned.'} : outcome(state,rules,seen[key(state)],legal);
   reinforcementCastles=new Set(result ? [] : legal.filter(move=>move.kind==='spawn').map(move=>move.from));
   if(result || state.turn==='b') legal=[];
   const justEnded=Boolean(result) && gameEnd.hidden;
@@ -311,13 +339,15 @@ function inspectResponse(token,move) {
   else if(available[0]) play(available[0]);
 }
 function fallback(token) {
-  if(token===epoch) inspectResponse(token,chooseMove(state,{rules,seen,budget:1700}));
+  if(token!==epoch || state.turn!=='b' || result) return;
+  const {depth,budget}=difficultyLevels[difficulty];
+  inspectResponse(token,chooseMove(state,{rules,seen,depth,budget:Math.min(budget,4500)}));
 }
 function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=43',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=61',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -331,11 +361,12 @@ function computer() {
         fallback(epoch);
       };
     }
-    worker.postMessage({token,state,seen,rules});
+    worker.postMessage({token,state,seen,rules,...difficultyLevels[difficulty]});
   } catch { fallback(token); }
 }
 
 function advance(move) {
+  hintMove=null;
   history.push({before:state,move,text:description(move,state)});
   state=apply(state,move);
   const signature=key(state);
@@ -399,6 +430,7 @@ function focusCell(index) {
 }
 function choose(index) {
   if(result || state.turn!=='w' || lesson?.complete) return;
+  hintMove=null;
   explanation='';
   if(lesson) lesson.feedback='';
   if(pending) {
@@ -452,7 +484,7 @@ board.addEventListener('click',event=>{
 board.addEventListener('keydown',event=>{
   const index=Number(event.target.dataset.square);
   const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
-  if(event.key==='Escape'){ selected=null; pending=null; draw(); return; }
+  if(event.key==='Escape'){ selected=null; pending=null; hintMove=null; draw(); return; }
   const step=directions[event.key];
   if(!step || !Number.isInteger(index)) return;
   event.preventDefault();
@@ -465,6 +497,8 @@ board.addEventListener('keydown',event=>{
 
 function reset(next,practiceSquare=null,hint='',activeLesson=null) {
   lesson=activeLesson;
+  hintMove=null;
+  resigned=false;
   explanation='';
   reviewMate=false;
   abortEngine();
@@ -485,7 +519,9 @@ cancelShot.addEventListener('click',()=>{
   cells[selected].cell.focus();
 });
 undo.addEventListener('click',()=>{
-  if(!history.length) return;
+  if(undo.disabled) return;
+  menu.close();
+  hintMove=null;
   explanation='';
   reviewMate=false;
   abortEngine();
@@ -496,6 +532,7 @@ undo.addEventListener('click',()=>{
   } while(history.length && (state.turn!=='w' || !moves(state,rules).length));
   selected=null;
   refresh();
+  cells[indexOf('e2')].cell.focus();
 });
 for(const [index,guide] of lessons.entries()) {
   const button=document.createElement('button');
@@ -508,7 +545,7 @@ for(const [index,guide] of lessons.entries()) {
   button.addEventListener('click',()=>{learnDialog.close();openLesson(index);});
   find('#lessons').append(button);
 }
-find('#show-learn').addEventListener('click',()=>learnDialog.showModal());
+find('#show-learn').addEventListener('click',()=>{ menu.close(); learnDialog.showModal(); });
 find('#lesson-retry').addEventListener('click',()=>openLesson(lesson.index));
 find('#lesson-exit').addEventListener('click',()=>reset(initial()));
 find('#why-mate').addEventListener('click',()=>{
@@ -516,12 +553,84 @@ find('#why-mate').addEventListener('click',()=>{
   draw();
   if(reviewMate) checkInfo.scrollIntoView({block:'nearest'});
 });
-find('#show-rules').addEventListener('click',()=>rulesDialog.showModal());
-playAgain.addEventListener('click',()=>{
+find('#show-rules').addEventListener('click',()=>{ menu.close(); rulesDialog.showModal(); });
+function startMatch() {
   reset(initial());
   cells[indexOf('e2')].cell.focus();
+}
+playAgain.addEventListener('click',startMatch);
+
+function confirmMatchAction(title, description, label, action) {
+  menu.close();
+  find('#confirm-title').textContent=title;
+  find('#confirm-copy').textContent=description;
+  find('#confirm-action').textContent=label;
+  confirmedAction=action;
+  confirmDialog.returnValue='';
+  confirmDialog.showModal();
+}
+
+confirmDialog.addEventListener('close',()=>{
+  const action=confirmedAction;
+  confirmedAction=null;
+  if(confirmDialog.returnValue==='confirm') action?.();
 });
-find('#new-game').addEventListener('click',()=>reset(initial()));
+
+menuButton.addEventListener('click',()=>{
+  difficultySelect.value=difficulty;
+  applyDifficulty.disabled=true;
+  menu.showModal();
+});
+difficultySelect.addEventListener('change',()=>{
+  applyDifficulty.disabled=difficultySelect.value===difficulty;
+});
+find('#difficulty-form').addEventListener('submit',event=>{
+  event.preventDefault();
+  const next=difficultySelect.value;
+  if(!Object.hasOwn(difficultyLevels,next) || next===difficulty) return;
+  const start=()=>{
+    difficulty=next;
+    startMatch();
+  };
+  if(!result && (history.length || pending || lesson || practiceHint)) {
+    confirmMatchAction('Change difficulty?', 'A new game will replace this position.', 'Start new game', start);
+  } else {
+    menu.close();
+    start();
+  }
+});
+find('#new-game').addEventListener('click',()=>{
+  if(!result && (history.length || pending || lesson || practiceHint)) {
+    confirmMatchAction('Restart this game?', 'Your current position will be lost.', 'Restart', startMatch);
+  } else {
+    menu.close();
+    startMatch();
+  }
+});
+resignButton.addEventListener('click',()=>{
+  if(resignButton.disabled) return;
+  confirmMatchAction('Resign this game?', 'The computer will win this match.', 'Resign', ()=>{
+    abortEngine();
+    resigned=true;
+    pending=null;
+    selected=null;
+    hintMove=null;
+    explanation='';
+    refresh();
+  });
+});
+hintButton.addEventListener('click',()=>{
+  if(hintButton.disabled) return;
+  const move=chooseMove(state,{rules,seen,depth:2,budget:1200});
+  if(!move) return;
+  menu.close();
+  hintMove=move;
+  selected=move.from;
+  explanation='';
+  draw();
+  focusCell(selected);
+  cells[selected].cell.focus();
+});
 find('#practice').addEventListener('click',()=>{
   rulesDialog.close();
   if(medieval) {openLesson(0,2); return;}

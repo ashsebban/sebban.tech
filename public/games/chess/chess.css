@@ -63,3 +63,14 @@ iframe { display:block; width:100%; min-height:420px; border:0; background:#151e
   .categories { grid-template-columns:1fr; gap:12px; }
   .category { min-height:175px; padding:18px; }
 }
+
+.experimental-match header.shell { width:min(620px,100% - 24px); padding-top:10px; }
+.experimental-match .home { display:none; }
+.experimental-match .match-heading { gap:8px; padding-bottom:3px; }
+.experimental-match .match-heading h1 { margin:0; font-size:clamp(1.4rem,5vw,2.2rem); }
+.experimental-match .match-heading a { display:grid; place-items:center; min-height:44px; padding:0 9px; font-size:.9rem; }
+.experimental-match iframe { max-width:644px; min-height:0; margin-inline:auto; }
+@media (orientation:landscape) and (max-height:720px) {
+  .experimental-match header.shell { width:min(620px,100% - 24px,max(300px,100svh - 124px)); }
+  .experimental-match iframe { max-width:min(644px,max(324px,100svh - 100px)); }
+}
