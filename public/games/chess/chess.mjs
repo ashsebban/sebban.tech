@@ -1,6 +1,4 @@
 const games = {
-  drawbridge: { category:'experimental', name:'Drawbridge Chess', art:'drawbridge', url:'../terrain-chess/index.html?map=river', description:'Raise a drawbridge to break a check or lower it to open an attack.' },
-  sherwood: { category:'experimental', name:'Sherwood Forest Chess', art:'sherwood', url:'../terrain-chess/index.html?map=forest', description:'Four oak groves break sightlines. Knights leap between clearings.' },
   'kings-castles': { category:'experimental', name:'Kings & Castles', art:'kings-castles', url:'../mongols-chess/kings-castles.html', description:'Knights leap, wall archers draw longbows, and castles rally infantry.' },
   mongols: { category:'experimental', name:'Mongol’s Chess', art:'mongols', url:'../mongols-chess/index.html', description:'Horse archers, fortifications, and a Khan who borrows powers.' },
   cathedral: { name:'Cathedral Chess', art:'cathedral', url:'../sideways-chess/index.html?variant=b', description:'Bishops can step sideways and switch square colors.' },
