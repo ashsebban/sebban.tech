@@ -301,7 +301,8 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
           const targetSquare=get(tx,ty);
           const target=board[targetSquare];
           if (!target) emptyShots?.add(targetSquare);
-          if (target?.[0]===enemy && !isRoyal(target,rules)) add(tx,ty,'shot');
+          // Royal targets are needed for check detection. moves() filters out royal captures.
+          if (target?.[0]===enemy && (rules.royalCheck || !isRoyal(target,rules))) add(tx,ty,'shot');
         }
       }
     }
