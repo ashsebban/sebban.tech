@@ -1,5 +1,5 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=47';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=48';
 
 import { chineseLessons, frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=37';
 
@@ -55,6 +55,7 @@ styleButton.addEventListener('click',()=>{
 });
 const choiceDialog = find('#move-choice');
 const status = find('#status');
+const siegeClock=frontier?find('#siege-clock'):null;
 const lastMove = find('#last-move');
 const undo = find('#undo');
 const menu = find('#match-menu');
@@ -323,6 +324,14 @@ function draw() {
   status.textContent=pending ? 'Choose where to jump or capture' : result ? 'Match over'
     : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>nameOf(state.board[i])+' '+square(i)).join(', ')
     : state.turn===playerSide ? (frontier?'Your move · '+(playerSide==='b'?'Black':'White'):'Your move') : 'Computer thinking…';
+  if(siegeClock) {
+    siegeClock.hidden=!!lesson || !!result || state.siegeTurns===undefined;
+    if(!siegeClock.hidden) {
+      const remaining=rules.siegeLimit-state.siegeTurns;
+      siegeClock.textContent=remaining+' Mongol '+(remaining===1?'turn':'turns')+' left';
+      siegeClock.classList.toggle('urgent',remaining<=3);
+    }
+  }
   lastMove.textContent=hintMove ? hintText(hintMove) : result ? '' : (previous?.text ?? practiceHint);
   cancelShot.hidden=!pending;
   undo.disabled=!!lesson || !!pending || resigned || !history.some(({before})=>before.turn===playerSide);
@@ -376,7 +385,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=70',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=71',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

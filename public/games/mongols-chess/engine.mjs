@@ -22,6 +22,7 @@ export const defaultRules = { ...profiles.siege, jumpShot:true, emptyShotLanding
 export const frontierRules = {
   ...defaultRules,
   firstTurn:'b',
+  siegeLimit:12,
   sides: {
     w:{horseArchery:false,superKhan:false},
     b:{pawnWalls:false,bishopArchery:false},
@@ -85,6 +86,7 @@ export function initial(rules = defaultRules) {
       ...Array(8).fill('wp'), ...back.map(type=>'w'+type),
     ],
     turn:rules.firstTurn ?? 'w', ep:null, quiet:0, pawnStarts:0xffff, castlingRights:15,
+    ...(rules.siegeLimit ? {siegeTurns:0} : {}),
   };
 }
 
@@ -425,7 +427,12 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
 }
 
 export function apply(state, move) {
-  if (move.kind==='pass') return {...state,turn:opposite(state.turn),ep:null,quiet:state.quiet+1};
+  const siege = {};
+  if (state.siegeTurns!==undefined) {
+    const capturedChinesePiece=move.capture?.[0]==='w' || move.landingCapture?.[0]==='w';
+    siege.siegeTurns = state.turn==='w' ? state.siegeTurns : capturedChinesePiece ? 0 : state.siegeTurns+1;
+  }
+  if (move.kind==='pass') return {...state,...siege,turn:opposite(state.turn),ep:null,quiet:state.quiet+1};
   const board = state.board.slice();
   const piece = board[move.from];
   let castlingRights=state.castlingRights ?? 0;
@@ -475,7 +482,7 @@ export function apply(state, move) {
   }
   const pawnMove=piece[1]==='p' && move.kind==='move';
   const ep=pawnMove && Math.abs(move.from-move.to)===16 ? (move.from+move.to)/2 : null;
-  return {board,turn:opposite(state.turn),ep,pawnStarts,castlingRights,reserves,freshPawns,quiet:move.capture || pawnMove || pawnRally || move.kind==='spawn' ? 0 : state.quiet+1};
+  return {board,turn:opposite(state.turn),ep,pawnStarts,castlingRights,reserves,freshPawns,...siege,quiet:move.capture || pawnMove || pawnRally || move.kind==='spawn' ? 0 : state.quiet+1};
 }
 
 export function castles(state,side) {
@@ -489,14 +496,17 @@ export function outcome(state,rules=defaultRules,repetitions=0,legal=null) {
   }
   if (!rules.mobileCastles && !castles(state,'w')) return {winner:'b',reason:'Both White castles fell.'};
   if (!rules.mobileCastles && !castles(state,'b')) return {winner:'w',reason:'Both Black castles fell.'};
-  if (rules.royalCheck && !(legal ?? moves(state,rules)).length) {
-    return inCheck(state,rules)
-      ? {winner:opposite(state.turn),reason:'Checkmate.'}
-      : {winner:null,reason:'Stalemate.'};
+  const noMoves=!(legal ?? moves(state,rules)).length;
+  if (rules.royalCheck && noMoves && inCheck(state,rules)) {
+    return {winner:opposite(state.turn),reason:'Checkmate.'};
   }
+  if (rules.siegeLimit && state.siegeTurns>=rules.siegeLimit) {
+    return {winner:'w',reason:'China held the line for '+rules.siegeLimit+' Mongol turns without losing a piece.'};
+  }
+  if (rules.royalCheck && noMoves) return {winner:null,reason:'Stalemate.'};
   if (repetitions>=3) return {winner:null,reason:'The same position repeated three times.'};
   if (state.quiet>=60) return {winner:null,reason:'60 turns passed without a pawn move or capture.'};
-  if (!(legal ?? moves(state,rules)).length && !moves(apply(state,passMove),rules).length) {
+  if (noMoves && !moves(apply(state,passMove),rules).length) {
     return {winner:null,reason:'Neither side can move.'};
   }
   return null;
@@ -504,7 +514,8 @@ export function outcome(state,rules=defaultRules,repetitions=0,legal=null) {
 
 function evaluate(state, rules) {
   const {board,turn}=state;
-  let score=0;
+  const siegePressure = rules.siegeLimit ? 2*(state.siegeTurns ?? 0)**2 : 0;
+  let score = turn==='w' ? siegePressure : -siegePressure;
   for(let index=0; index<64; index++) {
     const piece=board[index];
     if(!piece) continue;
@@ -541,6 +552,10 @@ export function chooseMove(state,{rules=defaultRules,depth=3,budget=6500,seen={}
   function search(current,left,alpha,beta,ply) {
     if(++nodes>budget) throw exhausted;
     if(!rules.mobileCastles && castles(current,current.turn)<(rules.firstCastleWins?2:1)) return -100000+ply;
+    if(rules.siegeLimit && current.siegeTurns>=rules.siegeLimit) {
+      const result=outcome(current,rules);
+      return result.winner===current.turn ? 100000-ply : -100000+ply;
+    }
     if(current.quiet>=60 || seen[key(current)]>=2) return 0;
     if(!left) {
       if(rules.royalCheck && inCheck(current,rules) && !moves(current,rules).length) return -100000+ply;

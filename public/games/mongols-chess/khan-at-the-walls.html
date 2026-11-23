@@ -7,7 +7,7 @@
   <meta name="description" content="Lead Genghis Khan’s horse archers against the Chinese army’s fortified pawn chains.">
   <title>Khan at the Walls</title>
   <link rel="stylesheet" href="../chess/match.css?v=1">
-  <link rel="stylesheet" href="./style.css?v=65">
+  <link rel="stylesheet" href="./style.css?v=66">
 </head>
 <body>
   <main class="match-shell">
@@ -18,6 +18,7 @@
     <section class="field" aria-label="The match">
       <div class="match-bar">
         <p id="status" class="status" role="status">Your move</p>
+        <p id="siege-clock" class="siege-clock" aria-live="polite" hidden></p>
       </div>
       <section id="lesson" class="panel lesson" hidden aria-labelledby="lesson-title">
         <h2 id="lesson-title"></h2>
@@ -114,6 +115,7 @@
     </div>
     <ul>
       <li><strong>Checkmate.</strong> The Mongols play Black and move first. China plays White. Choose your army in Options. Checkmate the opposing ruler to win.</li>
+      <li><strong>Hold the line.</strong> China wins if the Mongols go 12 of their own turns without capturing a Chinese piece. A Mongol capture resets the countdown. Checkmate wins even on the final turn.</li>
       <li><strong>Mongol horse archers.</strong> Move or capture like a knight, or shoot exactly two squares along a clear rank or file and then jump. A landing capture can happen on the same turn.</li>
       <li><strong>Genghis Khan.</strong> A friendly queen grants long slides, a friendly knight grants knight jumps and shoot-and-jump, and a friendly bishop grants diagonal slides. Mongol pawns and bishops use their regular chess moves.</li>
       <li><strong>Chinese army.</strong> The Chinese king and knights use their regular chess moves. Pawns on White’s second rank are walls. Friendly pawns through White’s fourth rank are walls while a horizontal or diagonal chain connects them to that second rank. Cut the connection and the isolated pawns become infantry.</li>
@@ -129,6 +131,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=70"></script>
+  <script type="module" src="./app.mjs?v=71"></script>
 </body>
 </html>

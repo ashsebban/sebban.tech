@@ -163,3 +163,7 @@ dialog li { margin-bottom:10px; }
 :is([data-variant="mongols"],[data-variant="medieval"]) .khan-badge { width:28%; height:28%; padding:0; background:#fff2ce; border-color:#453827; }
 :is([data-variant="mongols"],[data-variant="medieval"]) .square:has(.khan-badges) .file { bottom:26%; }
 .square.gate-ready::before { content:""; position:absolute; bottom:24%; left:45%; width:10%; height:14%; z-index:2; border-radius:50% 50% 0 0; background:#fff1a4; box-shadow:0 0 0 1px #744a1a,0 0 5px #ffbc33; pointer-events:none; }
+
+.match-bar:has(.siege-clock) { justify-content:space-between; flex-wrap:wrap; gap:4px 10px; }
+.siege-clock { margin-inline-start:auto; padding:4px 8px; border:1px solid var(--edge); border-radius:5px; color:#f1d3a3; font-size:.83rem; font-variant-numeric:tabular-nums; }
+.siege-clock.urgent { color:#ffb1a7; border-color:#a7685d; }
