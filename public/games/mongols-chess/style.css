@@ -122,16 +122,19 @@ dialog li { margin-bottom:10px; }
 .spawn::after { content:"+♟"; position:absolute; z-index:2; color:#201810; background:#ffdb88; padding:2px 4px; border-radius:5px; font-size:clamp(10px,3vw,18px); }
 
 .square.wall-square::before {
-  content:""; position:absolute; inset:auto 5% 3%; height:27%; z-index:2; pointer-events:none;
-  clip-path:polygon(0 0,17% 0,17% 30%,28% 30%,28% 0,45% 0,45% 30%,55% 30%,55% 0,72% 0,72% 30%,83% 30%,83% 0,100% 0,100% 100%,0 100%);
+  --stone-top:#62717a; --stone-base:#34414b; --mortar:#202a30;
+  content:""; position:absolute; inset:21% 11%; z-index:1; pointer-events:none;
+  clip-path:polygon(0 0,20% 0,20% 29%,40% 29%,40% 0,60% 0,60% 29%,80% 29%,80% 0,100% 0,100% 100%,0 100%);
   background:
-    linear-gradient(#362e28,#362e28) 0 66% / 100% 1px no-repeat,
-    repeating-linear-gradient(90deg,transparent 0 23%,#362e28 23% 25%) 0 100% / 100% 34% no-repeat,
-    repeating-linear-gradient(90deg,transparent 12% 35%,#362e28 35% 37%) 0 0 / 100% 66% no-repeat,
-    linear-gradient(#c7b28d,#83735e);
-  box-shadow:inset 0 -2px #4e4135;
+    linear-gradient(var(--mortar),var(--mortar)) 0 65% / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 23%,var(--mortar) 23% 25%) 0 100% / 100% 35% no-repeat,
+    repeating-linear-gradient(90deg,transparent 12% 35%,var(--mortar) 35% 37%) 0 0 / 100% 65% no-repeat,
+    linear-gradient(var(--stone-top),var(--stone-base));
+  box-shadow:inset 0 -2px var(--mortar), inset 0 1px #ffffff55;
 }
-.square.wall-white::before { inset:3% 5% auto; }
+.square.wall-white::before {
+  --stone-top:#f8e7be; --stone-base:#c4ac80; --mortar:#65543f;
+}
 
 .game-end { margin-top:.65rem; padding:.85rem; border:1px solid #a48458; border-radius:.6rem; background:#26313c; color:#fff4df; }
 .game-end h2 { margin:0; }
