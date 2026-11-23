@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the Khan and use castles to bring pawns back into play.">
   <title>Mongol’s Chess</title>
-  <link rel="stylesheet" href="./style.css?v=51">
+  <link rel="stylesheet" href="./style.css?v=52">
 </head>
 <body>
   <main>
@@ -27,8 +27,8 @@
         </section>
         <fieldset class="piece-style">
           <legend>Piece style</legend>
-          <label><input type="radio" name="piece-style" value="illustrated" checked><span>Illustrated</span></label>
-          <label><input type="radio" name="piece-style" value="classic"><span>Classic</span></label>
+          <button type="button" data-piece-style="illustrated">Illustrated</button>
+          <button type="button" data-piece-style="classic">Classic</button>
         </fieldset>
         <div id="board" class="board" role="group" aria-label="Game board"></div>
         <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
@@ -93,6 +93,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=51"></script>
+  <script type="module" src="./app.mjs?v=52"></script>
 </body>
 </html>

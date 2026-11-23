@@ -161,11 +161,8 @@ dialog li { margin-bottom:10px; }
 
 .piece-style { border:0; padding:0; margin:0 0 8px; display:flex; align-items:center; gap:3px; }
 .piece-style legend { float:left; margin-right:8px; line-height:38px; font-weight:600; }
-.piece-style label { position:relative; cursor:pointer; }
-.piece-style input { position:absolute; opacity:0; }
-.piece-style span { display:block; padding:8px 12px; border:1px solid var(--edge); border-radius:6px; color:var(--muted); }
-.piece-style input:checked + span { background:#efe1bd; border-color:#efe1bd; color:#202b29; font-weight:650; }
-.piece-style input:focus-visible + span { outline:2px solid var(--mint); outline-offset:2px; }
+.piece-style button[aria-pressed="true"] { background:#efe1bd; border-color:#efe1bd; color:#202b29; }
+.piece-style button:focus-visible { outline:2px solid var(--mint); outline-offset:2px; }
 /* The classic SVGs share a 45-unit canvas with their own optical margins. */
 [data-variant="mongols"] .classic-pieces .piece[data-role] { width:100%; height:100%; bottom:0; }
 [data-variant="mongols"] .classic-pieces .piece:is([data-role="wall"],[data-role="infantry"]) { width:92%; height:92%; bottom:3%; }

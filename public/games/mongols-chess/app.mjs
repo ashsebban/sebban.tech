@@ -14,17 +14,18 @@ if(medieval) {
 }
 const find = selector => document.querySelector(selector);
 const board = find('#board');
-const styleSwitch=find('.piece-style');
+const styleButtons=document.querySelectorAll('.piece-style button[data-piece-style]');
 const styleKey='mongols-chess.piece-style';
 let classicPieces=false;
-if(styleSwitch) {
+if(styleButtons.length) {
   try { classicPieces=localStorage.getItem(styleKey)==='classic'; } catch {}
-  styleSwitch.elements.namedItem('piece-style').value=classicPieces?'classic':'illustrated';
-  styleSwitch.addEventListener('change',event=>{
-    classicPieces=event.target.value==='classic';
-    try { localStorage.setItem(styleKey,event.target.value); } catch {}
-    draw();
-  });
+  for(const button of styleButtons) {
+    button.addEventListener('click',()=>{
+      classicPieces=button.dataset.pieceStyle==='classic';
+      try { localStorage.setItem(styleKey,button.dataset.pieceStyle); } catch {}
+      draw();
+    });
+  }
 }
 const choiceDialog = find('#move-choice');
 const status = find('#status');
@@ -187,6 +188,9 @@ function openLesson(index,step=0) {
 }
 
 function draw() {
+  for(const button of styleButtons) {
+    button.setAttribute('aria-pressed',String(button.dataset.pieceStyle===(classicPieces?'classic':'illustrated')));
+  }
   board.classList.toggle('classic-pieces',classicPieces);
   const targets=new Map();
   const shots=new Set();
