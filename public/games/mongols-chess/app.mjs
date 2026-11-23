@@ -225,7 +225,7 @@ function draw() {
   for(const {side,group,badges} of khanBadges) {
     const powers=khanPowers(state.board,side);
     for(const {power,image} of badges) image.hidden=!powers[power];
-    const cell=cells[state.board.indexOf(side+'k')]?.cell;
+    const cell=classicPieces ? cells[state.board.indexOf(side+'k')]?.cell : null;
     if(!cell) group.remove();
     else if(group.parentElement!==cell) cell.append(group);
     const selector=side==='w' ? '#khan-powers' : '#black-khan-powers';
@@ -243,14 +243,16 @@ function draw() {
     const castle=piece?.[1]==='r';
     const ready=castle && !pending && !lesson?.complete && reinforcementCastles.has(i);
     const archer=hasBow(visibleBoard,i,rules);
-    bow.hidden=!archer;
+    bow.hidden=!archer || (!classicPieces && piece?.[1]==='k');
     if(piece) {
       let role=miniature[piece[1]];
       if(wall) role='wall';
       if(piece[1]==='b' && archer) role=medieval?'longbow':'archer';
       image.dataset.role=role;
       const sprite=(!medieval && ready) ? 'gate-lit' : role;
-      const path=classicPieces ? './pieces/'+piece[0]+piece[1].toUpperCase()+'.svg' : (medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+(medieval?'?v=3':(role==='wall' || role==='horse')?'?v=2':'');
+      const spriteVersion=medieval || piece[1]==='b' ? '?v=3' : (role==='wall' || role==='horse') ? '?v=2' : '';
+      const path=classicPieces ? './pieces/'+piece[0]+piece[1].toUpperCase()+'.svg'
+        : (medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+spriteVersion;
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
