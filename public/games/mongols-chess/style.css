@@ -123,8 +123,6 @@ dialog li { margin-bottom:10px; }
 
 .piece.wall-crew { width:91%; height:80%; }
 .piece.field-infantry { width:69%; height:68%; }
-.piece-setting { display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.piece-setting select { padding:8px; font:inherit; }
 .piece.reinforcement-ready { filter:drop-shadow(0 0 2px #ffc45a); }
 
 .game-end { margin-top:.65rem; padding:.85rem; border:1px solid #a48458; border-radius:.6rem; background:#26313c; color:#fff4df; }
