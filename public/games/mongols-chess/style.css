@@ -121,47 +121,8 @@ dialog li { margin-bottom:10px; }
 .square.checked { outline:3px solid #ed7063; outline-offset:-3px; }
 .spawn::after { content:"+♟"; position:absolute; z-index:2; color:#201810; background:#ffdb88; padding:2px 4px; border-radius:5px; font-size:clamp(10px,3vw,18px); }
 
-.fortification {
-  --stone-top:#62717a; --stone-base:#34414b; --mortar:#202a30;
-  --trim:#bac4c4;
-  position:absolute; inset:24% 10%; z-index:1; pointer-events:none;
-  clip-path:polygon(0 0,20% 0,20% 29%,40% 29%,40% 0,60% 0,60% 29%,80% 29%,80% 0,100% 0,100% 100%,0 100%);
-  background:
-    linear-gradient(var(--mortar),var(--mortar)) 0 65% / 100% 1px no-repeat,
-    repeating-linear-gradient(90deg,transparent 0 23%,var(--mortar) 23% 25%) 0 100% / 100% 35% no-repeat,
-    repeating-linear-gradient(90deg,transparent 12% 35%,var(--mortar) 35% 37%) 0 0 / 100% 65% no-repeat,
-    linear-gradient(var(--stone-top),var(--stone-base));
-  box-shadow:inset 0 -2px var(--mortar), inset 0 1px #ffffff55;
-}
-.fortification[hidden] { display:none; }
-.fortification.light-stone {
-  --stone-top:#f8e7be; --stone-base:#c4ac80; --mortar:#65543f;
-  --trim:#40352a;
-}
-.fortification::before {
-  content:""; position:absolute; inset:30% 35% 8%; z-index:1;
-  background:var(--trim);
-  mask:url("./pieces/bP.svg") center / contain no-repeat;
-}
-.fortification.barracks {
-  inset:12% 11% 11%;
-  clip-path:polygon(4% 0,23% 0,23% 14%,40% 14%,40% 0,60% 0,60% 14%,77% 14%,77% 0,96% 0,96% 28%,83% 34%,90% 82%,96% 82%,96% 91%,100% 91%,100% 100%,0 100%,0 91%,4% 91%,4% 82%,10% 82%,17% 34%,4% 28%);
-  background:
-    linear-gradient(var(--trim),var(--trim)) 0 28% / 100% 2px no-repeat,
-    linear-gradient(var(--mortar),var(--mortar)) 0 60% / 100% 1px no-repeat,
-    linear-gradient(var(--trim),var(--trim)) 0 92% / 100% 2px no-repeat,
-    linear-gradient(var(--stone-top),var(--stone-base));
-}
-.fortification.barracks::before { inset:32% 34% 41%; }
-.fortification.barracks::after {
-  content:""; position:absolute; inset:56% 31% 9%;
-  border:1px solid var(--trim); border-radius:55% 55% 0 0 / 52% 52% 0 0;
-  background:#191d1b;
-}
-.reinforcement-ready.barracks::after {
-  border-color:#ffe4a6;
-  background:radial-gradient(ellipse at bottom,#fff1bc 0,#e7a043 38%,#724521 68%,#241a16 100%);
-}
+.piece.wall-crew { width:100%; height:96%; }
+.piece.reinforcement-ready { filter:drop-shadow(0 0 2px #ffc45a); }
 
 .game-end { margin-top:.65rem; padding:.85rem; border:1px solid #a48458; border-radius:.6rem; background:#26313c; color:#fff4df; }
 .game-end h2 { margin:0; }

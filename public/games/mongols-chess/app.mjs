@@ -17,6 +17,7 @@ const white = find('#white-castles');
 const black = find('#black-castles');
 const cells = [];
 const names = { p:'pawn',n:'horse archer',b:'bishop',q:'queen',k:'Khan',r:'castle' };
+const miniature = { k:'khan', q:'khatun', r:'gate', n:'horse', b:'captain', p:'infantry' };
 const color = { w:'White',b:'Black' };
 const cancelShot = find('#cancel-shot');
 const khanBadges = ['w','b'].map(side=>{
@@ -86,14 +87,11 @@ for(let i=0;i<64;i++) {
   bow.textContent='🏹';
   bow.setAttribute('aria-hidden','true');
   bow.hidden=true;
-  const fortification=document.createElement('span');
-  fortification.setAttribute('aria-hidden','true');
-  fortification.hidden=true;
-  cell.append(image,fortification,aim,bow);
+  cell.append(image,aim,bow);
   const name=square(i);
   if(i%8===0) coordinate(cell,name[1],'rank');
   if(i>=56) coordinate(cell,name[0],'file');
-  cells.push({cell,image,fortification,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
+  cells.push({cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
   board.append(cell);
 }
 
@@ -200,7 +198,7 @@ function draw() {
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   const visibleBoard=pending ? state.board.map((piece,i)=>i===pending.target ? null : piece) : state.board;
   for(let i=0;i<64;i++) {
-    const {cell,image,fortification,aim,bow,base}=cells[i];
+    const {cell,image,aim,bow,base}=cells[i];
     const shootable=shots.has(i);
     aim.hidden=!shootable && !range.has(i);
     aim.classList.toggle('aim-live',shootable);
@@ -208,17 +206,18 @@ function draw() {
     const wall=isWall(piece,i);
     const castle=piece?.[1]==='r';
     const ready=castle && !pending && !lesson?.complete && reinforcementCastles.has(i);
-    fortification.hidden=!wall && !castle;
-    if(!fortification.hidden) {
-      fortification.className=['fortification',castle&&'barracks',piece[0]==='w'&&'light-stone',ready&&'reinforcement-ready'].filter(Boolean).join(' ');
-    }
     const archer=hasBow(visibleBoard,i);
     bow.hidden=!archer;
-    if(piece && !wall && !castle){
-      const path='./pieces/'+piece[0]+piece[1].toUpperCase()+'.svg';
+    if(piece) {
+      let role=miniature[piece[1]];
+      if(wall) role='wall';
+      if(piece[1]==='b' && archer) role='crossbow';
+      const path='./miniatures/'+piece[0]+'-'+role+'.webp';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
-    image.hidden=!piece || wall || castle;
+    image.hidden=!piece;
+    image.classList.toggle('reinforcement-ready',ready);
+    image.classList.toggle('wall-crew',wall);
     const move=targets.get(i);
     const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
