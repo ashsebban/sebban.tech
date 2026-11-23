@@ -1,4 +1,4 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, square, wallSquares } from './engine.mjs?v=42';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, square, wallSquares } from './engine.mjs?v=43';
 
 import { lessons as siegeLessons } from './lessons.mjs?v=34';
 
@@ -6,7 +6,7 @@ if (new URLSearchParams(location.search).get('embedded')==='1') document.documen
 
 const medieval=document.documentElement.dataset.variant==='medieval';
 const rules=medieval
-  ? {...defaultRules,horseArchery:false,straightBishopShots:false,superKhan:false,kingBreachesWalls:true}
+  ? {...defaultRules,horseArchery:false,restrictedBishopCover:false,superKhan:false,kingBreachesWalls:true}
   : defaultRules;
 const lessons=medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
@@ -317,7 +317,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=42',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=43',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -530,7 +530,7 @@ find('#practice').addEventListener('click',()=>{
 find('#practice-bishop').addEventListener('click',()=>{
   rulesDialog.close();
   reset(position({a1:'wr',h1:'wr',b1:'wk',e3:'wb',e4:'wp',f4:'wp',g4:'wp',d3:'wp',
-    a8:'br',h8:'br',f8:'bk',e5:'bp',c3:'bp',c4:'bp',c2:'wp'}),'e3',
-  medieval ? 'Shoot e5 through e4, angle a shot over d3 to c4, or slide to g3 behind the pawn line.' : 'Shoot forward over e4 to e5, shoot left over d3 to c3, or slide to g3 behind the pawn line.');
+    a8:'br',h8:'br',f8:'bk',e5:'bp',f5:'bp',c3:'bp',c2:'wp'}),'e3',
+  'Shoot straight over e4 to e5 or angle a shot over f4 to f5. You can also slide to g3 behind the pawn line.');
 });
 reset(initial());

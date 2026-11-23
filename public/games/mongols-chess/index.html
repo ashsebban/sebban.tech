@@ -56,7 +56,7 @@
         <section class="panel" aria-labelledby="tactics-title">
           <h2 id="tactics-title">Siege tactics</h2>
           <dl>
-            <dt>White Khan</dt><dd id="khan-powers"></dd><dt>Black Khan</dt><dd id="black-khan-powers"></dd><dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square.</dd>
+            <dt>White Khan</dt><dd id="khan-powers"></dd><dt>Black Khan</dt><dd id="black-khan-powers"></dd><dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square in friendly territory.</dd>
             <dt>Horse archers</dt><dd>Move like a knight, or shoot and then jump, capturing on landing if possible.</dd>
           </dl>
         </section>
@@ -78,9 +78,9 @@
       <li><strong>Checkmate.</strong> Checkmate the enemy Khan to win. Castles move and capture like rooks.</li>
       <li><strong>The Khan.</strong> The Khan can always step one square like a king. A friendly queen on the board gives him long slides, at least one friendly horse archer gives him knight jumps and shoot-and-jump, and at least one friendly bishop lets him shoot over walls. A pawn that promotes to queen restores the queen power.</li>
       <li><strong>Castling.</strong> Move the Khan two squares toward an original corner castle. Both pieces must be unmoved, with empty squares between them. The Khan cannot castle out of, through, or into check. If a normal Khan move also reaches that square, choose Castling from the move menu.</li>
-      <li><strong>Pawn reinforcements.</strong> A castle can spend its turn returning a captured friendly pawn to an empty adjacent square off that pawn’s promotion rank. Its gate lights up when it can return a pawn. Each side can have up to eight pawns on the board.</li>
+      <li><strong>Pawn reinforcements.</strong> A castle can spend its turn returning a captured friendly pawn to an empty adjacent square in its own half of the board (White’s ranks 1–4 or Black’s ranks 5–8). Its gate lights up when it can return a pawn. Each side can have up to eight pawns on the board.</li>
       <li><strong>Pawns and walls.</strong> Pawns advance straight and capture diagonally. They keep the initial straight double step. On the far rank, choose a queen, castle, bishop, or horse archer. Pawns on their own second rank are walls. Friendly pawns through the fourth rank are also walls if they connect to the second rank through horizontal or diagonal links. Pawns outside those ranks and pawns cut off from the chain are infantry. Enemy pawns, castles, and the Khan can capture walls by moving onto them. Arrows cannot break walls.</li>
-      <li><strong>Bishops.</strong> Spend a turn stepping one square forward or sideways into an empty square directly behind a friendly fortified wall. Slide horizontally along an unbroken line of friendly pawns directly ahead, stopping at a gap or a piece. A bishop may capture an enemy at the end of its slide. A friendly wall or infantry pawn immediately ahead, left, or right equips the bishop with a bow. Its arrow reaches only the next square straight beyond that pawn. Wall and phalanx shots can give check.</li>
+      <li><strong>Bishops.</strong> Spend a turn stepping one square forward or sideways into an empty square directly behind a friendly fortified wall. Slide horizontally along an unbroken line of friendly pawns directly ahead, stopping at a gap or a piece. A bishop may capture an enemy at the end of its slide. A friendly wall or infantry pawn immediately ahead, left, or right equips the bishop with a bow. Shoot at the square straight beyond the cover. From behind a fortified wall, the bishop can also shoot one lane to either side if a friendly pawn covers that lane. Wall and phalanx shots can give check.</li>
       <li><strong>Horse archers.</strong> Move or capture like a knight, or shoot an enemy exactly two squares away in a clear row or column and then make a knight jump. The archer can capture an enemy on its landing square as part of the same turn.</li>
       <li><strong>Draws.</strong> Threefold repetition, stalemate, or 60 turns without a pawn move, reinforcement, or capture is a draw.</li>
     </ul>
@@ -93,6 +93,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=59"></script>
+  <script type="module" src="./app.mjs?v=60"></script>
 </body>
 </html>
