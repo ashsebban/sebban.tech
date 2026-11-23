@@ -14,6 +14,18 @@ if(medieval) {
 }
 const find = selector => document.querySelector(selector);
 const board = find('#board');
+const styleSwitch=find('.piece-style');
+const styleKey='mongols-chess.piece-style';
+let classicPieces=false;
+if(styleSwitch) {
+  try { classicPieces=localStorage.getItem(styleKey)==='classic'; } catch {}
+  styleSwitch.elements.namedItem('piece-style').value=classicPieces?'classic':'illustrated';
+  styleSwitch.addEventListener('change',event=>{
+    classicPieces=event.target.value==='classic';
+    try { localStorage.setItem(styleKey,event.target.value); } catch {}
+    draw();
+  });
+}
 const choiceDialog = find('#move-choice');
 const status = find('#status');
 const lastMove = find('#last-move');
@@ -222,7 +234,7 @@ function draw() {
       if(piece[1]==='b' && archer) role=medieval?'longbow':'archer';
       image.dataset.role=role;
       const sprite=(!medieval && ready) ? 'gate-lit' : role;
-      const path=(medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+(!medieval && (role==='wall' || role==='horse')?'?v=2':'');
+      const path=classicPieces ? './pieces/'+piece[0]+piece[1].toUpperCase()+'.svg' : (medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+(!medieval && (role==='wall' || role==='horse')?'?v=2':'');
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
@@ -231,7 +243,7 @@ function draw() {
     const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
     const active=selected;
-    cell.className=[base,recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
+    cell.className=[base,classicPieces && wall && (piece[0]==='w'?'wall-north':'wall-south'),classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':names[piece[1]]):'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
     cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));

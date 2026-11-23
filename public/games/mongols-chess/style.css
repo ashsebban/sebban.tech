@@ -158,3 +158,15 @@ dialog li { margin-bottom:10px; }
 [data-variant="mongols"] .piece:is([data-role="captain"],[data-role="archer"],[data-role="horse"]) { width:88%; height:82%; }
 [data-variant="mongols"] .piece:is([data-role="khan"],[data-role="khatun"]) { height:89%; }
 [data-variant="mongols"] .piece.reinforcement-ready { filter:none; }
+
+.piece-style { border:0; padding:0; margin:0 0 8px; display:flex; align-items:center; gap:3px; }
+.piece-style legend { float:left; margin-right:8px; line-height:38px; font-weight:600; }
+.piece-style label { position:relative; cursor:pointer; }
+.piece-style input { position:absolute; opacity:0; }
+.piece-style span { display:block; padding:8px 12px; border:1px solid var(--edge); border-radius:6px; color:var(--muted); }
+.piece-style input:checked + span { background:#efe1bd; border-color:#efe1bd; color:#202b29; font-weight:650; }
+.piece-style input:focus-visible + span { outline:2px solid var(--mint); outline-offset:2px; }
+.square:is(.wall-north,.wall-south)::before { content:""; position:absolute; left:15%; right:15%; height:13%; z-index:2; pointer-events:none; background:repeating-linear-gradient(90deg,#795633 0 18%,transparent 18% 27%) top / 100% 46% no-repeat,linear-gradient(#aa8051,#67462c) bottom / 100% 56% no-repeat; }
+.wall-north::before { top:3%; }
+.wall-south::before { bottom:2%; }
+.square.gate-ready::before { content:""; position:absolute; bottom:24%; left:45%; width:10%; height:14%; z-index:2; border-radius:50% 50% 0 0; background:#fff1a4; box-shadow:0 0 0 1px #744a1a,0 0 5px #ffbc33; pointer-events:none; }
