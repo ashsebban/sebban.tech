@@ -1,4 +1,4 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=40';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=41';
 
 import { lessons as siegeLessons } from './lessons.mjs?v=34';
 
@@ -6,7 +6,7 @@ if (new URLSearchParams(location.search).get('embedded')==='1') document.documen
 
 const medieval=document.documentElement.dataset.variant==='medieval';
 const rules=medieval
-  ? {...defaultRules,horseArchery:false,straightBishopShots:false,superKhan:false,kingBreachesWalls:true}
+  ? {...defaultRules,horseArchery:false,straightBishopShots:false,superKhan:false,kingBreachesWalls:true,bishopWallMount:true}
   : defaultRules;
 const lessons=medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
@@ -316,7 +316,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=40',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=41',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;

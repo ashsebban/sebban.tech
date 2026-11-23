@@ -308,7 +308,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
         }
       }
     }
-    if (type==='b' && (rules.bishopWalls || rules.bishopWallSidestep)) {
+    if (type==='b' && (rules.bishopWalls || rules.bishopWallSidestep || rules.bishopWallMount)) {
       const firingTargets=new Set();
       let canSidestep=false;
       for (const [dx,dy] of [[-1,0],[1,0],[-1,forward],[0,forward],[1,forward]]) {
@@ -324,12 +324,16 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       const front=y+forward;
       const behindLine=rules.bishopWallSidestep && valid(x,front) && board[get(x,front)]===turn+'p';
       for (const direction of [-1,1]) {
+        const adjacent=x+direction;
         if (behindLine) {
-          for (let tx=x+direction; valid(tx,front) && board[get(tx,front)]===turn+'p'; tx+=direction) {
+          for (let tx=adjacent; valid(tx,front) && board[get(tx,front)]===turn+'p'; tx+=direction) {
             if (!add(tx,y)) break;
           }
-        } else if (canSidestep && valid(x+direction,y) && !board[get(x+direction,y)]) {
-          add(x+direction,y);
+        } else if (valid(adjacent,y) && !board[get(adjacent,y)]) {
+          const cover=get(adjacent,front);
+          const canMount=rules.bishopWallMount && valid(adjacent,front) &&
+            board[cover]===turn+'p' && isWall(board[cover],cover);
+          if (canSidestep || canMount) add(adjacent,y);
         }
       }
     }
