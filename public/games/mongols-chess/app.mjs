@@ -16,6 +16,14 @@ const rulesDialog = find('#rules');
 const white = find('#white-castles');
 const black = find('#black-castles');
 const cells = [];
+const pieceStyle = find('#piece-style');
+try {
+  if(localStorage.getItem('mongols-piece-style')==='sculpted') pieceStyle.value='sculpted';
+} catch {}
+pieceStyle.addEventListener('change',()=>{
+  try { localStorage.setItem('mongols-piece-style',pieceStyle.value); } catch {}
+  draw();
+});
 const names = { p:'pawn',n:'horse archer',b:'bishop',q:'queen',k:'Khan',r:'castle' };
 const miniature = { k:'khan', q:'khatun', r:'gate', n:'horse', b:'captain', p:'infantry' };
 const color = { w:'White',b:'Black' };
@@ -212,12 +220,14 @@ function draw() {
       let role=miniature[piece[1]];
       if(wall) role='wall';
       if(piece[1]==='b' && archer) role='crossbow';
-      const path='./miniatures/'+piece[0]+'-'+role+'.webp';
+      const classic=pieceStyle.value==='hybrid' && ['k','q','n','b'].includes(piece[1]);
+      const path=classic ? './pieces/'+piece[0]+piece[1].toUpperCase()+'.svg' : './miniatures/'+piece[0]+'-'+role+'.webp';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
     image.classList.toggle('reinforcement-ready',ready);
     image.classList.toggle('wall-crew',wall);
+    image.classList.toggle('field-infantry',piece?.[1]==='p' && !wall);
     const move=targets.get(i);
     const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
