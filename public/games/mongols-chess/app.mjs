@@ -15,7 +15,7 @@ if(medieval) {
 const find = selector => document.querySelector(selector);
 const board = find('#board');
 const styleButtons=document.querySelectorAll('.piece-style button[data-piece-style]');
-const styleKey='mongols-chess.piece-style';
+const styleKey=medieval?'kings-castles.piece-style':'mongols-chess.piece-style';
 let classicPieces=false;
 if(styleButtons.length) {
   try { classicPieces=localStorage.getItem(styleKey)==='classic'; } catch {}

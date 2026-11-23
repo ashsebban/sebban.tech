@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#151e22">
   <meta name="description" content="An original chess-inspired siege game. Checkmate the king and use castles to bring pawns back into play.">
   <title>Kings &amp; Castles</title>
-  <link rel="stylesheet" href="./style.css?v=44">
+  <link rel="stylesheet" href="./style.css?v=53">
 </head>
 <body>
   <main>
@@ -25,6 +25,11 @@
           <p id="lesson-prompt" role="status"></p>
           <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
         </section>
+        <fieldset class="piece-style">
+          <legend>Piece style</legend>
+          <button type="button" data-piece-style="illustrated">Illustrated</button>
+          <button type="button" data-piece-style="classic">Classic</button>
+        </fieldset>
         <div id="board" class="board" role="group" aria-label="Game board"></div>
         <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
           <h2 id="game-end-title"></h2>
@@ -88,6 +93,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=49"></script>
+  <script type="module" src="./app.mjs?v=53"></script>
 </body>
 </html>
