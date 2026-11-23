@@ -1,4 +1,5 @@
 const games = {
+  'kings-castles': { category:'experimental', name:'Kings & Castles', art:'kings-castles', url:'../mongols-chess/kings-castles.html', description:'Knights leap, wall archers draw longbows, and castles rally infantry.' },
   mongols: { category:'experimental', name:'Mongol’s Chess', art:'mongols', url:'../mongols-chess/index.html', description:'Horse archers, fortifications, and a Khan who borrows powers.' },
   cathedral: { name:'Cathedral Chess', art:'cathedral', url:'../sideways-chess/index.html?variant=b', description:'Bishops can step sideways and switch square colors.' },
   lancer: { name:'Paladin Chess', art:'paladin', url:'../sideways-chess/index.html?variant=n', description:'Knights can step sideways as well as leap.' },

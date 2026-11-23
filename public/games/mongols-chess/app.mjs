@@ -1,9 +1,17 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=37';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=38';
 
-import { lessons } from './lessons.mjs?v=34';
+import { lessons as siegeLessons } from './lessons.mjs?v=34';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
+const medieval=document.documentElement.dataset.variant==='medieval';
+const rules=medieval ? {...defaultRules,horseArchery:false} : defaultRules;
+const lessons=medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
+if(medieval) {
+  lessons[0].description='Advance infantry, shoot a longbow from cover, and capture with a knight.';
+  lessons[0].steps[2]={pieces:{a1:'wk',h8:'bk',g5:'wn',e4:'bn'},from:'g5',to:'e4',kind:'move',prompt:'Jump from g5 to e4 to capture the black knight.'};
+  lessons[0].success='You advanced infantry, fired from cover, and made a knight capture.';
+}
 const find = selector => document.querySelector(selector);
 const board = find('#board');
 const choiceDialog = find('#move-choice');
@@ -16,8 +24,8 @@ const rulesDialog = find('#rules');
 const white = find('#white-castles');
 const black = find('#black-castles');
 const cells = [];
-const names = { p:'pawn',n:'horse archer',b:'bishop',q:'queen',k:'Khan',r:'castle' };
-const miniature = { k:'khan', q:'khatun', r:'gate', n:'horse', b:'captain', p:'infantry' };
+const names = { p:'pawn',n:medieval?'knight':'horse archer',b:'bishop',q:'queen',k:medieval?'king':'Khan',r:'castle' };
+const miniature = medieval ? {k:'king',q:'queen',r:'castle',n:'knight',b:'captain',p:'infantry'} : { k:'khan', q:'khatun', r:'gate', n:'horse', b:'captain', p:'infantry' };
 const color = { w:'White',b:'Black' };
 const cancelShot = find('#cancel-shot');
 const khanBadges = ['w','b'].map(side=>{
@@ -26,7 +34,7 @@ const khanBadges = ['w','b'].map(side=>{
   group.setAttribute('aria-hidden','true');
   const badges=[
     ['queen','Q','Queen slides'],
-    ['knight','N','Knight jumps and shoot-and-jump'],
+    ['knight','N',medieval?'Knight jumps':'Knight jumps and shoot-and-jump'],
     ['bishop','B','Wall shots'],
   ].map(([power,type,label])=>{
     const image=document.createElement('img');
@@ -139,7 +147,7 @@ function showCheckDetails(threats) {
   if(reviewMate) {
     const previous=history.at(-1);
     if(previous) lines.push('Last move: '+previous.text);
-    const escapes=[...khanEscapeThreats(state)].map(([to,t])=>{
+    const escapes=[...khanEscapeThreats(state,rules)].map(([to,t])=>{
       return square(to)+' is covered by '+describeThreat(t[0])+'.';
     });
     lines.push(escapes.join(' '),'No legal move removes the check.');
@@ -170,7 +178,7 @@ function draw() {
   const targets=new Map();
   const shots=new Set();
   const range=pending || result || state.turn!=='w' || lesson?.complete
-    ? new Set() : emptyShotSquares(state,selected);
+    ? new Set() : emptyShotSquares(state,selected,rules);
   if(pending) {
     for(const jump of pending.jumps) targets.set(jump.to,jump);
   } else {
@@ -182,7 +190,7 @@ function draw() {
     }
   }
   const previous=history.at(-1);
-  const threats=checkThreats(state);
+  const threats=checkThreats(state,rules);
   const checks=new Set(threats.map(threat=>threat.to));
   showCheckDetails(threats);
   showLesson();
@@ -206,14 +214,14 @@ function draw() {
     const wall=isWall(piece,i);
     const castle=piece?.[1]==='r';
     const ready=castle && !pending && !lesson?.complete && reinforcementCastles.has(i);
-    const archer=hasBow(visibleBoard,i);
+    const archer=hasBow(visibleBoard,i,rules);
     bow.hidden=!archer;
     if(piece) {
       let role=miniature[piece[1]];
       if(wall) role='wall';
-      if(piece[1]==='b' && archer) role='crossbow';
+      if(piece[1]==='b' && archer) role=medieval?'longbow':'crossbow';
       image.dataset.role=role;
-      const path='./miniatures/'+piece[0]+'-'+role+'.webp';
+      const path=(medieval?'./medieval/':'./miniatures/')+piece[0]+'-'+role+'.webp';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
@@ -243,8 +251,8 @@ function draw() {
 }
 
 function refresh() {
-  legal=moves(state);
-  result=outcome(state,defaultRules,seen[key(state)],legal);
+  legal=moves(state,rules);
+  result=outcome(state,rules,seen[key(state)],legal);
   reinforcementCastles=new Set(result ? [] : legal.filter(move=>move.kind==='spawn').map(move=>move.from));
   if(result || state.turn==='b') legal=[];
   const justEnded=Boolean(result) && gameEnd.hidden;
@@ -265,19 +273,19 @@ function abortEngine() {
 }
 function inspectResponse(token,move) {
   if(token!==epoch || state.turn!=='b' || result) return;
-  const available=moves(state);
+  const available=moves(state,rules);
   const answer=available.find(entry=>entry.kind===move?.kind && entry.from===move.from && entry.to===move.to && entry.captureAt===move.captureAt && entry.spawn===move.spawn && entry.promotion===move.promotion);
   if(answer) play(answer);
   else if(available[0]) play(available[0]);
 }
 function fallback(token) {
-  if(token===epoch) inspectResponse(token,chooseMove(state,{seen,budget:1700}));
+  if(token===epoch) inspectResponse(token,chooseMove(state,{rules,seen,budget:1700}));
 }
 function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=37',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=38',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -291,7 +299,7 @@ function computer() {
         fallback(epoch);
       };
     }
-    worker.postMessage({token,state,seen});
+    worker.postMessage({token,state,seen,rules});
   } catch { fallback(token); }
 }
 
@@ -347,8 +355,8 @@ function play(move) {
     return;
   }
   advance(move);
-  const choices=moves(state);
-  if(!choices.length && !outcome(state,defaultRules,seen[key(state)],choices)) advance(passMove);
+  const choices=moves(state,rules);
+  if(!choices.length && !outcome(state,rules,seen[key(state)],choices)) advance(passMove);
   refresh();
   if(move.kind==='shot' || move.kind==='jumpShot') animateArrow(move);
   if(!result && state.turn==='b') computer();
@@ -391,7 +399,7 @@ function choose(index) {
   }
   if(choices.length===1) { play(choices[0]); return; }
   if(state.board[selected]==='wk' && state.board[index]?.[0]!=='w') {
-    const threats=khanEscapeThreats(state).get(index);
+    const threats=khanEscapeThreats(state,rules).get(index);
     if(threats?.length) {
       explanation=square(index)+' is unsafe: '+describeThreat(threats[0])+' would give check.';
       draw();
@@ -453,7 +461,7 @@ undo.addEventListener('click',()=>{
     const signature=key(state);
     seen[signature]--;
     state=history.pop().before;
-  } while(history.length && (state.turn!=='w' || !moves(state).length));
+  } while(history.length && (state.turn!=='w' || !moves(state,rules).length));
   selected=null;
   refresh();
 });
@@ -484,6 +492,7 @@ playAgain.addEventListener('click',()=>{
 find('#new-game').addEventListener('click',()=>reset(initial()));
 find('#practice').addEventListener('click',()=>{
   rulesDialog.close();
+  if(medieval) {openLesson(0,2); return;}
   reset(position({a1:'wr',h1:'wr',b1:'wn',d1:'wq',d4:'wk',a8:'br',h8:'br',f4:'bn',e3:'bb',g8:'bk'}),'d4','Shoot f4 with the Khan, then jump to c6.');
 });
 find('#practice-bishop').addEventListener('click',()=>{

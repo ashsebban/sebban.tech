@@ -168,12 +168,12 @@ function firingCover(board,x,y,dx,dy,side) {
   return piece===side+'p' || piece===side+'r' ? index : null;
 }
 
-export function hasBow(board,from) {
+export function hasBow(board,from,rules=defaultRules) {
   const piece=board[from];
   if (!piece) return false;
   const [side,type]=piece;
   const powers=type==='k' ? khanPowers(board,side) : null;
-  if (type==='n' || powers?.knight) return true;
+  if (rules.horseArchery!==false && (type==='n' || powers?.knight)) return true;
   if (type!=='b' && !powers?.bishop) return false;
   return orthogonal.some(([dx,dy])=>firingCover(board,from%8,Math.floor(from/8),dx,dy,side)!==null);
 }
@@ -275,7 +275,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
         const to=get(tx,ty), landingCapture=board[to];
         if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && isWall(landingCapture,to) && !canBreakWall('move')))) continue;
         add(tx,ty);
-        if (landingCapture && rules.emptyShotLanding) continue;
+        if (rules.horseArchery===false || (landingCapture && rules.emptyShotLanding)) continue;
         const shotX=rules.shootFirst ? x : tx;
         const shotY=rules.shootFirst ? y : ty;
         for (const [sx,sy] of orthogonal) {

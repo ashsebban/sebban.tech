@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" data-variant="medieval">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151e22">
+  <meta name="description" content="An original chess-inspired siege game. Checkmate the king and use castles to bring pawns back into play.">
+  <title>Kings &amp; Castles</title>
+  <link rel="stylesheet" href="./style.css?v=44">
+</head>
+<body>
+  <main>
+    <header class="title">
+      <div><h1>Kings &amp; Castles</h1><p>Checkmate the enemy king.</p></div>
+      <div class="header-actions"><button type="button" id="show-learn" aria-haspopup="dialog">Learn to play</button><button type="button" id="show-rules" aria-haspopup="dialog">Rules</button></div>
+    </header>
+    <div class="game">
+      <section class="field" aria-label="The match">
+        <div class="goal">
+          <div><span>White · You</span><strong id="white-castles"></strong></div>
+          <div><span>Black · Computer</span><strong id="black-castles"></strong></div>
+        </div>
+        <section id="lesson" class="panel lesson" hidden aria-labelledby="lesson-title">
+          <h2 id="lesson-title"></h2>
+          <p id="lesson-prompt" role="status"></p>
+          <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
+        </section>
+        <div id="board" class="board" role="group" aria-label="Game board"></div>
+        <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
+          <h2 id="game-end-title"></h2>
+          <p id="game-end-reason"></p>
+          <button id="why-mate" type="button" hidden>Why is this mate?</button>
+          <button id="play-again" type="button" class="primary">Play again</button>
+        </section>
+        <section id="check-info" class="panel check-info" hidden aria-live="polite"></section>
+        <div class="below-board">
+          <div>
+            <p id="status" class="status" role="status">White to move</p>
+            <p id="last-move" class="last-move"></p>
+          </div>
+          <div class="turn-controls"><button type="button" id="cancel-shot" hidden>Cancel shot</button><button type="button" id="undo" disabled>Undo</button></div>
+        </div>
+        <div class="legend">
+          <span><i class="move-dot"></i> Move</span>
+          <span><i class="bow-icon" aria-hidden="true">🏹</i> Has a bow</span>
+          <span><i class="aim-dot" aria-hidden="true"></i> In arrow range</span>
+          <span><i class="aim-dot aim-live" aria-hidden="true"></i> Can shoot now</span>
+        </div>
+      </section>
+      <aside class="orders">
+        <section class="panel" aria-labelledby="tactics-title">
+          <h2 id="tactics-title">Siege tactics</h2>
+          <dl>
+            <dt>White king</dt><dd id="khan-powers"></dd><dt>Black king</dt><dd id="black-khan-powers"></dd><dt>Your reserve</dt><dd id="reserve"></dd><dt>Castles</dt><dd>Move like a rook or return a captured pawn to an adjacent square.</dd>
+            <dt>Knights</dt><dd>Leap in an L shape and capture on landing.</dd>
+          </dl>
+        </section>
+        <button type="button" id="new-game" class="primary">New game</button>
+      </aside>
+    </div>
+    <footer>Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> and Wikimedia Commons contributors, via the <a href="https://github.com/lichess-org/lila/tree/master/public/piece/cburnett">Cburnett set</a>. <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</footer>
+  </main>
+  <dialog id="learn" aria-labelledby="learn-title">
+    <div class="dialog-head"><h2 id="learn-title">Learn to play</h2><form method="dialog"><button>Done</button></form></div>
+    <div id="lessons" class="lessons"></div>
+  </dialog>
+  <dialog id="rules" aria-labelledby="rules-title">
+    <div class="dialog-head">
+      <h2 id="rules-title">How to play</h2>
+      <form method="dialog"><button value="close">Done</button></form>
+    </div>
+    <ul>
+      <li><strong>Checkmate.</strong> Checkmate the enemy king to win. Castles move and capture like rooks.</li>
+      <li><strong>The king.</strong> The king can always step one square like a king. A friendly queen on the board gives him long slides, at least one friendly knight gives him knight jumps, and at least one friendly bishop lets him shoot over walls. A pawn that promotes to queen restores the queen power.</li>
+      <li><strong>Castling.</strong> Move the king two squares toward an original corner castle. Both pieces must be unmoved, with empty squares between them. The king cannot castle out of, through, or into check. If a normal king move also reaches that square, choose Castling from the move menu.</li>
+      <li><strong>Pawn reinforcements.</strong> A castle can spend its turn returning a captured friendly pawn to an empty adjacent square off that pawn’s promotion rank. Its gate lights up when it can return a pawn. Each side can have up to eight pawns on the board.</li>
+      <li><strong>Pawns and walls.</strong> Pawns advance straight and capture diagonally. They keep the initial straight double step. On the far rank, choose a queen, castle, bishop, or knight. Home-rank pawns on White’s ranks 1–3 or Black’s ranks 6–8 become walls. Enemy pawns, castles, and the king can capture walls by moving onto them. Arrows cannot break walls.</li>
+      <li><strong>Bishops.</strong> Slide horizontally along an unbroken line of friendly pawns directly ahead, stopping at a gap or a piece. A bishop may capture an enemy at the end of its slide. Shoot straight through a friendly infantry pawn, or shoot at any of the three squares just beyond a fortified wall. The supporting wall must be directly next to the shooter in the same row or column. Wall and phalanx shots can give check.</li>
+      <li><strong>Knights.</strong> Jump in an L shape. Capture an enemy by landing on its square.</li>
+      <li><strong>Draws.</strong> Threefold repetition, stalemate, or 60 turns without a pawn move, reinforcement, or capture is a draw.</li>
+    </ul>
+    <button type="button" id="practice" class="primary">Start practice siege</button>
+    <p class="practice-note">Practice a knight capture on e4.</p>
+    <button type="button" id="practice-bishop" class="primary">Practice bishop shots</button>
+  </dialog>
+  <dialog id="move-choice" aria-labelledby="choice-title">
+    <h2 id="choice-title">Choose your move</h2>
+    <div id="move-options"></div>
+    <form method="dialog"><button>Cancel</button></form>
+  </dialog>
+  <script type="module" src="./app.mjs?v=45"></script>
+</body>
+</html>
