@@ -222,7 +222,7 @@ function draw() {
       if(piece[1]==='b' && archer) role=medieval?'longbow':'archer';
       image.dataset.role=role;
       const sprite=(!medieval && ready) ? 'gate-lit' : role;
-      const path=(medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp';
+      const path=(medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+(!medieval && (role==='wall' || role==='horse')?'?v=2':'');
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
