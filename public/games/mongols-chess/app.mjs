@@ -280,9 +280,10 @@ function draw() {
       if(piece[1]==='b' && archer) role=armored?'longbow':'archer';
       image.dataset.role=role;
       const sprite=!medieval && ready ? (chinese?'castle-lit':'gate-lit') : role;
-      const spriteVersion=chinese ? '' : medieval || piece[1]==='b' ? '?v=3' : (role==='wall' || role==='horse') ? '?v=2' : '';
+      const folder=frontier ? (chinese?'chinese':'frontier-mongol') : (medieval?'medieval':'figure-set');
+      const spriteVersion=frontier ? '' : medieval || piece[1]==='b' ? '?v=3' : (role==='wall' || role==='horse') ? '?v=2' : '';
       const path=classicPieces ? './pieces/'+piece[0]+piece[1].toUpperCase()+'.svg'
-        : (chinese?'./chinese/':medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+spriteVersion;
+        : './'+folder+'/'+piece[0]+'-'+sprite+'.webp'+spriteVersion;
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
