@@ -187,6 +187,7 @@ function openLesson(index,step=0) {
 }
 
 function draw() {
+  board.classList.toggle('classic-pieces',classicPieces);
   const targets=new Map();
   const shots=new Set();
   const range=pending || result || state.turn!=='w' || lesson?.complete
