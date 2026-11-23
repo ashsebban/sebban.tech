@@ -1,4 +1,4 @@
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=41';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, square, wallSquares } from './engine.mjs?v=42';
 
 import { lessons as siegeLessons } from './lessons.mjs?v=34';
 
@@ -6,7 +6,7 @@ if (new URLSearchParams(location.search).get('embedded')==='1') document.documen
 
 const medieval=document.documentElement.dataset.variant==='medieval';
 const rules=medieval
-  ? {...defaultRules,horseArchery:false,straightBishopShots:false,superKhan:false,kingBreachesWalls:true,bishopWallMount:true}
+  ? {...defaultRules,horseArchery:false,straightBishopShots:false,superKhan:false,kingBreachesWalls:true}
   : defaultRules;
 const lessons=medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
@@ -233,13 +233,14 @@ function draw() {
   }
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   const visibleBoard=pending ? state.board.map((piece,i)=>i===pending.target ? null : piece) : state.board;
+  const walls=wallSquares(visibleBoard);
   for(let i=0;i<64;i++) {
     const {cell,image,aim,bow,base}=cells[i];
     const shootable=shots.has(i);
     aim.hidden=!shootable && !range.has(i);
     aim.classList.toggle('aim-live',shootable);
     const piece=visibleBoard[i];
-    const wall=isWall(piece,i);
+    const wall=walls.has(i);
     const castle=piece?.[1]==='r';
     const ready=castle && !pending && !lesson?.complete && reinforcementCastles.has(i);
     const archer=hasBow(visibleBoard,i,rules);
@@ -316,7 +317,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=41',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=42',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -529,7 +530,7 @@ find('#practice').addEventListener('click',()=>{
 find('#practice-bishop').addEventListener('click',()=>{
   rulesDialog.close();
   reset(position({a1:'wr',h1:'wr',b1:'wk',e3:'wb',e4:'wp',f4:'wp',g4:'wp',d3:'wp',
-    a8:'br',h8:'br',f8:'bk',e5:'bp',c3:'bp',c4:'bp'}),'e3',
+    a8:'br',h8:'br',f8:'bk',e5:'bp',c3:'bp',c4:'bp',c2:'wp'}),'e3',
   medieval ? 'Shoot e5 through e4, angle a shot over d3 to c4, or slide to g3 behind the pawn line.' : 'Shoot forward over e4 to e5, shoot left over d3 to c3, or slide to g3 behind the pawn line.');
 });
 reset(initial());

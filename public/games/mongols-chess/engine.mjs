@@ -3,6 +3,7 @@ const rookHomes = [0,7,56,63];
 const orthogonal = [[1,0],[-1,0],[0,1],[0,-1]];
 const diagonal = [[1,1],[1,-1],[-1,1],[-1,-1]];
 const compass = [...orthogonal,...diagonal];
+const wallLinks = [[-1,0],[1,0],...diagonal];
 const knight = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 const value = { p:100, b:335, n:450, k:380, q:900, r:550 };
 export const profiles = {
@@ -17,7 +18,7 @@ export const profiles = {
   escort: { min:2, max:3, rally:true, escort:true },
   bishopWard: { min:2, max:2, rally:true, escort:true, bishopWard:true },
 };
-export const defaultRules = { ...profiles.siege, jumpShot:true, emptyShotLanding:false, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, royalCheck:true, superKhan:true, straightBishopShots:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
+export const defaultRules = { ...profiles.siege, jumpShot:true, emptyShotLanding:false, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, bishopWallMount:true, royalCheck:true, superKhan:true, straightBishopShots:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
 export const passMove = Object.freeze({from:-1,to:-1,kind:'pass',capture:null});
 export const opposite = side => side === 'w' ? 'b' : 'w';
 export const square = index => files[index % 8] + (8 - Math.floor(index / 8));
@@ -31,8 +32,33 @@ const startingPawnBit = (index, side) => {
 const startingPawns = board => board.reduce((mask,piece,index) =>
   piece?.[1]==='p' ? mask | startingPawnBit(index,piece[0]) : mask, 0);
 
-export function isWall(piece, index) {
-  return piece==='wp' && index>=40 || piece==='bp' && index<24;
+export function wallSquares(board) {
+  const walls = new Set();
+  for (const [pawn, anchor, fourth] of [['wp',6,4],['bp',1,3]]) {
+    const minRow = Math.min(anchor,fourth);
+    const maxRow = Math.max(anchor,fourth);
+    const connected = [];
+    for (let file=0; file<8; file++) {
+      const index = get(file,anchor);
+      if (board[index]===pawn) {
+        walls.add(index);
+        connected.push(index);
+      }
+    }
+    for (const index of connected) {
+      const x = index%8, y = Math.floor(index/8);
+      for (const [dx,dy] of wallLinks) {
+        const file=x+dx, row=y+dy;
+        if (file<0 || file>=8 || row<minRow || row>maxRow) continue;
+        const neighbor = get(file,row);
+        if (board[neighbor]===pawn && !walls.has(neighbor)) {
+          walls.add(neighbor);
+          connected.push(neighbor);
+        }
+      }
+    }
+  }
+  return walls;
 }
 
 export function position(placements, turn = 'w', ep = null, quiet = 0) {
@@ -187,6 +213,7 @@ export function emptyShotSquares(state, selected, rules = defaultRules) {
 
 function candidateMoves(state, rules, selected = null, emptyShots = null, inheritedPowers = null) {
   const { board, turn, ep, pawnStarts=startingPawns(board) } = state;
+  const walls = wallSquares(board);
   const enemy = opposite(turn);
   const forward = turn === 'w' ? -1 : 1;
   const promotionRank = turn === 'w' ? 0 : 7;
@@ -199,7 +226,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
     const powers = type==='k' && rules.superKhan ? inheritedPowers ?? khanPowers(board,turn) : null;
     const kingBreachesWall = type==='k' && (rules.superKhan || rules.kingBreachesWalls);
     const canBreakWall = (kind) => (kind==='move' && (kingBreachesWall || (rules.mobileCastles && type==='r'))) ||
-      (rules.infantryBreach ? type==='p' : isWall(piece,from));
+      (rules.infantryBreach ? type==='p' : walls.has(from));
     const add = (tx,ty,kind='move',captureAt=null) => {
       if (!valid(tx,ty)) return false;
       const to = get(tx,ty);
@@ -207,7 +234,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       if (target?.[0] === turn) return false;
       const capture = board[captureAt ?? to];
       if (rules.castlesRequireOccupation && kind==='shot' && capture?.[1]==='r') return false;
-      if (rules.territoryWalls && isWall(capture,captureAt ?? to) && !canBreakWall(kind)) return false;
+      if (rules.territoryWalls && walls.has(captureAt ?? to) && !canBreakWall(kind)) return false;
       const promotions=type==='p' && ty===promotionRank ? ['q','r','b','n'] : [false];
       for (const promotion of promotions) found.push({from,to,kind,capture,captureAt,promotion});
       return !target;
@@ -275,7 +302,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
         const tx=x+dx, ty=y+dy;
         if (!valid(tx,ty)) continue;
         const to=get(tx,ty), landingCapture=board[to];
-        if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && isWall(landingCapture,to) && !canBreakWall('move')))) continue;
+        if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && walls.has(to) && !canBreakWall('move')))) continue;
         add(tx,ty);
         if (rules.horseArchery===false || (landingCapture && rules.emptyShotLanding)) continue;
         const shotX=rules.shootFirst ? x : tx;
@@ -285,7 +312,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
           if (!valid(ax,ay) || board[get(shotX+sx,shotY+sy)]) continue;
           const captureAt=get(ax,ay), capture=board[captureAt];
           if (!capture) emptyShots?.add(captureAt);
-          if (capture?.[0]===enemy && !(rules.castlesRequireOccupation && capture[1]==='r') && !(rules.territoryWalls && isWall(capture,captureAt))) {
+          if (capture?.[0]===enemy && !(rules.castlesRequireOccupation && capture[1]==='r') && !(rules.territoryWalls && walls.has(captureAt))) {
             found.push({from,to,kind:'jumpShot',capture,captureAt,landingCapture,promotion:false});
           }
         }
@@ -296,7 +323,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       for (const [dx,dy] of orthogonal) {
         const tower=firingCover(board,x,y,dx,dy,turn,rules);
         if (tower===null) continue;
-        const offsets=!rules.straightBishopShots && isWall(board[tower],tower) ? [-1,0,1] : [0];
+        const offsets=!rules.straightBishopShots && walls.has(tower) ? [-1,0,1] : [0];
         for (const offset of offsets) {
           const tx=x+2*dx+offset*dy, ty=y+2*dy+offset*dx;
           if (!valid(tx,ty)) continue;
@@ -322,6 +349,12 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       }
       for (const to of firingTargets) add(to%8,Math.floor(to/8),'shot');
       const front=y+forward;
+      const hasWallAhead=(file,row)=>{
+        const cover=get(file,row+forward);
+        return rules.bishopWallMount && valid(file,row+forward) &&
+          walls.has(cover) && board[cover]===turn+'p';
+      };
+      if (!board[get(x,front)] && hasWallAhead(x,front)) add(x,front);
       const behindLine=rules.bishopWallSidestep && valid(x,front) && board[get(x,front)]===turn+'p';
       for (const direction of [-1,1]) {
         const adjacent=x+direction;
@@ -330,10 +363,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
             if (!add(tx,y)) break;
           }
         } else if (valid(adjacent,y) && !board[get(adjacent,y)]) {
-          const cover=get(adjacent,front);
-          const canMount=rules.bishopWallMount && valid(adjacent,front) &&
-            board[cover]===turn+'p' && isWall(board[cover],cover);
-          if (canSidestep || canMount) add(adjacent,y);
+          if (canSidestep || hasWallAhead(adjacent,y)) add(adjacent,y);
         }
       }
     }
