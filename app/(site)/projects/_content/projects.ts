@@ -96,7 +96,7 @@ export const projects: SiteProject[] = [
   {
     id: "mongols-chess",
     collection: "chess",
-    title: "Mongol’s Chess",
+    title: "Duel of Khans",
     description: "Raid two corner castles with mounted archers while defending your own.",
     category: "game",
     tech: ["Chess engine", "Variant design"],

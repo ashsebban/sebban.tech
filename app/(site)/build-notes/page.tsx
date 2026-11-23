@@ -27,7 +27,7 @@ export default function BuildNotesPage() {
             <p>The next playtest gives each side three home ranks where pawns act as walls. The two middle ranks are open battlefield, and bishops behind friendly walls can sidestep. I’m looking to see whether this makes pushing a line of pawns up the board feel worthwhile.</p>
           </div>
           <Link href="/games" className="mt-5 inline-flex min-h-11 items-center font-semibold text-accent hover:underline">
-            Find Mongol’s Chess in the Game Center <span aria-hidden="true" className="ml-2">→</span>
+            Find Duel of Khans in the Game Center <span aria-hidden="true" className="ml-2">→</span>
           </Link>
         </article>
 

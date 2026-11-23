@@ -12,7 +12,7 @@ export default function GameCenterFeature({ heading: Heading = "h2" }: { heading
       </div>
       <div className="relative max-w-xl p-6 sm:p-10">
         <Heading id="featured-game" className="text-3xl font-extrabold tracking-tight text-[#fff1d9] sm:text-5xl">Asher’s Chess Variations</Heading>
-        <p className="mt-3 max-w-sm text-[#e4e7df]">Choose a classical or experimental chess variation, from Warrior King to Mongol’s Chess.</p>
+        <p className="mt-3 max-w-sm text-[#e4e7df]">Choose a classical or experimental chess variation, from Warrior King to Duel of Khans.</p>
         <div className="mt-6 flex flex-wrap gap-3">
           <a href="/games/chess/index.html" className="rounded-lg bg-[#f5deaa] px-5 py-3 font-bold text-[#18231e] hover:bg-[#fff1d1]">
             Play chess
