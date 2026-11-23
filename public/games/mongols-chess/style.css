@@ -31,11 +31,11 @@ h1 { font:700 clamp(2.35rem,8vw,4rem)/1 Georgia,serif; letter-spacing:-.045em; }
 .square.last { box-shadow:inset 0 0 0 100vmax #ffc45d62; }
 .square.selected { box-shadow:inset 0 0 0 3px #f1b554,inset 0 0 0 5px #2a3937; }
 .square:focus-visible { outline:2px solid #143f3a; outline-offset:-3px; z-index:3; }
-.piece { position:absolute; inset:0; margin:auto; width:78%; height:78%; object-fit:contain; z-index:1; pointer-events:none; }
+.piece { position:absolute; inset:auto 0 4%; margin-inline:auto; width:94%; height:90%; object-fit:contain; object-position:center bottom; z-index:1; pointer-events:none; }
 .piece[hidden] { display:none; }
 .khan-badges { position:absolute; inset:0; z-index:1; pointer-events:none; }
 .khan-badge {
-  --badge-inset:3%; position:absolute; width:24%; height:24%; padding:1%;
+  --badge-inset:3%; position:absolute; width:21%; height:21%; padding:1%;
   border:1px solid #78664c; border-radius:50%; background:#f6edd2;
   box-shadow:0 1px 3px #18140c70; object-fit:contain;
 }
@@ -121,8 +121,10 @@ dialog li { margin-bottom:10px; }
 .square.checked { outline:3px solid #ed7063; outline-offset:-3px; }
 .spawn::after { content:"+♟"; position:absolute; z-index:2; color:#201810; background:#ffdb88; padding:2px 4px; border-radius:5px; font-size:clamp(10px,3vw,18px); }
 
-.piece.wall-crew { width:91%; height:80%; }
-.piece.field-infantry { width:69%; height:68%; }
+.piece[data-role="khan"], .piece[data-role="khatun"] { height:93%; }
+.piece[data-role="horse"], .piece[data-role="crossbow"], .piece[data-role="captain"] { height:92%; }
+.piece[data-role="wall"] { width:94%; height:86%; }
+.piece[data-role="infantry"] { width:84%; height:82%; }
 .piece.reinforcement-ready { filter:drop-shadow(0 0 2px #ffc45a); }
 
 .game-end { margin-top:.65rem; padding:.85rem; border:1px solid #a48458; border-radius:.6rem; background:#26313c; color:#fff4df; }

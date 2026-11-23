@@ -212,13 +212,12 @@ function draw() {
       let role=miniature[piece[1]];
       if(wall) role='wall';
       if(piece[1]==='b' && archer) role='crossbow';
+      image.dataset.role=role;
       const path='./miniatures/'+piece[0]+'-'+role+'.webp';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
     image.classList.toggle('reinforcement-ready',ready);
-    image.classList.toggle('wall-crew',wall);
-    image.classList.toggle('field-infantry',piece?.[1]==='p' && !wall);
     const move=targets.get(i);
     const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
