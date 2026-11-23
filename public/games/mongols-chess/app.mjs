@@ -43,6 +43,7 @@ let state;
 let history;
 let seen;
 let legal;
+let reinforcementCastles;
 let result;
 let selected;
 let worker=null;
@@ -85,11 +86,14 @@ for(let i=0;i<64;i++) {
   bow.textContent='🏹';
   bow.setAttribute('aria-hidden','true');
   bow.hidden=true;
-  cell.append(image,aim,bow);
+  const fortification=document.createElement('span');
+  fortification.setAttribute('aria-hidden','true');
+  fortification.hidden=true;
+  cell.append(image,fortification,aim,bow);
   const name=square(i);
   if(i%8===0) coordinate(cell,name[1],'rank');
   if(i>=56) coordinate(cell,name[0],'file');
-  cells.push({cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
+  cells.push({cell,image,fortification,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')});
   board.append(cell);
 }
 
@@ -196,27 +200,33 @@ function draw() {
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   const visibleBoard=pending ? state.board.map((piece,i)=>i===pending.target ? null : piece) : state.board;
   for(let i=0;i<64;i++) {
-    const {cell,image,aim,bow,base}=cells[i];
+    const {cell,image,fortification,aim,bow,base}=cells[i];
     const shootable=shots.has(i);
     aim.hidden=!shootable && !range.has(i);
     aim.classList.toggle('aim-live',shootable);
     const piece=visibleBoard[i];
     const wall=isWall(piece,i);
+    const castle=piece?.[1]==='r';
+    const ready=castle && !pending && !lesson?.complete && reinforcementCastles.has(i);
+    fortification.hidden=!wall && !castle;
+    if(!fortification.hidden) {
+      fortification.className=['fortification',castle&&'barracks',piece[0]==='w'&&'light-stone',ready&&'reinforcement-ready'].filter(Boolean).join(' ');
+    }
     const archer=hasBow(visibleBoard,i);
     bow.hidden=!archer;
-    if(piece && !wall){
+    if(piece && !wall && !castle){
       const path='./pieces/'+piece[0]+piece[1].toUpperCase()+'.svg';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
-    image.hidden=!piece || wall;
+    image.hidden=!piece || wall || castle;
     const move=targets.get(i);
     const mark=move ? (pending ? move.landingCapture : move.capture) ? 'capture' : (pending || move.kind==='castle') ? 'move' : move.kind : '';
     const recent=previous && [previous.move.from,previous.move.to,previous.move.captureAt,previous.move.rookFrom,previous.move.rookTo].includes(i);
     const active=selected;
-    cell.className=[base,recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',wall&&'wall-square',wall&&piece[0]==='w'&&'wall-white',mark].filter(Boolean).join(' ');
+    cell.className=[base,recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
     const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':names[piece[1]]):'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
-    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(archer?', bow equipped':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
+    cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
     cell.setAttribute('aria-pressed',String(i===active));
   }
   const count=side=> {
@@ -236,6 +246,7 @@ function draw() {
 function refresh() {
   legal=moves(state);
   result=outcome(state,defaultRules,seen[key(state)],legal);
+  reinforcementCastles=new Set(result ? [] : legal.filter(move=>move.kind==='spawn').map(move=>move.from));
   if(result || state.turn==='b') legal=[];
   const justEnded=Boolean(result) && gameEnd.hidden;
   gameEnd.hidden=!result || !!lesson;
