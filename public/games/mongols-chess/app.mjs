@@ -219,9 +219,10 @@ function draw() {
     if(piece) {
       let role=miniature[piece[1]];
       if(wall) role='wall';
-      if(piece[1]==='b' && archer) role=medieval?'longbow':'crossbow';
+      if(piece[1]==='b' && archer) role=medieval?'longbow':'archer';
       image.dataset.role=role;
-      const path=(medieval?'./medieval/':'./miniatures/')+piece[0]+'-'+role+'.webp';
+      const sprite=(!medieval && ready) ? 'gate-lit' : role;
+      const path=(medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp';
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;

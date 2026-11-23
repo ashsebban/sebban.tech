@@ -151,3 +151,10 @@ dialog li { margin-bottom:10px; }
 .embedded .title h1 { display:none; }
 .embedded main { padding-top:8px; }
 .embedded dialog { margin:min(10vh, 72px) auto auto; max-height:min(75vh, 500px); }
+
+[data-variant="mongols"] .piece { bottom:6%; }
+[data-variant="mongols"] .piece[data-role="infantry"] { width:75%; height:70%; }
+[data-variant="mongols"] .piece[data-role="wall"] { width:91%; height:77%; }
+[data-variant="mongols"] .piece:is([data-role="captain"],[data-role="archer"],[data-role="horse"]) { width:88%; height:82%; }
+[data-variant="mongols"] .piece:is([data-role="khan"],[data-role="khatun"]) { height:89%; }
+[data-variant="mongols"] .piece.reinforcement-ready { filter:none; }
