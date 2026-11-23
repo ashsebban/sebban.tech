@@ -57,3 +57,22 @@ export const frontierLessons = [
     success:'The Khan stepped out of arrow range.',
   },
 ];
+
+export const chineseLessons = [
+  {
+    title:'Take cover behind a wall', description:'Move your bishop into a firing position.',
+    steps:[
+      {pieces:{a1:'wk',h8:'bk',f1:'wb',f3:'wp',e2:'wp'},from:'f1',to:'f2',kind:'move',
+        prompt:'Move the bishop from f1 to f2 to take cover behind the wall on f3.'},
+    ],
+    success:'Your bishop is in cover and can shoot on a later turn.',
+  },
+  {
+    title:'Shoot from the wall', description:'Use a fortified pawn to fire straight ahead.',
+    steps:[
+      {pieces:{a1:'wk',h8:'bk',f2:'wb',f3:'wp',e2:'wp',f4:'bn'},from:'f2',to:'f4',kind:'shot',
+        prompt:'Shoot the Mongol horse archer on f4 over your wall on f3.'},
+    ],
+    success:'Your bishop shot the horse archer and stayed behind the wall.',
+  },
+];

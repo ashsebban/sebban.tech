@@ -124,7 +124,9 @@ dialog li { margin-bottom:10px; }
 .menu-section { border-top:1px solid var(--edge); padding-top:12px; margin-top:12px; }
 .menu-section h3 { font-size:.86rem; color:var(--muted); margin-bottom:8px; }
 .menu-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-#difficulty-form label { display:block; margin-bottom:5px; font-weight:650; }
+#difficulty-form label,.side-form label { display:block; margin-bottom:5px; font-weight:650; }
+.side-form { margin-top:12px; }
+.side-form p { margin-top:6px; color:var(--muted); font-size:.9rem; }
 .settings-row { display:flex; gap:8px; flex-wrap:wrap; }
 .settings-row select { min-height:44px; flex:1 0 110px; border:1px solid var(--edge); border-radius:7px; background:var(--ground); color:var(--ink); padding:0 10px; font:inherit; }
 .menu-section details { margin-top:8px; }

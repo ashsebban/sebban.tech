@@ -7,7 +7,7 @@
   <meta name="description" content="Lead Genghis Khan’s horse archers against the Chinese army’s fortified pawn chains.">
   <title>Khan at the Walls</title>
   <link rel="stylesheet" href="../chess/match.css?v=1">
-  <link rel="stylesheet" href="./style.css?v=64">
+  <link rel="stylesheet" href="./style.css?v=65">
 </head>
 <body>
   <main class="match-shell">
@@ -44,6 +44,17 @@
     <section class="menu-section" aria-labelledby="match-actions-title">
       <h3 id="match-actions-title">Match</h3>
       <button type="button" id="new-game">Restart game</button>
+      <form id="side-form" class="side-form">
+        <label for="army-side">Play as</label>
+        <div class="settings-row">
+          <select id="army-side">
+            <option value="b">Mongols · Black</option>
+            <option value="w">China · White</option>
+          </select>
+          <button type="submit" id="apply-side" disabled>Switch sides</button>
+        </div>
+        <p>Switching sides starts a new game. Black always moves first.</p>
+      </form>
     </section>
     <section class="menu-section" aria-labelledby="settings-title">
       <h3 id="settings-title">Settings</h3>
@@ -102,7 +113,7 @@
       <form method="dialog"><button value="close">Done</button></form>
     </div>
     <ul>
-      <li><strong>Checkmate.</strong> You play Genghis Khan’s Mongol army as Black and move first. The computer plays the Chinese army as White. Checkmate the opposing ruler to win.</li>
+      <li><strong>Checkmate.</strong> The Mongols play Black and move first. China plays White. Choose your army in Options. Checkmate the opposing ruler to win.</li>
       <li><strong>Mongol horse archers.</strong> Move or capture like a knight, or shoot exactly two squares along a clear rank or file and then jump. A landing capture can happen on the same turn.</li>
       <li><strong>Genghis Khan.</strong> A friendly queen grants long slides, a friendly knight grants knight jumps and shoot-and-jump, and a friendly bishop grants the Khan the ability to shoot over friendly pawns. Mongol pawns and bishops use their regular chess moves.</li>
       <li><strong>Chinese army.</strong> The Chinese king and knights use their regular chess moves. Pawns on White’s second rank are walls. Friendly pawns through White’s fourth rank are walls while a horizontal or diagonal chain connects them to that second rank. Cut the connection and the isolated pawns become infantry.</li>
@@ -118,6 +129,6 @@
     <div id="move-options"></div>
     <form method="dialog"><button>Cancel</button></form>
   </dialog>
-  <script type="module" src="./app.mjs?v=68"></script>
+  <script type="module" src="./app.mjs?v=69"></script>
 </body>
 </html>

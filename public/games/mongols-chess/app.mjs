@@ -1,7 +1,7 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=46';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=46';
 
-import { frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=36';
+import { chineseLessons, frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=37';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
@@ -11,11 +11,14 @@ const frontier=variant==='frontier';
 const rules=frontier ? frontierRules : medieval
   ? {...defaultRules,horseArchery:false,superKhan:false,kingBreachesWalls:true}
   : defaultRules;
-const playerSide=frontier?'b':'w';
-const computerSide=playerSide==='w'?'b':'w';
-const homeFocus=indexOf(frontier?'e7':'e2');
+const sideKey='khan-at-the-walls.player-side';
+let playerSide=frontier?'b':'w';
+if(frontier) {
+  try { if(localStorage.getItem(sideKey)==='w') playerSide='w'; } catch {}
+}
+const homeFocus=()=>indexOf(playerSide==='b'?'e7':'e2');
 const viewSquare=index=>playerSide==='b' ? 63-index : index;
-const lessons=frontier ? frontierLessons : medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
+let lessons=frontier ? (playerSide==='b'?frontierLessons:chineseLessons) : medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
   lessons[0].description='Advance infantry, shoot a longbow from cover, and capture with a knight.';
   lessons[0].steps[2]={pieces:{a1:'wk',h8:'bk',g5:'wn',e4:'bn'},from:'g5',to:'e4',kind:'move',prompt:'Jump from g5 to e4 to capture the black knight.'};
@@ -59,6 +62,8 @@ const menuButton = find('#open-menu');
 const confirmDialog = find('#confirm-match');
 const difficultySelect = find('#difficulty');
 const applyDifficulty = find('#apply-difficulty');
+const sideSelect=frontier?find('#army-side'):null;
+const applySide=frontier?find('#apply-side'):null;
 const hintButton = find('#hint');
 const resignButton = find('#resign');
 const difficultyLevels = {
@@ -135,32 +140,36 @@ function coordinate(cell,text,type) {
   label.setAttribute('aria-hidden','true');
   cell.append(label);
 }
-for(let view=0;view<64;view++) {
-  const i=viewSquare(view);
-  const cell=document.createElement('button');
-  const image=document.createElement('img');
-  cell.type='button';
-  cell.dataset.square=String(i);
-  cell.tabIndex=i===homeFocus?0:-1;
-  image.alt='';
-  image.className='piece';
-  image.draggable=false;
-  const aim=document.createElement('span');
-  aim.className='aim-marker';
-  aim.setAttribute('aria-hidden','true');
-  aim.hidden=true;
-  const bow=document.createElement('span');
-  bow.className='bow-badge';
-  bow.textContent='🏹';
-  bow.setAttribute('aria-hidden','true');
-  bow.hidden=true;
-  cell.append(image,aim,bow);
-  const name=square(i);
-  if(view%8===0) coordinate(cell,name[1],'rank');
-  if(view>=56) coordinate(cell,name[0],'file');
-  cells[i]={cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')};
-  board.append(cell);
+function orientBoard() {
+  board.replaceChildren(checkLines);
+  for(let view=0;view<64;view++) {
+    const i=viewSquare(view);
+    const cell=document.createElement('button');
+    const image=document.createElement('img');
+    cell.type='button';
+    cell.dataset.square=String(i);
+    cell.tabIndex=i===homeFocus()?0:-1;
+    image.alt='';
+    image.className='piece';
+    image.draggable=false;
+    const aim=document.createElement('span');
+    aim.className='aim-marker';
+    aim.setAttribute('aria-hidden','true');
+    aim.hidden=true;
+    const bow=document.createElement('span');
+    bow.className='bow-badge';
+    bow.textContent='🏹';
+    bow.setAttribute('aria-hidden','true');
+    bow.hidden=true;
+    cell.append(image,aim,bow);
+    const name=square(i);
+    if(view%8===0) coordinate(cell,name[1],'rank');
+    if(view>=56) coordinate(cell,name[0],'file');
+    cells[i]={cell,image,aim,bow,base:'square'+((i%8+Math.floor(i/8))%2?' dark':'')};
+    board.append(cell);
+  }
 }
+orientBoard();
 
 function description(move,before) {
   const who=color[before.turn];
@@ -313,10 +322,10 @@ function draw() {
   black.textContent=count('b');
   status.textContent=pending ? 'Choose where to jump or capture' : result ? 'Match over'
     : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>nameOf(state.board[i])+' '+square(i)).join(', ')
-    : state.turn===playerSide ? (frontier?'Your move · Black':'Your move') : 'Computer thinking…';
+    : state.turn===playerSide ? (frontier?'Your move · '+(playerSide==='b'?'Black':'White'):'Your move') : 'Computer thinking…';
   lastMove.textContent=hintMove ? hintText(hintMove) : result ? '' : (previous?.text ?? practiceHint);
   cancelShot.hidden=!pending;
-  undo.disabled=!!lesson || !!pending || resigned || !history.length;
+  undo.disabled=!!lesson || !!pending || resigned || !history.some(({before})=>before.turn===playerSide);
   hintButton.disabled=!!lesson || !!result || !!pending || state.turn!==playerSide || !legal.length;
   resignButton.disabled=!!lesson || !!result;
 }
@@ -332,14 +341,14 @@ function hintText(move) {
 
 function refresh() {
   legal=resigned ? [] : moves(state,rules);
-  result=resigned ? {winner:computerSide,reason:'You resigned.'} : outcome(state,rules,seen[key(state)],legal);
+  result=resigned ? {winner:opposite(playerSide),reason:'You resigned.'} : outcome(state,rules,seen[key(state)],legal);
   reinforcementCastles=new Set(result ? [] : legal.filter(move=>move.kind==='spawn').map(move=>move.from));
-  if(result || state.turn===computerSide) legal=[];
+  if(result || state.turn!==playerSide) legal=[];
   const justEnded=Boolean(result) && gameEnd.hidden;
   gameEnd.hidden=!result || !!lesson;
   find('#why-mate').hidden=result?.reason!=='Checkmate.';
   if(result) {
-    find('#game-end-title').textContent=result.winner===playerSide?'You won':result.winner===computerSide?'Computer wins':'Draw';
+    find('#game-end-title').textContent=result.winner===playerSide?'You won':result.winner?'Computer wins':'Draw';
     find('#game-end-reason').textContent=result.reason;
   }
   draw();
@@ -352,14 +361,14 @@ function abortEngine() {
   worker=null;
 }
 function inspectResponse(token,move) {
-  if(token!==epoch || state.turn!==computerSide || result) return;
+  if(token!==epoch || state.turn===playerSide || result) return;
   const available=moves(state,rules);
   const answer=available.find(entry=>entry.kind===move?.kind && entry.from===move.from && entry.to===move.to && entry.captureAt===move.captureAt && entry.spawn===move.spawn && entry.promotion===move.promotion);
   if(answer) play(answer);
   else if(available[0]) play(available[0]);
 }
 function fallback(token) {
-  if(token!==epoch || state.turn!==computerSide || result) return;
+  if(token!==epoch || state.turn===playerSide || result) return;
   const {depth,budget}=difficultyLevels[difficulty];
   inspectResponse(token,chooseMove(state,{rules,seen,depth,budget:Math.min(budget,4500)}));
 }
@@ -442,7 +451,7 @@ function play(move) {
   if(!choices.length && !outcome(state,rules,seen[key(state)],choices)) advance(passMove);
   refresh();
   if(move.kind==='shot' || move.kind==='jumpShot') animateArrow(move);
-  if(!result && state.turn===computerSide) computer();
+  if(!result && state.turn!==playerSide) computer();
 }
 
 function focusCell(index) {
@@ -529,8 +538,9 @@ function reset(next,practiceSquare=null,hint='',activeLesson=null) {
   practiceHint=hint;
   pending=null;
   selected=practiceSquare ? indexOf(practiceSquare) : null;
-  focusCell(selected ?? homeFocus);
+  focusCell(selected ?? homeFocus());
   refresh();
+  if(!lesson && !result && state.turn!==playerSide) computer();
 }
 cancelShot.addEventListener('click',()=>{
   if(!pending) return;
@@ -552,19 +562,28 @@ undo.addEventListener('click',()=>{
   } while(history.length && (state.turn!==playerSide || !moves(state,rules).length));
   selected=null;
   refresh();
-  cells[homeFocus].cell.focus();
+  cells[homeFocus()].cell.focus();
 });
-for(const [index,guide] of lessons.entries()) {
-  const button=document.createElement('button');
-  button.type='button';
-  const title=document.createElement('strong');
-  title.textContent=guide.title;
-  const description=document.createElement('span');
-  description.textContent=guide.description;
-  button.append(title,description);
-  button.addEventListener('click',()=>{learnDialog.close();openLesson(index);});
-  find('#lessons').append(button);
+function drawLessonMenu() {
+  const list=find('#lessons');
+  list.replaceChildren();
+  for(const [index,guide] of lessons.entries()) {
+    const button=document.createElement('button');
+    button.type='button';
+    const title=document.createElement('strong');
+    title.textContent=guide.title;
+    const description=document.createElement('span');
+    description.textContent=guide.description;
+    button.append(title,description);
+    button.addEventListener('click',()=>{learnDialog.close();openLesson(index);});
+    list.append(button);
+  }
+  if(frontier) {
+    find('#practice').textContent=lessons[0].title;
+    find('#practice-bishop').textContent=lessons[1].title;
+  }
 }
+drawLessonMenu();
 find('#show-learn').addEventListener('click',()=>{ menu.close(); learnDialog.showModal(); });
 find('#lesson-retry').addEventListener('click',()=>openLesson(lesson.index));
 find('#lesson-exit').addEventListener('click',()=>reset(initial(rules)));
@@ -576,7 +595,7 @@ find('#why-mate').addEventListener('click',()=>{
 find('#show-rules').addEventListener('click',()=>{ menu.close(); rulesDialog.showModal(); });
 function startMatch() {
   reset(initial(rules));
-  cells[homeFocus].cell.focus();
+  cells[homeFocus()].cell.focus();
 }
 playAgain.addEventListener('click',startMatch);
 
@@ -599,6 +618,10 @@ confirmDialog.addEventListener('close',()=>{
 menuButton.addEventListener('click',()=>{
   difficultySelect.value=difficulty;
   applyDifficulty.disabled=true;
+  if(sideSelect) {
+    sideSelect.value=playerSide;
+    applySide.disabled=true;
+  }
   menu.showModal();
 });
 difficultySelect.addEventListener('change',()=>{
@@ -619,6 +642,28 @@ find('#difficulty-form').addEventListener('submit',event=>{
     start();
   }
 });
+if(sideSelect) {
+  sideSelect.addEventListener('change',()=>{ applySide.disabled=sideSelect.value===playerSide; });
+  find('#side-form').addEventListener('submit',event=>{
+    event.preventDefault();
+    const next=sideSelect.value;
+    if(next===playerSide || (next!=='w' && next!=='b')) return;
+    const start=()=>{
+      playerSide=next;
+      try { localStorage.setItem(sideKey,playerSide); } catch {}
+      lessons=playerSide==='b'?frontierLessons:chineseLessons;
+      orientBoard();
+      drawLessonMenu();
+      startMatch();
+    };
+    if(!result && (history.length || pending || lesson || practiceHint)) {
+      confirmMatchAction('Switch sides?', 'A new game will replace this position.', 'Switch sides', start);
+    } else {
+      menu.close();
+      start();
+    }
+  });
+}
 find('#new-game').addEventListener('click',()=>{
   if(!result && (history.length || pending || lesson || practiceHint)) {
     confirmMatchAction('Restart this game?', 'Your current position will be lost.', 'Restart', startMatch);
