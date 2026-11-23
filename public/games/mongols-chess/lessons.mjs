@@ -38,3 +38,22 @@ export const lessons = [
     success:'Your castle restored the pawn formation and your bishop used it to capture.',
   },
 ];
+
+export const frontierLessons = [
+  {
+    title:'Horse-archer raid', description:'Shoot and land a cavalry capture on the same turn.',
+    steps:[
+      {pieces:{a1:'wk',h8:'bk',g5:'wn',e5:'bp',e4:'bn'},from:'g5',shot:'e5',to:'e4',kind:'jumpShot',
+        prompt:'Shoot the infantry on e5, then jump to e4 to capture the Chinese knight.'},
+    ],
+    success:'Your horse archer took two pieces in one turn.',
+  },
+  {
+    title:'Escape an arrow check', description:'See how a Chinese bishop guards a lane from behind a wall.',
+    steps:[
+      {pieces:{f5:'wk',a8:'bk',f7:'bb',f6:'bp',e7:'bp'},from:'f5',to:'f4',kind:'move',
+        prompt:'The Chinese bishop on f7 shoots over the wall on f6. Move the Khan from f5 to f4.'},
+    ],
+    success:'The Khan stepped out of arrow range.',
+  },
+];

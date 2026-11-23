@@ -19,6 +19,14 @@ export const profiles = {
   bishopWard: { min:2, max:2, rally:true, escort:true, bishopWard:true },
 };
 export const defaultRules = { ...profiles.siege, jumpShot:true, emptyShotLanding:false, castleDefense:false, mobileCastles:true, castling:true, bishopWallSidestep:true, bishopWallMount:true, royalCheck:true, superKhan:true, pawnCap:8, infantryBreach:true, towerShots:true, min:2, max:2 };
+export const frontierRules = {
+  ...defaultRules,
+  sides: {
+    w:{pawnWalls:false,bishopArchery:false},
+    b:{horseArchery:false,superKhan:false},
+  },
+};
+export const sideRule = (rules,side,ability) => rules.sides?.[side]?.[ability] ?? rules[ability];
 export const passMove = Object.freeze({from:-1,to:-1,kind:'pass',capture:null});
 export const opposite = side => side === 'w' ? 'b' : 'w';
 export const square = index => files[index % 8] + (8 - Math.floor(index / 8));
@@ -32,9 +40,10 @@ const startingPawnBit = (index, side) => {
 const startingPawns = board => board.reduce((mask,piece,index) =>
   piece?.[1]==='p' ? mask | startingPawnBit(index,piece[0]) : mask, 0);
 
-export function wallSquares(board) {
+export function wallSquares(board, rules = defaultRules) {
   const walls = new Set();
   for (const [pawn, anchor, fourth] of [['wp',6,4],['bp',1,3]]) {
+    if (sideRule(rules,pawn[0],'pawnWalls')===false) continue;
     const minRow = Math.min(anchor,fourth);
     const maxRow = Math.max(anchor,fourth);
     const connected = [];
@@ -113,7 +122,7 @@ function royalThreats(threats, rules) {
 function moveThreats(state, move, rules) {
   const after={...apply(state,move),turn:state.turn};
   const threats=checkThreats(after,rules);
-  if (threats.length || !rules.superKhan || state.board[move.from]!==state.turn+'k' ||
+  if (threats.length || !sideRule(rules,opposite(state.turn),'superKhan') || state.board[move.from]!==state.turn+'k' ||
       (move.kind!=='move' && move.kind!=='jumpShot') ||
       ![move.capture,move.landingCapture].some(piece=>piece && 'qnb'.includes(piece[1]))) return threats;
 
@@ -198,9 +207,9 @@ export function hasBow(board,from,rules=defaultRules) {
   const piece=board[from];
   if (!piece) return false;
   const [side,type]=piece;
-  const powers=type==='k' && rules.superKhan ? khanPowers(board,side) : null;
-  if (rules.horseArchery!==false && (type==='n' || powers?.knight)) return true;
-  if (type!=='b' && !powers?.bishop) return false;
+  const powers=type==='k' && sideRule(rules,side,'superKhan') ? khanPowers(board,side) : null;
+  if (sideRule(rules,side,'horseArchery')!==false && (type==='n' || powers?.knight)) return true;
+  if (!powers?.bishop && (type!=='b' || sideRule(rules,side,'bishopArchery')===false)) return false;
   return orthogonal.some(([dx,dy])=>firingCover(board,from%8,Math.floor(from/8),dx,dy,side)!==null);
 }
 
@@ -212,7 +221,10 @@ export function emptyShotSquares(state, selected, rules = defaultRules) {
 
 function candidateMoves(state, rules, selected = null, emptyShots = null, inheritedPowers = null) {
   const { board, turn, ep, pawnStarts=startingPawns(board) } = state;
-  const walls = wallSquares(board);
+  const walls = wallSquares(board,rules);
+  const superKhan = sideRule(rules,turn,'superKhan');
+  const horseArchery = sideRule(rules,turn,'horseArchery')!==false;
+  const bishopArchery = sideRule(rules,turn,'bishopArchery')!==false;
   const enemy = opposite(turn);
   const forward = turn === 'w' ? -1 : 1;
   const promotionRank = turn === 'w' ? 0 : 7;
@@ -222,8 +234,8 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
     const piece = board[from];
     if (!piece || piece[0] !== turn) continue;
     const type = piece[1], x = from%8, y = Math.floor(from/8);
-    const powers = type==='k' && rules.superKhan ? inheritedPowers ?? khanPowers(board,turn) : null;
-    const kingBreachesWall = type==='k' && (rules.superKhan || rules.kingBreachesWalls);
+    const powers = type==='k' && superKhan ? inheritedPowers ?? khanPowers(board,turn) : null;
+    const kingBreachesWall = type==='k' && (superKhan || rules.kingBreachesWalls);
     const canBreakWall = (kind) => (kind==='move' && (kingBreachesWall || (rules.mobileCastles && type==='r'))) ||
       (rules.infantryBreach ? type==='p' : walls.has(from));
     const add = (tx,ty,kind='move',captureAt=null) => {
@@ -303,7 +315,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
         const to=get(tx,ty), landingCapture=board[to];
         if (landingCapture && (!rules.captureOnLanding || landingCapture[0]===turn || (rules.territoryWalls && walls.has(to) && !canBreakWall('move')))) continue;
         add(tx,ty);
-        if (rules.horseArchery===false || (landingCapture && rules.emptyShotLanding)) continue;
+        if (!horseArchery || (landingCapture && rules.emptyShotLanding)) continue;
         const shotX=rules.shootFirst ? x : tx;
         const shotY=rules.shootFirst ? y : ty;
         for (const [sx,sy] of orthogonal) {
@@ -318,7 +330,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
       }
       if (type==='n') continue;
     }
-    if (rules.towerShots && (type==='b' || powers?.bishop)) {
+    if (rules.towerShots && ((type==='b' && bishopArchery) || powers?.bishop)) {
       for (const [dx,dy] of orthogonal) {
         const tower=firingCover(board,x,y,dx,dy,turn);
         if (tower===null) continue;
@@ -336,7 +348,7 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
         }
       }
     }
-    if (type==='b' && (rules.bishopWalls || rules.bishopWallSidestep || rules.bishopWallMount)) {
+    if (type==='b' && bishopArchery && (rules.bishopWalls || rules.bishopWallSidestep || rules.bishopWallMount)) {
       const firingTargets=new Set();
       let canSidestep=false;
       for (const [dx,dy] of [[-1,0],[1,0],[-1,forward],[0,forward],[1,forward]]) {
@@ -506,7 +518,7 @@ function evaluate(state, rules) {
       }
       bonus+=(8-nearest)*4;
     }
-    if(type==='k' && rules.superKhan) {
+    if(type==='k' && sideRule(rules,side,'superKhan')) {
       const powers=khanPowers(board,side);
       bonus+=(powers.queen ? 520 : 0)+(powers.knight ? 270 : 0)+(powers.bishop ? 80 : 0);
     }

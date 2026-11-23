@@ -1,15 +1,17 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, square, wallSquares } from './engine.mjs?v=44';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=45';
 
-import { lessons as siegeLessons } from './lessons.mjs?v=34';
+import { frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=35';
 
 if (new URLSearchParams(location.search).get('embedded')==='1') document.documentElement.classList.add('embedded');
 
-const medieval=document.documentElement.dataset.variant==='medieval';
-const rules=medieval
+const variant=document.documentElement.dataset.variant;
+const medieval=variant==='medieval';
+const frontier=variant==='frontier';
+const rules=frontier ? frontierRules : medieval
   ? {...defaultRules,horseArchery:false,superKhan:false,kingBreachesWalls:true}
   : defaultRules;
-const lessons=medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
+const lessons=frontier ? frontierLessons : medieval ? JSON.parse(JSON.stringify(siegeLessons).replaceAll('Khan','king')) : siegeLessons;
 if(medieval) {
   lessons[0].description='Advance infantry, shoot a longbow from cover, and capture with a knight.';
   lessons[0].steps[2]={pieces:{a1:'wk',h8:'bk',g5:'wn',e4:'bn'},from:'g5',to:'e4',kind:'move',prompt:'Jump from g5 to e4 to capture the black knight.'};
@@ -28,7 +30,7 @@ const find = selector => document.querySelector(selector);
 const board = find('#board');
 mountMatchActions(find('.match-actions'));
 const styleButton=find('#piece-style-toggle');
-const styleKey=medieval?'kings-castles.piece-style':'mongols-chess.piece-style';
+const styleKey=frontier?'khan-at-the-walls.piece-style':medieval?'kings-castles.piece-style':'mongols-chess.piece-style';
 let classicPieces=false;
 try { classicPieces=localStorage.getItem(styleKey)==='classic'; } catch {}
 
@@ -70,11 +72,17 @@ const rulesDialog = find('#rules');
 const white = find('#white-castles');
 const black = find('#black-castles');
 const cells = [];
-const names = { p:'pawn',n:medieval?'knight':'horse archer',b:'bishop',q:'queen',k:medieval?'king':'Khan',r:'castle' };
-const miniature = medieval ? {k:'king',q:'queen',r:'castle',n:'knight',b:'captain',p:'infantry'} : { k:'khan', q:'khatun', r:'gate', n:'horse', b:'captain', p:'infantry' };
-const color = { w:'White',b:'Black' };
+const names = {p:'pawn',b:'bishop',q:'queen',r:'castle'};
+const nameOf = ([side,type]) => {
+  if (type==='k') return sideRule(rules,side,'superKhan') ? 'Khan' : 'king';
+  if (type==='n') return sideRule(rules,side,'horseArchery')===false ? 'knight' : 'horse archer';
+  return names[type];
+};
+const armoredPieces = {k:'king',q:'queen',r:'castle',n:'knight',b:'captain',p:'infantry'};
+const mongolPieces = {k:'khan',q:'khatun',r:'gate',n:'horse',b:'captain',p:'infantry'};
+const color = frontier ? {w:'Mongol',b:'Chinese'} : {w:'White',b:'Black'};
 const cancelShot = find('#cancel-shot');
-const khanBadges = (rules.superKhan ? ['w','b'] : []).map(side=>{
+const khanBadges = ['w','b'].filter(side=>sideRule(rules,side,'superKhan')).map(side=>{
   const group=document.createElement('span');
   group.className='khan-badges';
   group.setAttribute('aria-hidden','true');
@@ -152,20 +160,20 @@ for(let i=0;i<64;i++) {
 function description(move,before) {
   const who=color[before.turn];
   if(move.kind==='pass') return who+' had no move and passed.';
-  const actor=names[before.board[move.from][1]];
+  const actor=nameOf(before.board[move.from]);
   if(move.kind==='castle') return who+' castled '+(move.to>move.from?'kingside.':'queenside.');
-  if(move.kind==='spawn') return who+' castle returned the '+names[move.spawn]+' on '+square(move.to)+'.';
-  if(move.kind==='shot') return who+' '+actor+' shot the '+names[move.capture[1]]+' on '+square(move.to)+'.';
+  if(move.kind==='spawn') return who+' castle returned the '+nameOf(before.turn+move.spawn)+' on '+square(move.to)+'.';
+  if(move.kind==='shot') return who+' '+actor+' shot the '+nameOf(move.capture)+' on '+square(move.to)+'.';
   if(move.kind==='jumpShot') {
-    const landing=move.landingCapture ? 'captured the '+names[move.landingCapture[1]]+' on ' : 'jumped to ';
-    return who+' '+actor+' on '+square(move.from)+' shot the '+names[move.capture[1]]+' on '+square(move.captureAt)+' and '+landing+square(move.to)+'.';
+    const landing=move.landingCapture ? 'captured the '+nameOf(move.landingCapture)+' on ' : 'jumped to ';
+    return who+' '+actor+' on '+square(move.from)+' shot the '+nameOf(move.capture)+' on '+square(move.captureAt)+' and '+landing+square(move.to)+'.';
   }
   if(move.kind==='rally') {
-    const ally=names[before.board[move.to][1]];
+    const ally=nameOf(before.board[move.to]);
     return who+' king swapped with the '+ally+' on '+square(move.to)+(move.promotion?' and the pawn promoted.':'.');
   }
-  const target=move.capture?' captured the '+names[move.capture[1]]+' on ':' moved to ';
-  return who+' '+actor+target+square(move.to)+(move.promotion?' and promoted to a '+names[move.promotion]+'.':'.');
+  const target=move.capture?' captured the '+nameOf(move.capture)+' on ':' moved to ';
+  return who+' '+actor+target+square(move.to)+(move.promotion?' and promoted to a '+nameOf(before.turn+move.promotion)+'.':'.');
 }
 
 function describeThreat(threat, boardState=state.board) {
@@ -174,7 +182,7 @@ function describeThreat(threat, boardState=state.board) {
   const dy=Math.abs(Math.floor(threat.from/8)-Math.floor(threat.to/8));
   const mode=threat.kind==='jumpShot' ? 'shoot-and-jump' : threat.kind==='shot' ? 'arrow shot'
     : dx*dy===2 ? 'knight jump' : piece[1]==='k' && Math.max(dx,dy)>1 ? 'queen slide' : 'direct attack';
-  return color[piece[0]]+' '+names[piece[1]]+' on '+square(threat.from)+' · '+mode;
+  return color[piece[0]]+' '+nameOf(piece)+' on '+square(threat.from)+' · '+mode;
 }
 
 function showCheckDetails(threats) {
@@ -252,7 +260,7 @@ function draw() {
   }
   find('#reserve').textContent=(state.reserves?.wp??0)+' captured pawns';
   const visibleBoard=pending ? state.board.map((piece,i)=>i===pending.target ? null : piece) : state.board;
-  const walls=wallSquares(visibleBoard);
+  const walls=wallSquares(visibleBoard,rules);
   for(let i=0;i<64;i++) {
     const {cell,image,aim,bow,base}=cells[i];
     const shootable=shots.has(i);
@@ -265,14 +273,16 @@ function draw() {
     const archer=hasBow(visibleBoard,i,rules);
     bow.hidden=!archer || (!classicPieces && piece?.[1]==='k');
     if(piece) {
-      let role=miniature[piece[1]];
+      const chinese=frontier && piece[0]==='b';
+      const armored=medieval || chinese;
+      let role=(armored?armoredPieces:mongolPieces)[piece[1]];
       if(wall) role='wall';
-      if(piece[1]==='b' && archer) role=medieval?'longbow':'archer';
+      if(piece[1]==='b' && archer) role=armored?'longbow':'archer';
       image.dataset.role=role;
-      const sprite=(!medieval && ready) ? 'gate-lit' : role;
-      const spriteVersion=medieval || piece[1]==='b' ? '?v=3' : (role==='wall' || role==='horse') ? '?v=2' : '';
+      const sprite=!medieval && ready ? (chinese?'castle-lit':'gate-lit') : role;
+      const spriteVersion=chinese ? '' : medieval || piece[1]==='b' ? '?v=3' : (role==='wall' || role==='horse') ? '?v=2' : '';
       const path=classicPieces ? './pieces/'+piece[0]+piece[1].toUpperCase()+'.svg'
-        : (medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+spriteVersion;
+        : (chinese?'./chinese/':medieval?'./medieval/':'./figure-set/')+piece[0]+'-'+sprite+'.webp'+spriteVersion;
       if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
@@ -283,7 +293,7 @@ function draw() {
     const active=selected;
     const hinted=hintMove && i===(hintMove.kind==='jumpShot' ? hintMove.captureAt : hintMove.to);
     cell.className=[base,hinted && 'hint-target',classicPieces && wall && 'fortified-pawn',classicPieces && ready && 'gate-ready',recent&&'last',i===active&&'selected',checks.has(i)&&'in-check',mark].filter(Boolean).join(' ');
-    const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':names[piece[1]]):'empty';
+    const pieceLabel=piece?color[piece[0]]+' '+(wall?'fortified wall':nameOf(piece)):'empty';
     const action=move?.kind==='castle'?', castle here':mark==='spawn'?', return a piece here':mark==='shot'?', arrow target':mark==='rally'?', Rally swap':mark==='capture'?', legal capture':mark?', legal move':'';
     cell.setAttribute('aria-label',square(i)+', '+pieceLabel+(ready?', reinforcement available':'')+(archer?', bow equipped':'')+(hinted?', suggested target':'')+(checks.has(i)?', in check':'')+action+(shootable?', legal arrow shot':range.has(i)?', empty square in arrow range':''));
     cell.setAttribute('aria-pressed',String(i===active));
@@ -295,7 +305,7 @@ function draw() {
   white.textContent=count('w');
   black.textContent=count('b');
   status.textContent=pending ? 'Choose where to jump or capture' : result ? 'Match over'
-    : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>names[state.board[i][1]]+' '+square(i)).join(', ')
+    : checks.size ? color[state.turn]+' in check · '+[...checks].map(i=>nameOf(state.board[i])+' '+square(i)).join(', ')
     : state.turn==='w' ? 'Your move' : 'Computer thinking…';
   lastMove.textContent=hintMove ? hintText(hintMove) : result ? '' : (previous?.text ?? practiceHint);
   cancelShot.hidden=!pending;
@@ -310,7 +320,7 @@ function hintText(move) {
   if(move.kind==='jumpShot') return 'Hint: shoot '+square(move.captureAt)+' from '+from+', then jump to '+to+'.';
   if(move.kind==='spawn') return 'Hint: use the castle on '+from+' to return a pawn to '+to+'.';
   if(move.kind==='castle') return 'Hint: castle '+(move.to>move.from?'kingside.':'queenside.');
-  return 'Hint: move '+from+' to '+to+(move.promotion?' and promote to '+names[move.promotion]:'')+'.';
+  return 'Hint: move '+from+' to '+to+(move.promotion?' and promote to '+nameOf(state.turn+move.promotion):'')+'.';
 }
 
 function refresh() {
@@ -350,7 +360,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=63',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=66',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
@@ -457,7 +467,7 @@ function choose(index) {
       button.addEventListener('click',()=>{ choiceDialog.close(); action(); });
       return button;
     };
-    const buttons=choices.map(move=>buttonFor(move.kind==='castle' ? 'Castle '+(move.to>move.from?'kingside':'queenside') : move.promotion ? 'Promote to '+names[move.promotion] : move.kind==='spawn' ? 'Return '+names[move.spawn]
+    const buttons=choices.map(move=>buttonFor(move.kind==='castle' ? 'Castle '+(move.to>move.from?'kingside':'queenside') : move.promotion ? 'Promote to '+nameOf(state.turn+move.promotion) : move.kind==='spawn' ? 'Return '+nameOf(state.turn+move.spawn)
       : move.kind==='shot' ? 'Shoot and stay' : (move.capture ? 'Move and capture' : 'Move here'),()=>play(move)));
     if(jumps.length) buttons.push(buttonFor('Shoot and jump',chooseJump));
     find('#move-options').replaceChildren(...buttons);
@@ -635,11 +645,13 @@ hintButton.addEventListener('click',()=>{
 });
 find('#practice').addEventListener('click',()=>{
   rulesDialog.close();
+  if(frontier) {openLesson(0); return;}
   if(medieval) {openLesson(0,2); return;}
   reset(position({a1:'wr',h1:'wr',b1:'wn',d1:'wq',d4:'wk',a8:'br',h8:'br',f4:'bn',e3:'bb',g8:'bk'}),'d4','Shoot f4 with the Khan, then jump to c6.');
 });
 find('#practice-bishop').addEventListener('click',()=>{
   rulesDialog.close();
+  if(frontier) {openLesson(1); return;}
   reset(position({a1:'wr',h1:'wr',b1:'wk',e3:'wb',e4:'wp',f4:'wp',g4:'wp',d3:'wp',
     a8:'br',h8:'br',f8:'bk',e5:'bp',f5:'bp',c3:'bp',c2:'wp'}),'e3',
   'Shoot straight over e4 to e5 or angle a shot over f4 to f5. You can also slide to g3 behind the pawn line.');

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" data-variant="frontier">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151e22">
+  <meta name="description" content="Lead Genghis Khan’s horse archers against the Chinese army’s fortified pawn chains.">
+  <title>Khan at the Walls</title>
+  <link rel="stylesheet" href="../chess/match.css?v=1">
+  <link rel="stylesheet" href="./style.css?v=64">
+</head>
+<body>
+  <main class="match-shell">
+    <header class="game-heading">
+      <h1>Khan at the Walls</h1>
+      <button type="button" id="piece-style-toggle" aria-label="Switch to Classic pieces">Classic</button>
+    </header>
+    <section class="field" aria-label="The match">
+      <div class="match-bar">
+        <p id="status" class="status" role="status">Your move</p>
+      </div>
+      <section id="lesson" class="panel lesson" hidden aria-labelledby="lesson-title">
+        <h2 id="lesson-title"></h2>
+        <p id="lesson-prompt" role="status"></p>
+        <div class="header-actions"><button type="button" id="lesson-retry">Restart lesson</button><button type="button" id="lesson-exit">Play a match</button></div>
+      </section>
+      <div id="board" class="board" role="group" aria-label="Game board"></div>
+      <div class="match-actions" role="group" aria-label="Game actions"></div>
+      <div class="below-board">
+        <p id="last-move" class="last-move" aria-live="polite"></p>
+        <button type="button" id="cancel-shot" hidden>Cancel shot</button>
+      </div>
+      <section id="game-end" class="game-end" hidden aria-labelledby="game-end-title">
+        <h2 id="game-end-title"></h2>
+        <p id="game-end-reason"></p>
+        <button id="why-mate" type="button" hidden>Why is this mate?</button>
+        <button id="play-again" type="button" class="primary">Play again</button>
+      </section>
+      <section id="check-info" class="panel check-info" hidden aria-live="polite"></section>
+    </section>
+  </main>
+  <dialog id="match-menu" aria-labelledby="match-menu-title">
+    <div class="dialog-head"><h2 id="match-menu-title">Options</h2><form method="dialog"><button>Done</button></form></div>
+    <section class="menu-section" aria-labelledby="match-actions-title">
+      <h3 id="match-actions-title">Match</h3>
+      <button type="button" id="new-game">Restart game</button>
+    </section>
+    <section class="menu-section" aria-labelledby="settings-title">
+      <h3 id="settings-title">Settings</h3>
+      <form id="difficulty-form">
+        <label for="difficulty">Difficulty</label>
+        <div class="settings-row">
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="standard" selected>Standard</option>
+            <option value="hard">Hard</option>
+          </select>
+          <button type="submit" id="apply-difficulty" disabled>Start new game</button>
+        </div>
+      </form>
+    </section>
+    <section class="menu-section" aria-labelledby="help-title">
+      <h3 id="help-title">Help</h3>
+      <div class="menu-actions">
+        <button type="button" id="show-learn" aria-haspopup="dialog">Learn to play</button>
+        <button type="button" id="show-rules" aria-haspopup="dialog">Rules</button>
+      </div>
+      <details><summary>Board symbols</summary>
+        <div class="legend">
+          <span><i class="move-dot"></i> Move</span>
+          <span><i class="bow-icon" aria-hidden="true">🏹</i> Has a bow</span>
+          <span><i class="aim-dot" aria-hidden="true"></i> In arrow range</span>
+          <span><i class="aim-dot aim-live" aria-hidden="true"></i> Can shoot now</span>
+        </div>
+      </details>
+      <details><summary>Match details</summary>
+        <dl class="match-details">
+          <dt>Mongol castles</dt><dd id="white-castles"></dd>
+          <dt>Chinese castles</dt><dd id="black-castles"></dd>
+          <dt>Your reserve</dt><dd id="reserve"></dd>
+          <dt>Genghis Khan</dt><dd id="khan-powers"></dd>
+        </dl>
+      </details>
+      <footer>Piece artwork by <a href="https://commons.wikimedia.org/wiki/User:Cburnett">Colin M. L. Burnett</a> and Wikimedia Commons contributors, via the <a href="https://github.com/lichess-org/lila/tree/master/public/piece/cburnett">Cburnett set</a>. <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</footer>
+    </section>
+  </dialog>
+  <dialog id="confirm-match" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-copy"></p>
+    <form method="dialog" class="confirm-actions">
+      <button value="cancel" autofocus>Cancel</button>
+      <button value="confirm" id="confirm-action" class="primary"></button>
+    </form>
+  </dialog>
+  <dialog id="learn" aria-labelledby="learn-title">
+    <div class="dialog-head"><h2 id="learn-title">Learn to play</h2><form method="dialog"><button>Done</button></form></div>
+    <div id="lessons" class="lessons"></div>
+  </dialog>
+  <dialog id="rules" aria-labelledby="rules-title">
+    <div class="dialog-head">
+      <h2 id="rules-title">How to play</h2>
+      <form method="dialog"><button value="close">Done</button></form>
+    </div>
+    <ul>
+      <li><strong>Checkmate.</strong> You play Genghis Khan’s Mongol army as White. The computer plays the Chinese army as Black. Checkmate the opposing ruler to win.</li>
+      <li><strong>Mongol horse archers.</strong> Move or capture like a knight, or shoot exactly two squares along a clear rank or file and then jump. A landing capture can happen on the same turn.</li>
+      <li><strong>Genghis Khan.</strong> A friendly queen grants long slides, a friendly knight grants knight jumps and shoot-and-jump, and a friendly bishop grants the Khan the ability to shoot over friendly pawns. Mongol pawns and bishops use their regular chess moves.</li>
+      <li><strong>Chinese army.</strong> The Chinese king and knights use their regular chess moves. Pawns on Black’s second rank are walls. Friendly pawns through Black’s fourth rank are walls while a horizontal or diagonal chain connects them to that second rank. Cut the connection and the isolated pawns become infantry.</li>
+      <li><strong>Chinese bishops.</strong> A friendly pawn immediately ahead or beside the bishop lets it shoot straight over that pawn. With a fortified wall as cover, it can also shoot one lane left or right where a friendly pawn supports that lane. It can step forward or sideways behind a friendly wall, or slide behind an unbroken pawn line. Arrows cannot break walls.</li>
+      <li><strong>Castles.</strong> Castles move like rooks. Either army can spend a castle’s turn returning a captured friendly pawn to an empty adjacent square in its own half (White’s ranks 1–4 or Black’s ranks 5–8), up to eight pawns. Standard castling is available to both rulers.</li>
+      <li><strong>Draws.</strong> Threefold repetition, stalemate, or 60 turns without a pawn move, reinforcement, or capture is a draw.</li>
+    </ul>
+    <button type="button" id="practice" class="primary">Practice shoot-and-jump</button>
+    <button type="button" id="practice-bishop" class="primary">Practice escaping an arrow check</button>
+  </dialog>
+  <dialog id="move-choice" aria-labelledby="choice-title">
+    <h2 id="choice-title">Choose your move</h2>
+    <div id="move-options"></div>
+    <form method="dialog"><button>Cancel</button></form>
+  </dialog>
+  <script type="module" src="./app.mjs?v=66"></script>
+</body>
+</html>
