@@ -259,8 +259,9 @@ function candidateMoves(state, rules, selected = null, emptyShots = null, inheri
           if (!(state.reserves?.[turn+type]>0)) continue;
           if (type==='p' && rules.pawnCap && board.filter(piece=>piece===turn+'p').length>=rules.pawnCap) continue;
           for (const [dx,dy] of compass) {
+            if (dy===-forward) continue;
             const tx=x+dx, ty=y+dy;
-            if (!valid(tx,ty) || (ty<4)!==(turn==='b')) continue;
+            if (!valid(tx,ty) || ty===0 || ty===7 || (ty<4)!==(turn==='b')) continue;
             const to=get(tx,ty);
             if (!board[to]) found.push({from,to,kind:'spawn',spawn:type,capture:null,captureAt:null,promotion:false});
           }

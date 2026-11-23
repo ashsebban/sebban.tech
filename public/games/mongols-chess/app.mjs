@@ -1,5 +1,5 @@
 import { mountMatchActions } from '../chess/match.mjs?v=1';
-import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=49';
+import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, frontierRules, hasBow, indexOf, initial, khanPowers, key, moves, opposite, outcome, passMove, position, sideRule, square, wallSquares } from './engine.mjs?v=50';
 
 import { chineseLessons, frontierLessons, lessons as siegeLessons } from './lessons.mjs?v=37';
 
@@ -386,7 +386,7 @@ function computer() {
   const token=++epoch;
   try {
     if(!worker) {
-      const engine=new Worker(new URL('./worker.mjs?v=72',import.meta.url),{type:'module'});
+      const engine=new Worker(new URL('./worker.mjs?v=73',import.meta.url),{type:'module'});
       worker=engine;
       engine.onmessage=({data})=>{
         if(engine!==worker) return;
