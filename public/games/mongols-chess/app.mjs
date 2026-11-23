@@ -1,4 +1,3 @@
-import { mongolPieceUrl } from './mongol-art.mjs?v=1';
 import { apply, castles, checkThreats, khanEscapeThreats, chooseMove, defaultRules, emptyShotSquares, hasBow, indexOf, initial, isWall, khanPowers, key, moves, outcome, passMove, position, square } from './engine.mjs?v=38';
 
 import { lessons as siegeLessons } from './lessons.mjs?v=34';
@@ -222,8 +221,8 @@ function draw() {
       if(wall) role='wall';
       if(piece[1]==='b' && archer) role=medieval?'longbow':'crossbow';
       image.dataset.role=role;
-      const artSrc=medieval ? './medieval/'+piece[0]+'-'+role+'.webp' : mongolPieceUrl(piece[0],role);
-      if(image.getAttribute('src')!==artSrc) image.setAttribute('src',artSrc);
+      const path=(medieval?'./medieval/':'./miniatures/')+piece[0]+'-'+role+'.webp';
+      if(image.getAttribute('src')!==path) image.setAttribute('src',path);
     }
     image.hidden=!piece;
     image.classList.toggle('reinforcement-ready',ready);
