@@ -1,6 +1,6 @@
 import {mountMatchActions} from '../chess/match.mjs?v=1';
-import {choose,chooseSamurai,light,moves,opposite,play,raidLimit,resolveSamurai,result,
-  samuraiAttempts,samuraiView,square,start,visibleToSamurai} from './raid.mjs?v=1';
+import {choose,chooseSamurai,fortifiedPawns,light,moves,opposite,play,raidLimit,resolveSamurai,result,
+  samuraiAttempts,samuraiView,square,start,visibleToSamurai} from './raid.mjs?v=2';
 
 const get = id => document.getElementById(id);
 const board = get('board');
@@ -76,6 +76,7 @@ function render() {
   const end = ending();
   const side = viewer();
   const lit = light(state.board);
+  const pawnWalls = fortifiedPawns(state.board);
   const view = side === 'w' ? samuraiView(state).board : state.board;
   const available = new Map(selected === null || end || handoff ? [] : turnActions(selected).map(move=>[move.to,move]));
   const last = moveDetails(history.at(-1),side);
@@ -86,17 +87,18 @@ function render() {
     const i = orientation(display);
     const tile = square(i);
     const piece = handoff ? null : view[i];
+    const fortified = piece === 'wp' && pawnWalls.has(i);
     const move = available.get(i);
     const capturing = move && (move.kind === 'en-passant' || (piece && move.kind !== 'wall'));
     button.className = ['cell',(i%8+Math.floor(i/8))%2 && 'dark',
-      i>=48 && 'castle',i>=56 && 'castle-back',lit.has(i) && 'lit',piece==='wr' && 'lantern',i===selected && 'selected',
+      i>=48 && 'castle',i>=56 && 'castle-back',lit.has(i) && 'lit',piece==='wr' && 'lantern',fortified && 'fortified',i===selected && 'selected',
       !handoff && last.revealed.includes(i) && 'recent',piece==='wk' && 'goal',move && 'legal',capturing && 'capture',
       ['slip','grapple'].includes(move?.kind) && 'special',move?.kind==='probe' && 'probe',
       i===suggestion?.to && 'hint-target'].filter(Boolean).join(' ');
     button.setAttribute('aria-pressed',String(i===selected));
     const terrain = lit.has(i) ? 'Lantern light' : (side==='w' ? 'Shadow' : '');
-    button.setAttribute('aria-label',[tile,piece ? names[piece] : '',terrain,move && verbs[move.kind]].filter(Boolean).join(', '));
-    wall.hidden = piece !== '#';
+    button.setAttribute('aria-label',[tile,fortified ? 'Fortified foot guard' : piece ? names[piece] : '',terrain,move && verbs[move.kind]].filter(Boolean).join(', '));
+    wall.hidden = piece !== '#' && !fortified;
     image.hidden = !piece || piece === '#';
     if (image.hidden) image.removeAttribute('src');
     else if (image.getAttribute('src') !== './art/'+piece+'.webp') image.src = './art/'+piece+'.webp';

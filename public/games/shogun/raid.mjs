@@ -1,4 +1,8 @@
+import {wallSquares} from '../mongols-chess/engine.mjs?v=50';
+
 export const raidLimit = 20;
+const wallRules = {sides:{b:{pawnWalls:false}}};
+export const fortifiedPawns = board => wallSquares(board,wallRules);
 export const files = 'abcdefgh';
 export const square = i => files[i % 8] + (8 - Math.floor(i / 8));
 export const index = name => (8 - Number(name[1])) * 8 + files.indexOf(name[0]);
@@ -39,6 +43,7 @@ export function result({board,raids}) {
 export function moves(state, selected = null, withPass = true) {
   const {board,turn,enPassant} = state;
   const lit = light(board);
+  const fortified = turn === 'b' ? fortifiedPawns(board) : new Set();
   const legal = [];
   const first = selected ?? 0;
   const last = selected ?? 63;
@@ -47,10 +52,12 @@ export function moves(state, selected = null, withPass = true) {
     const piece = board[from];
     if (!piece || (piece === '#' ? turn !== 'w' : piece[0] !== turn)) continue;
     const role = piece[1], x = from % 8, y = Math.floor(from / 8);
+    const breachesWall = ['p','r','k'].includes(role);
     const add = (tx,ty,kind='move') => {
       if (!valid(tx,ty)) return;
       const to = ty*8+tx, target = board[to];
       if (target === '#' || target?.[0] === turn || (target === 'wk' && piece !== 'bb')) return;
+      if (fortified.has(to) && !breachesWall) return;
       if ((kind === 'wall' || kind === 'slip' || kind === 'grapple') && target) return;
       if (kind === 'strike' && !target) return;
       legal.push({from,to,kind});
@@ -91,7 +98,7 @@ export function moves(state, selected = null, withPass = true) {
           }
           add(tx,ty);
           if (!target) continue;
-          if (!lit.has(from) && (piece === 'bb' || (piece === 'br' && target === '#'))) crossed = true;
+          if (!lit.has(from) && (piece === 'bb' || (piece === 'br' && (target === '#' || fortified.has(to))))) crossed = true;
           else break;
         }
       }
