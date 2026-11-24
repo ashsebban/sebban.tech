@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#101516">
 <title>Shadow of the Shogun</title>
 <link rel="stylesheet" href="../chess/match.css?v=1">
-<link rel="stylesheet" href="./raid.css?v=3">
-<script type="module" src="./app.mjs?v=3"></script>
+<link rel="stylesheet" href="./raid.css?v=4">
+<script type="module" src="./app.mjs?v=4"></script>
 </head>
 <body>
 <main class="match-shell">
@@ -17,7 +17,7 @@
   </header>
   <div class="match-bar">
     <strong class="status" id="turn" aria-live="polite"></strong>
-    <span class="clock"><strong id="clock">20</strong> moves until dawn</span>
+    <span class="clock"><strong id="clock">16</strong> moves until dawn</span>
   </div>
   <div id="board" aria-label="Palace raid board" role="group"></div>
   <section id="handoff" hidden>
@@ -46,13 +46,14 @@
 <dialog id="rules">
   <h2>Rules of the raid</h2>
   <ul>
-    <li><strong>Shinobi</strong> move first and see the whole board. Capture the Shogun with either assassin within 20 Shinobi moves.</li>
-    <li><strong>Samurai</strong> win by catching both assassins or keeping the Shogun safe until dawn. Enemy pieces are visible to Samurai only in lantern light or where a blind move ran into them.</li>
+    <li><strong>Shinobi</strong> move first and see the whole board. Capture the Shogun with either assassin within 16 Shinobi moves.</li>
+    <li><strong>Samurai</strong> win by catching both assassins or keeping the Shogun safe until dawn. Unseen moves on ranks 1–4 make footsteps audible in the west, center, or east courtyard. Lantern light and contact reveal exact positions.</li>
+    <li><strong>The Shogun</strong> can move or capture one square along the palace corridor, marked from c1 to f1.</li>
     <li><strong>Assassins</strong> can slip diagonally over one piece or wall to an empty square. Capturing the Shogun takes a clear diagonal.</li>
     <li><strong>Shinobi towers</strong> can grapple in a straight line over one wall or fortified pawn to a free square. <strong>Samurai lantern towers</strong> light the eight neighboring squares. Slips and grapples start and land outside lantern light.</li>
     <li><strong>Patrols</strong> can make normal knight jumps or capture one square straight ahead, behind, left, or right. Samurai pawns and patrols may try a blind strike. A miss or a blocked move uses their turn.</li>
     <li><strong>Fortified Samurai pawns</strong> start on rank 2. Pawns on ranks 3 and 4 keep their walls as long as they connect horizontally or diagonally to the line on rank 2. Shinobi pawns, towers, and the clan leader can capture fortified pawns.</li>
-    <li><strong>Movable walls</strong> block sliding pieces. Samurai can spend a turn shifting one to an adjacent empty square within ranks 3 and 4.</li>
+    <li><strong>Movable walls</strong> block sliding pieces. Samurai can spend a turn shifting one square horizontally or vertically to an empty square within ranks 3 and 4.</li>
     <li>Other moves follow standard chess. Pawns promote to queens. There is no check or castling.</li>
   </ul>
   <form method="dialog"><button type="submit" class="quiet">Back to the board</button></form>

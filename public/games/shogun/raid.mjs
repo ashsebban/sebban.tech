@@ -1,6 +1,6 @@
 import {wallSquares} from '../mongols-chess/engine.mjs?v=50';
 
-export const raidLimit = 20;
+export const raidLimit = 16;
 const wallRules = {sides:{b:{pawnWalls:false}}};
 export const fortifiedPawns = board => wallSquares(board,wallRules);
 export const files = 'abcdefgh';
@@ -13,12 +13,20 @@ const adjacent = [...straight,...diagonal];
 const jumps = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
 const valid = (x,y) => x >= 0 && x < 8 && y >= 0 && y < 8;
 
+const opening = {
+  c6:'bb', f6:'bb', d7:'br', g7:'bn', b6:'bp', g6:'bp',
+  e1:'wk', a2:'wr', h2:'wr', b3:'wn', g3:'wn', c2:'wp', d2:'wp', f2:'wp', g2:'wp',
+  d4:'#', e4:'#',
+};
+
+export const inPalace = i => i >= 56 && i < 64 && i%8 >= 2 && i%8 <= 5;
+export const sector = i => i%8 < 3 ? 'west' : i%8 > 4 ? 'east' : 'center';
+export const inCourtyard = i => i >= 32 && i < 64;
+
 export function start() {
-  const back = [...'rnbqkbnr'];
-  const board = [...back.map(p=>'b'+p), ...Array(8).fill('bp'), ...Array(32).fill(null),
-    ...Array(8).fill('wp'), ...back.map(p=>'w'+p)];
-  for (const name of ['d4','e4']) board[index(name)] = '#';
-  return {board, turn:'b', raids:0, enPassant:null, contact:null};
+  const board = Array(64).fill(null);
+  for (const [name,piece] of Object.entries(opening)) board[index(name)] = piece;
+  return {board, turn:'b', raids:0, enPassant:null, contact:null, noise:null};
 }
 
 export function light(board) {
@@ -57,6 +65,7 @@ export function moves(state, selected = null, withPass = true) {
       if (!valid(tx,ty)) return;
       const to = ty*8+tx, target = board[to];
       if (target === '#' || target?.[0] === turn || (target === 'wk' && piece !== 'bb')) return;
+      if (piece === 'wk' && !inPalace(to)) return;
       if (fortified.has(to) && !breachesWall) return;
       if ((kind === 'wall' || kind === 'slip' || kind === 'grapple') && target) return;
       if (kind === 'strike' && !target) return;
@@ -149,6 +158,7 @@ export function resolveSamurai(state, attempt) {
   const actual = moves(state,from).find(move=>move.to===to);
   if (actual) return actual;
 
+  if (attempt.kind === 'wall' && state.board[to]?.[0] === 'b') return {from,kind:'blocked',contact:to};
   // A sliding move or a pawn advance can run into a hidden piece.
   const piece = state.board[from];
   if (attempt.kind !== 'probe' && ['b','r','q','p'].includes(piece?.[1])) {
@@ -179,7 +189,8 @@ export function play(state, move) {
       if (to < 8 || to >= 56) board[to] = turn+'q';
     }
   }
-  return {board,turn:opposite(turn),raids:raids+(turn === 'b' ? 1 : 0),enPassant,
+  const noise = turn === 'b' && inCourtyard(move.to) ? sector(move.to) : null;
+  return {board,turn:opposite(turn),raids:raids+(turn === 'b' ? 1 : 0),enPassant,noise,
     contact:turn === 'w' ? move.contact ?? null : state.contact};
 }
 
@@ -195,7 +206,10 @@ function score(state) {
     if (!Object.hasOwn(value,piece)) return;
     const x = i%8, y = Math.floor(i/8);
     score += (piece[0] === 'b' ? 1 : -1) * value[piece];
-    if (piece === 'bb') score += 72 - 11*Math.max(Math.abs(tx-x),Math.abs(ty-y)) - (Math.abs(tx-x) === Math.abs(ty-y) ? -15 : 0);
+    if (piece === 'bb') {
+      const dx = Math.abs(tx-x), dy = Math.abs(ty-y);
+      score += 110 - 24*Math.max(dx,dy) + (dx===dy ? 35 : 0);
+    }
     if (piece === 'bp') score += y*3;
     if (piece === 'wr' && Math.max(Math.abs(tx-x),Math.abs(ty-y)) <= 2) score -= 14;
   });
@@ -209,9 +223,12 @@ export function choose(state) {
     const next = play(state,move);
     return {move,next,estimate:score(next)*sign};
   }).sort((a,b)=>b.estimate-a.estimate);
-  let best = options[0].move;
+  const breaches = maximize && state.raids === 0
+    ? options.filter(({move})=>move.kind === 'slip' && inCourtyard(move.to)) : [];
+  const candidates = breaches.length ? breaches : options.slice(0,16);
+  let best = candidates[0].move;
   let bestScore = -Infinity;
-  for (const {move,next,estimate} of options.slice(0,16)) {
+  for (const {move,next,estimate} of candidates) {
     let worst = estimate;
     if (!result(next)) {
       worst = Infinity;
@@ -244,11 +261,17 @@ export function chooseSamurai(state) {
     if (kind === 'probe') merit -= 24;
     if (kind === 'wall' || kind === 'pass') merit -= 12;
     if (view.board[from] === 'wp') merit += from>=48 && from<56 ? 7 : 1;
-    if (view.board[from] === 'wn') merit += Math.max(0,4-Math.abs(to%8-3.5));
+    if (view.board[from] === 'wn') {
+      merit += Math.max(0,4-Math.abs(to%8-3.5));
+      if (inCourtyard(to) && sector(to) === view.noise) merit += 5;
+    }
     for (const i of glow) {
       const distance = Math.max(Math.abs(i%8-kingX),Math.abs(Math.floor(i/8)-kingY));
       if (distance <= 3) merit += 4-distance;
-      if (!oldLight.has(i)) merit += 1.5;
+      if (!oldLight.has(i)) {
+        merit += 1.5;
+        if (inCourtyard(i) && sector(i) === view.noise) merit += 6;
+      }
     }
     if (merit > bestScore) {
       best = move;

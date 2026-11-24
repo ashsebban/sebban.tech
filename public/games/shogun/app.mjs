@@ -1,6 +1,6 @@
 import {mountMatchActions} from '../chess/match.mjs?v=1';
-import {choose,chooseSamurai,fortifiedPawns,light,moves,opposite,play,raidLimit,resolveSamurai,result,
-  samuraiAttempts,samuraiView,square,start,visibleToSamurai} from './raid.mjs?v=2';
+import {choose,chooseSamurai,fortifiedPawns,inPalace,light,moves,opposite,play,raidLimit,resolveSamurai,result,
+  samuraiAttempts,samuraiView,sector,square,start,visibleToSamurai} from './raid.mjs?v=3';
 
 const get = id => document.getElementById(id);
 const board = get('board');
@@ -47,7 +47,7 @@ const cells = Array.from({length:64},(_,i) => {
 });
 
 function moveDetails(entry, side) {
-  if (!entry) return {text:side === 'b' ? 'Lantern light blocks slips and grapples.' : 'Enemy pieces are hidden outside lantern light.', revealed:[]};
+  if (!entry) return {text:side === 'b' ? 'Slip an assassin past the courtyard wall and reach the Shogun.' : 'Use lanterns and patrols to catch both assassins.', revealed:[]};
   const {state:before,move} = entry;
   const {from,to,kind,contact} = move;
   const piece = before.board[from];
@@ -62,6 +62,9 @@ function moveDetails(entry, side) {
     if (target?.[0] === 'w' || kind === 'en-passant') {
       const capturedAt = kind === 'en-passant' ? to-8 : to;
       return {text:names[before.board[capturedAt] ?? 'wp']+' was captured in the dark.',revealed:[capturedAt]};
+    }
+    if (state.noise) {
+      return {text:'Footsteps in the '+state.noise+' courtyard.',revealed:seenFrom ? [from] : [],heard:state.noise};
     }
     return {text:'The Shinobi moved in the shadows.',revealed:seenFrom ? [from] : []};
   }
@@ -89,15 +92,16 @@ function render() {
     const piece = handoff ? null : view[i];
     const fortified = piece === 'wp' && pawnWalls.has(i);
     const move = available.get(i);
+    const heard = !handoff && i>=32 && i<40 && last.heard === sector(i);
     const capturing = move && (move.kind === 'en-passant' || (piece && move.kind !== 'wall'));
     button.className = ['cell',(i%8+Math.floor(i/8))%2 && 'dark',
-      i>=48 && 'castle',i>=56 && 'castle-back',lit.has(i) && 'lit',piece==='wr' && 'lantern',fortified && 'fortified',i===selected && 'selected',
+      i>=48 && 'castle',i>=56 && 'castle-back',inPalace(i) && 'palace',heard && 'heard',lit.has(i) && 'lit',piece==='wr' && 'lantern',fortified && 'fortified',i===selected && 'selected',
       !handoff && last.revealed.includes(i) && 'recent',piece==='wk' && 'goal',move && 'legal',capturing && 'capture',
       ['slip','grapple'].includes(move?.kind) && 'special',move?.kind==='probe' && 'probe',
       i===suggestion?.to && 'hint-target'].filter(Boolean).join(' ');
     button.setAttribute('aria-pressed',String(i===selected));
     const terrain = lit.has(i) ? 'Lantern light' : (side==='w' ? 'Shadow' : '');
-    button.setAttribute('aria-label',[tile,fortified ? 'Fortified foot guard' : piece ? names[piece] : '',terrain,move && verbs[move.kind]].filter(Boolean).join(', '));
+    button.setAttribute('aria-label',[tile,fortified ? 'Fortified foot guard' : piece ? names[piece] : '',terrain,heard && 'Footsteps heard in this sector',move && verbs[move.kind]].filter(Boolean).join(', '));
     wall.hidden = piece !== '#' && !fortified;
     image.hidden = !piece || piece === '#';
     if (image.hidden) image.removeAttribute('src');

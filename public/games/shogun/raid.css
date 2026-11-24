@@ -20,6 +20,8 @@ a{color:var(--gold)}
 .cell.castle-back.dark{background:#624126}
 .cell.lit,.cell.lantern{background:radial-gradient(ellipse at center,#f3cc89,#c69656);color:#29190e}
 .cell.dark.lit,.cell.dark.lantern{background:radial-gradient(ellipse at center,#c59553,#926039);color:#22150d}
+.cell.palace{border-bottom:2px solid #e3b46d}
+.cell.heard{border-top:2px dashed #e3b46d}
 .cell.recent{box-shadow:inset 0 0 0 2px #ad985f99}
 .cell.selected{box-shadow:inset 0 0 0 3px #ffdea0;z-index:1}
 .cell:focus-visible{outline:3px solid #eee4bc;outline-offset:-4px;z-index:2}
