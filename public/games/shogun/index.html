@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#101516">
 <title>Shadow of the Shogun</title>
 <link rel="stylesheet" href="../chess/match.css?v=1">
-<link rel="stylesheet" href="./raid.css?v=5">
-<script type="module" src="./app.mjs?v=5"></script>
+<link rel="stylesheet" href="./raid.css?v=6">
+<script type="module" src="./app.mjs?v=6"></script>
 </head>
 <body>
 <main class="match-shell">
@@ -19,6 +19,7 @@
     <strong class="status" id="turn" aria-live="polite"></strong>
     <span class="move-count" id="move-count"></span>
   </div>
+  <p class="assassin-warning" id="assassin-warning" role="status" hidden></p>
   <div id="board" aria-label="Chessboard" role="group"></div>
   <section id="handoff" hidden>
     <h2 id="handoff-title"></h2>
@@ -49,11 +50,11 @@
   <ul>
     <li>Start from the usual chess position. Samurai play White and move first. Either side wins by checkmate.</li>
     <li><strong>Assassination.</strong> If a Shinobi bishop makes a legal move and lands next to the Shogun, including diagonally, the Shinobi win immediately. The bishop moves like a normal bishop and needs no defender.</li>
-    <li><strong>Walls.</strong> Samurai pawns on rank 2 are fortified. Pawns on ranks 3 and 4 are also fortified while linked horizontally or diagonally to rank 2. Walls light their square and the squares behind them in the same file. Shinobi pawns, rooks and the king can capture fortified pawns.</li>
-    <li><strong>Darkness.</strong> Shinobi see the whole board. Samurai see enemy pieces in lit squares and any piece giving check. An illegal attempt lets you choose another move.</li>
+    <li><strong>Walls.</strong> Samurai pawns on rank 2 are fortified. Pawns on ranks 3 and 4 are also fortified while linked horizontally or diagonally to rank 2. Walls light their file from the back rank to two squares ahead of the wall. Shinobi pawns, rooks and the king can capture fortified pawns.</li>
+    <li><strong>Darkness.</strong> Shinobi see the whole board. Samurai see enemy pieces in lit squares, any piece giving check, and any bishop that could assassinate on its next move. An orange outline marks that bishop and its possible landing squares. A move that opens an immediate assassination prompts you to confirm. An illegal attempt lets you choose another move.</li>
     <li><strong>Search once, then move.</strong> Select a Samurai piece and choose <em>Search with light</em> before moving. Revealed squares stay lit for your turn. Any piece can then make your normal move.</li>
     <li><strong>Pawn torch.</strong> An unfortified pawn lights the square directly ahead and can flash one dark square within two squares.</li>
-    <li><strong>Bishop beam.</strong> Search up to three squares along a diagonal. The beam stops at the first piece.</li>
+    <li><strong>Watchman bishops.</strong> Automatically light up to three squares along each diagonal. A search extends one diagonal up to six squares. Both beams stop at the first piece.</li>
     <li><strong>Knight flash.</strong> Reveal one square a knight's jump away, even over a wall.</li>
   </ul>
   <form method="dialog"><button type="submit" class="quiet">Back to the board</button></form>

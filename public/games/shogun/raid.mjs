@@ -16,19 +16,50 @@ export const fortifiedPawns = board => wallSquares(board,rules);
 export const legalMoves = (state,from=null) => moves(state,rules,from);
 export const checks = state => checkThreats(state,rules);
 
+const watchRange = 3;
+const searchRange = 6;
+
+function beam(board,from,dx,dy,range) {
+  const squares = [];
+  for (let step=1; step<=range; step++) {
+    const x=from%8+dx*step, y=Math.floor(from/8)+dy*step;
+    if (!valid(x,y)) break;
+    const to=y*8+x;
+    squares.push(to);
+    if (board[to]) break;
+  }
+  return squares;
+}
+
+export function assassinationThreats(state) {
+  const attacker = {...state,turn:'b',ep:null};
+  const king = state.board.indexOf('wk');
+  if (king<0) return [];
+  return state.board.flatMap((piece,from)=>piece==='bb' ?
+    legalMoves(attacker,from).filter(move=>distance(move.to,king)===1) : []);
+}
+
 export function light(state,flash=[]) {
   const {board} = state;
   const lit = new Set(flash);
   const fortified = fortifiedPawns(board);
   for (const i of fortified) {
-    for (let inside=i; inside<64; inside+=8) lit.add(inside);
+    for (let inside=Math.max(i%8,i-16); inside<64; inside+=8) lit.add(inside);
   }
   board.forEach((piece,i)=>{
     if (piece==='wp' && !fortified.has(i) && i>=8) lit.add(i-8);
+    if (piece==='wb') {
+      for (const [dx,dy] of diagonal) {
+        for (const tile of beam(board,i,dx,dy,watchRange)) lit.add(tile);
+      }
+    }
   });
   for (const {from,to} of checks({...state,turn:'w'})) {
     lit.add(from);
     lit.add(to);
+  }
+  if (state.turn==='w') {
+    for (const {from} of assassinationThreats(state)) lit.add(from);
   }
   return lit;
 }
@@ -55,7 +86,7 @@ export function searches(state,from,flash=[]) {
   } else if (board[from]==='wb') {
     for (const [dx,dy] of diagonal) {
       // Select the end of the beam. Known blockers limit the choice.
-      for (let step=1; step<=3; step++) {
+      for (let step=1; step<=searchRange; step++) {
         if (!valid(x+dx*step,y+dy*step)) break;
         const to = (y+dy*step)*8+x+dx*step;
         add(dx*step,dy*step);
@@ -75,15 +106,7 @@ export function searches(state,from,flash=[]) {
 export function reveal(state,from,to) {
   if (state.board[from]!=='wb') return [to];
   const dx = Math.sign(to%8-from%8), dy = Math.sign(Math.floor(to/8)-Math.floor(from/8));
-  const beam = [];
-  for (let step=1; step<=3; step++) {
-    const x=from%8+dx*step, y=Math.floor(from/8)+dy*step;
-    if (!valid(x,y)) break;
-    const i=y*8+x;
-    beam.push(i);
-    if (i===to || state.board[i]) break;
-  }
-  return beam;
+  return beam(state.board,from,dx,dy,Math.min(distance(from,to),searchRange));
 }
 
 export function attempts(state,from,flash=[]) {
@@ -158,16 +181,16 @@ export function choose(state,flash=[],seen={},hint=false) {
   const view = samuraiView(state,flash);
   const preferred = chooseMove(view,{rules,depth:2,budget:1300});
   const options = moves(view,rules);
-  if (hint) return preferred ?? options[0] ?? null;
   const ranked = preferred ? [preferred,...options.filter(m=>moveId(m)!==moveId(preferred))] : options;
-  const actual = legalMoves(state);
+  const actual = hint ? options : legalMoves(state);
   const byId = new Map(actual.map(move=>[moveId(move),move]));
   let best = null, bestScore = -Infinity;
   for (const [order,move] of ranked.entries()) {
     const resolved = byId.get(moveId(move));
     if (!resolved) continue;
     const next = play(view,move);
-    const danger = legalMoves(next).some(reply=>isAssassination(next,reply));
+    const defense = hint ? next : play(state,resolved);
+    const danger = assassinationThreats(defense).length>0;
     const shogun = next.board.indexOf('wk');
     const cover = [...fortifiedPawns(next.board)].filter(i=>distance(i,shogun)===1).length;
     const castle = move.kind==='castle' ? 18 : 0;

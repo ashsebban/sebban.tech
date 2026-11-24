@@ -49,3 +49,7 @@ dialog::backdrop{background:#111c}
 dialog ul{padding-left:1.2em;line-height:1.45}
 dialog li+li{margin-top:8px}
 .dialog-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+
+.assassin-warning{margin:2px 0 8px;padding:7px 9px;border:1px solid #aa6137;border-radius:5px;color:#ffe2bb;background:#352117;font-size:.85rem;line-height:1.4}
+.cell.assassin-threat{outline:3px solid #f59b54;outline-offset:-3px;z-index:1}
+.cell.danger-square{outline:2px dashed #f59b54;outline-offset:-4px}

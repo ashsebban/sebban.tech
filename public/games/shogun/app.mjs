@@ -1,6 +1,6 @@
 import {mountMatchActions} from '../chess/match.mjs?v=1';
-import {attempts,checks,choose,fortifiedPawns,isAssassination,key,legalMoves,light,opposite,play,
-  result,reveal,samuraiView,searches,selectSearch,square,start} from './raid.mjs?v=4';
+import {assassinationThreats,attempts,checks,choose,fortifiedPawns,isAssassination,key,legalMoves,light,opposite,play,
+  result,reveal,samuraiView,searches,selectSearch,square,start} from './raid.mjs?v=5';
 
 const get = id => document.getElementById(id);
 const board = get('board'), mode = get('mode'), searchButton = get('search');
@@ -9,7 +9,7 @@ const roles = {k:'King',q:'Queen',r:'Rook',b:'Bishop',n:'Knight',p:'Pawn'};
 const label = piece => piece==='bb' ? 'Assassin bishop' : piece==='wk' ? 'Shogun' : roles[piece[1]];
 let state = start(), history = [];
 let selected = null, suggestion = null, notice = '';
-let aiming = false, flash = [], handoff = false, resigned = null;
+let aiming = false, flash = [], handoff = false, resigned = null, riskyMove = null;
 let timer;
 
 const embedded = new URLSearchParams(location.search).get('embedded')==='1';
@@ -51,7 +51,7 @@ const cells = Array.from({length:64},(_,display)=>{
 function moveDetails(side) {
   const entry = history.at(-1);
   if (!entry) {
-    return {text:side==='w' ? 'Select a knight to search, or make your first move.' :
+    return {text:side==='w' ? 'Advance your walls or develop a watchman bishop to light more of the board.' :
       'Land an assassin bishop next to the Shogun to win.', visible:[]};
   }
   const {state:before,move} = entry;
@@ -76,6 +76,10 @@ function render() {
   const lit = light(state,flash);
   const walls = fortifiedPawns(state.board);
   const checking = checks(state);
+  const threats = side==='w' && state.turn==='w' && !end ? assassinationThreats(state) : [];
+  const assassins = new Set(threats.map(move=>move.from));
+  const danger = new Set(threats.map(move=>move.to));
+  const warning = assassins.size ? 'Assassin spotted. Protect the Shogun before the next Shinobi move.' : '';
   const checked = new Set(checking.flatMap(({from,to})=>[from,to]));
   const view = side==='w' ? samuraiView(state,flash).board : state.board;
   const canAct = humanTurn() && !handoff && !end;
@@ -96,13 +100,14 @@ function render() {
     const target = aiming && aimTargets.includes(i);
     const lethal = move && side==='b' && isAssassination(state,move);
     button.className = ['cell',(i%8+Math.floor(i/8))%2 && 'dark',lit.has(i) && 'lit',flash.includes(i) && 'flash',
-      fortified && 'fortified',piece==='wp' && !fortified && 'torch',i===selected && 'selected',checked.has(i) && piece && 'checked',
+      fortified && 'fortified',piece==='wp' && !fortified && 'torch',i===selected && 'selected',checked.has(i) && piece && 'checked',assassins.has(i) && 'assassin-threat',danger.has(i) && 'danger-square',
       !handoff && last.visible.includes(i) && 'recent',piece==='wk' && 'goal',move && 'legal',capture && 'capture',
       move?.probe && 'probe',target && 'search-target',lethal && 'lethal',i===suggestion?.to && 'hint-target'].filter(Boolean).join(' ');
     const action = target ? 'search here' : lethal ? 'assassination' : move?.probe ? 'possible capture' : move ? 'move here' : '';
     button.setAttribute('aria-pressed',String(i===selected));
     button.setAttribute('aria-label',[tile,piece && [faction[piece[0]],fortified ? 'fortified pawn' : label(piece)].join(' '),
-      lit.has(i) ? 'lit' : 'dark',checked.has(i) && piece ? 'check' : '',action].filter(Boolean).join(', '));
+      lit.has(i) ? 'lit' : 'dark',checked.has(i) && piece ? 'check' : '',assassins.has(i) ? 'assassin threatening the Shogun' : '',
+      danger.has(i) ? 'assassination landing square' : '',action].filter(Boolean).join(', '));
     wall.hidden = !fortified;
     image.hidden = !piece;
     if (image.hidden) image.removeAttribute('src');
@@ -113,6 +118,9 @@ function render() {
   get('turn').textContent = end ? end.winner ? faction[end.winner]+' win' : 'Draw' :
     faction[state.turn]+' to move'+(humanTurn() ? '' : ' · Computer')+(checking.length ? ' · Check' : '');
   get('move-count').textContent = 'Move '+(Math.floor(history.length/2)+1);
+  const alert = get('assassin-warning');
+  alert.hidden = handoff || !warning;
+  alert.textContent = handoff ? '' : warning;
   get('last').textContent = end?.reason ?? (handoff ? '' : notice || last.text);
   searchButton.hidden = side!=='w' || !canAct;
   searchButton.disabled = !aiming && !aimTargets.length;
@@ -147,17 +155,29 @@ function chooseSquare(i) {
         button.type = 'button';
         button.className = 'quiet';
         button.textContent = roles[move.promotion];
-        button.addEventListener('click',()=>{ promotion.close(); commit(move); });
+        button.addEventListener('click',()=>{ promotion.close(); tryMove(move); });
         return button;
       }));
       promotion.showModal();
-    } else commit(choices[0]);
+    } else tryMove(choices[0]);
     return;
   }
   selected = i!==selected && state.board[i]?.[0]===state.turn ? i : null;
+  riskyMove = null;
   suggestion = null;
   notice = '';
   render();
+}
+
+function tryMove(move) {
+  const id = [move.from,move.to,move.promotion].join(':');
+  if (state.turn==='w' && riskyMove!==id && assassinationThreats(play(state,move)).length) {
+    riskyMove = id;
+    notice = 'This move risks an immediate assassination. Tap the same move again to confirm, or choose another.';
+    render();
+    return;
+  }
+  commit(move);
 }
 
 function clearTurn() {
@@ -166,6 +186,7 @@ function clearTurn() {
   notice = '';
   aiming = false;
   flash = [];
+  riskyMove = null;
 }
 
 function commit(move) {
@@ -198,6 +219,7 @@ function restart() {
 }
 
 searchButton.addEventListener('click',()=>{
+  riskyMove = null;
   aiming = !aiming;
   suggestion = null;
   notice = aiming ? 'Choose a marked square to shine your light.' : '';
@@ -224,7 +246,8 @@ get('restart').addEventListener('click',()=>{ get('options').close(); restart();
 get('open-menu').addEventListener('click',()=>get('options').showModal());
 get('help').addEventListener('click',()=>{ get('options').close(); get('rules').showModal(); });
 get('hint').addEventListener('click',()=>{
-  if (state.turn==='w' && !flash.length) {
+  riskyMove = null;
+  if (state.turn==='w' && !flash.length && !assassinationThreats(state).length) {
     const search = selectSearch(state);
     if (search) {
       selected = search.from;
