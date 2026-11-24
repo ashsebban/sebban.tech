@@ -1,201 +1,122 @@
-import {apply,checkThreats,chooseMove,initial,key,moves,outcome,wallSquares} from '../mongols-chess/engine.mjs?v=50';
-export {indexOf as index,key,opposite,square} from '../mongols-chess/engine.mjs?v=50';
-
-const rules = {
-  mobileCastles:true, castling:true, royalCheck:true, territoryWalls:true,
-  infantryBreach:true, kingBreachesWalls:true, sides:{b:{pawnWalls:false}},
-};
-const previewRules = {...rules,royalCheck:false};
-const diagonal = [[1,1],[1,-1],[-1,1],[-1,-1]];
-const knight = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
-const valid = (x,y) => x>=0 && x<8 && y>=0 && y<8;
-const distance = (a,b) => Math.max(Math.abs(a%8-b%8), Math.abs(Math.floor(a/8)-Math.floor(b/8)));
-
-export const start = () => initial(rules);
-export const fortifiedPawns = board => wallSquares(board,rules);
-export const legalMoves = (state,from=null) => moves(state,rules,from);
-export const checks = state => checkThreats(state,rules);
-
-const watchRange = 3;
-const searchRange = 6;
-
-function beam(board,from,dx,dy,range) {
-  const squares = [];
-  for (let step=1; step<=range; step++) {
-    const x=from%8+dx*step, y=Math.floor(from/8)+dy*step;
-    if (!valid(x,y)) break;
-    const to=y*8+x;
-    squares.push(to);
-    if (board[to]) break;
-  }
-  return squares;
+import {apply,checkThreats,indexOf,key as chessKey,moves,outcome,position,square,wallSquares} from '../mongols-chess/engine.mjs?v=50';
+export {square,opposite} from '../mongols-chess/engine.mjs?v=50';
+const rules={mobileCastles:true,royalCheck:true,territoryWalls:true,infantryBreach:true,kingBreachesWalls:true,sides:{b:{pawnWalls:false}}};
+export const fortifiedPawns=board=>wallSquares(board,rules);
+export const checks=state=>checkThreats(state,rules);
+export const key=s=>JSON.stringify([chessKey(s),s.alarm,s.ropes,s.directions]);
+const dist=(a,b)=>Math.max(Math.abs(a%8-b%8),Math.abs((a>>3)-(b>>3)));
+export function start(){
+  const s=position({e1:'wk',d1:'wq',a2:'wr',h2:'wr',c1:'wb',g1:'wn',b2:'wp',c2:'wp',d2:'wp',f2:'wp',g2:'wp',
+    e8:'bk',c7:'bb',f7:'bb',b5:'br',g6:'br',c4:'bn',d6:'bp',e6:'bp',h6:'bp'},'b');
+  return {...s,alarm:false,ropes:[],directions:{},reserves:{},freshPawns:[],castlingRights:0};
 }
-
-export function assassinationThreats(state) {
-  const attacker = {...state,turn:'b',ep:null};
-  const king = state.board.indexOf('wk');
-  if (king<0) return [];
-  return state.board.flatMap((piece,from)=>piece==='bb' ?
-    legalMoves(attacker,from).filter(move=>distance(move.to,king)===1) : []);
-}
-
-export function light(state,flash=[]) {
-  const {board} = state;
-  const lit = new Set(flash);
-  const fortified = fortifiedPawns(board);
-  for (const i of fortified) {
-    for (let inside=Math.max(i%8,i-16); inside<64; inside+=8) lit.add(inside);
-  }
-  board.forEach((piece,i)=>{
-    if (piece==='wp' && !fortified.has(i) && i>=8) lit.add(i-8);
-    if (piece==='wb') {
-      for (const [dx,dy] of diagonal) {
-        for (const tile of beam(board,i,dx,dy,watchRange)) lit.add(tile);
-      }
+export function light(s){
+  const lit=new Set(Array.from({length:16},(_,i)=>48+i));
+  for(const i of fortifiedPawns(s.board)) lit.add(i-8);
+  s.board.forEach((p,from)=>{
+    if(p!=='wr') return;
+    const step=s.directions[from]??-8;
+    for(let i=from+step;i>=0&&i<64&&dist(i,i-step)===1;i+=step){
+      lit.add(i);
+      if(s.board[i]) break;
     }
   });
-  for (const {from,to} of checks({...state,turn:'w'})) {
-    lit.add(from);
-    lit.add(to);
-  }
-  if (state.turn==='w') {
-    for (const {from} of assassinationThreats(state)) lit.add(from);
-  }
   return lit;
 }
-
-export function samuraiView(state,flash=[]) {
-  const lit = light(state,flash);
-  const board = state.board.map((piece,i)=>piece?.[0]==='b' && !lit.has(i) ? null : piece);
-  return {...state,board,ep:state.ep!=null && board[state.ep+8]==='bp' ? state.ep : null};
+export function samuraiView(s){
+  const lit=light(s);
+  return {...s,board:s.board.map((p,i)=>p==='bb'&&!s.alarm&&!lit.has(i)?null:p)};
 }
-
-export function searches(state,from,flash=[]) {
-  const {board} = state;
-  if (state.turn!=='w' || from==null) return [];
-  const x = from%8, y = Math.floor(from/8);
-  const lit = light(state,flash);
-  const targets = [];
-  const add = (dx,dy)=>{
-    if (!valid(x+dx,y+dy)) return;
-    const to = (y+dy)*8+x+dx;
-    if (!lit.has(to)) targets.push(to);
-  };
-  if (board[from]==='wn') {
-    for (const [dx,dy] of knight) add(dx,dy);
-  } else if (board[from]==='wb') {
-    for (const [dx,dy] of diagonal) {
-      // Select the end of the beam. Known blockers limit the choice.
-      for (let step=1; step<=searchRange; step++) {
-        if (!valid(x+dx*step,y+dy*step)) break;
-        const to = (y+dy*step)*8+x+dx*step;
-        add(dx*step,dy*step);
-        if (board[to]?.[0]==='w' || (lit.has(to) && board[to])) break;
-      }
-    }
-  } else if (board[from]==='wp' && !fortifiedPawns(board).has(from)) {
-    for (let dx=-2; dx<=2; dx++) {
-      for (let dy=-2; dy<=2; dy++) {
-        if (dx || dy) add(dx,dy);
-      }
+export function isAssassination(s,m){
+  return !s.alarm&&s.board[m.from]==='bb'&&m.kind!=='hook'&&dist(m.to,s.board.indexOf('wk'))===1;
+}
+const specialMove=(from,to,kind)=>({from,to,kind,capture:null,captureAt:null});
+function advance(s,m){
+  const stationary=['hook','aim'].includes(m.kind);
+  const next=stationary?apply(s,{kind:'pass'}):apply(s,m);
+  let ropes=s.ropes.filter(i=>next.board[i]==='br'&&next.board[i+8]==='wp'&&(stationary||i!==m.from));
+  if(m.kind==='hook') ropes=[...ropes,m.from].sort((a,b)=>a-b);
+  const directions={...s.directions};
+  if(!stationary){
+    delete directions[m.to];
+    if(s.board[m.from]==='wr') directions[m.to]=directions[m.from]??-8;
+    delete directions[m.from];
+  }
+  if(m.kind==='aim') directions[m.from]=m.to-m.from;
+  return {...next,alarm:s.alarm,ropes,directions};
+}
+export function play(s,m){
+  const next=advance(s,m);
+  if(isAssassination(s,m)) return {...next,assassinated:true};
+  if(!s.alarm){
+    const lit=light(next);
+    if(next.board.some((p,i)=>p==='bb'&&lit.has(i))||m.capture==='bb'||checks({...next,turn:'w'}).length){
+      next.alarm=true;
+      next.turn='w';
+      next.ep=null;
+      for(const i of [indexOf('b1'),indexOf('f1')]) if(!next.board[i]) next.board[i]='wn';
     }
   }
-  return targets;
+  return next;
 }
-
-export function reveal(state,from,to) {
-  if (state.board[from]!=='wb') return [to];
-  const dx = Math.sign(to%8-from%8), dy = Math.sign(Math.floor(to/8)-Math.floor(from/8));
-  return beam(state.board,from,dx,dy,Math.min(distance(from,to),searchRange));
-}
-
-export function attempts(state,from,flash=[]) {
-  if (state.turn==='b') return legalMoves(state,from);
-  const view = samuraiView(state,flash);
-  const options = moves(view,previewRules,from).filter(move=>move.capture!=='bk');
-  if (state.board[from]!=='wp') return options;
-  const lit = light(state,flash);
-  // Pawn diagonals can be aimed at a hidden opponent without revealing occupancy.
-  for (const dx of [-1,1]) {
-    const to = from-8+dx;
-    if (!valid(from%8+dx,Math.floor(from/8)-1) || view.board[to] || lit.has(to)) continue;
-    options.push({from,to,probe:true});
-  }
-  return options;
-}
-
-export function isAssassination(state,move) {
-  return state.board[move.from]==='bb' && distance(move.to,state.board.indexOf('wk'))===1;
-}
-
-export function play(state,move) {
-  const next = apply(state,move);
-  return isAssassination(state,move) ? {...next,assassinated:true} : next;
-}
-
-export function result(state,repetitions=1,legal=null) {
-  if (state.assassinated) return {winner:'b',reason:'Assassination. A Shinobi bishop reached the Shogun.'};
-  const ending = outcome({...state,quiet:0},rules,repetitions,legal);
-  if (ending) return ending;
-  if (state.quiet>=100) return {winner:null,reason:'Fifty moves without a capture or pawn move.'};
-  if (state.board.filter(Boolean).length===2) return {winner:null,reason:'Only the kings remain.'};
-  return null;
-}
-
-export function selectSearch(state) {
-  let best = null;
-  const king = state.board.indexOf('wk');
-  const known = samuraiView(state);
-  state.board.forEach((piece,from)=>{
-    if (piece?.[0]!=='w') return;
-    for (const to of searches(state,from)) {
-      const score = (piece==='wb' ? distance(from,to) : 1)*2 +
-        Math.max(0,5-distance(to,king)) + (known.board[to] ? -5 : 0);
-      if (!best || score>best.score) best={from,to,score};
+export function legalMoves(s,from=null){
+  const ordinary=moves(s,rules,from).filter(m=>s.alarm||s.board[m.from]!=='wk');
+  const extra=[];
+  s.board.forEach((p,i)=>{
+    if(!p||p[0]!==s.turn||(from!==null&&i!==from)) return;
+    if(p==='wr'&&!s.alarm) for(const d of [-8,1,8,-1]){
+      const to=i+d;
+      if(to>=0&&to<64&&dist(i,to)===1&&d!==(s.directions[i]??-8)) extra.push(specialMove(i,to,'aim'));
+    }
+    if(p==='br'&&!s.ropes.includes(i)&&fortifiedPawns(s.board).has(i+8)&&i+16<64) extra.push(specialMove(i,i+8,'hook'));
+    if(p[0]==='b'&&p!=='bk') for(const crew of s.ropes){
+      const to=crew+16;
+      if(dist(i,crew)===1&&!s.board[to]) extra.push(specialMove(i,to,'climb'));
     }
   });
-  return best;
+  return ordinary.concat(extra.filter(m=>!checks({...advance(s,m),turn:s.turn}).length));
 }
-
-const values = {p:100,b:340,n:320,r:500,q:900,k:0};
-const moveId = move => [move.from,move.to,move.promotion || ''].join(':');
-
-export function choose(state,flash=[],seen={},hint=false) {
-  if (state.turn==='b') {
-    const legal = legalMoves(state);
-    const immediate = legal.find(move=>isAssassination(state,move));
-    if (immediate) return immediate;
-    const tactical = legal.filter(move=>{
-      if (state.board[move.from]!=='bb') return false;
-      const after = play(state,move);
-      const king = after.board.indexOf('wk');
-      if (distance(move.to,king)>3) return false;
-      const replies = legalMoves(after);
-      return replies.length>0 && replies.every(reply=>{
-        const response=play(after,reply);
-        return legalMoves(response,move.to).some(candidate=>isAssassination(response,candidate));
-      });
-    });
-    return tactical[0] ?? chooseMove({...state,quiet:0},{rules,depth:3,budget:2200,seen}) ?? legal[0] ?? null;
+export const attempts=(s,i)=>legalMoves(s.turn==='w'?samuraiView(s):s,i);
+export function result(s,repetitions=1){
+  if(s.assassinated) return {winner:'b',reason:'Assassinated. The bishop reached the sleeping Shogun.'};
+  if(!s.board.includes('bb')) return {winner:'w',reason:'Both assassins were captured.'};
+  return outcome(s,rules,repetitions,legalMoves(s));
+}
+const values={q:9,r:5,b:3,n:3,p:1,k:0};
+function score(s,side){
+  let value=0;
+  const king=s.board.indexOf('wk');
+  s.board.forEach((p,i)=>{
+    if(!p) return;
+    const weight=values[p[1]]+(p==='bb'?4:0);
+    value+=(p[0]==='b'?1:-1)*weight;
+    if(p==='bb') value+=(7-dist(i,king))*.27;
+    if(p==='br'&&fortifiedPawns(s.board).has(i+8)) value+=.45;
+  });
+  value+=s.ropes.length*.8;
+  return side==='b'?value:-value;
+}
+export function choose(state,_flash=[],_seen={},hint=false){
+  const side=state.turn,s=side==='w'?samuraiView(state):state;
+  const actual=legalMoves(state), options=legalMoves(s);
+  const id=m=>[m.from,m.to,m.kind,m.promotion].join('/');
+  const allowed=new Map(actual.map(m=>[id(m),m]));
+  let best=null,high=-Infinity;
+  for(const m of options){
+    if(!hint&&!allowed.has(id(m))) continue;
+    const n=play(s,m);
+    let v=score(n,side);
+    if(n.assassinated) v=10000;
+    else {
+      const replies=legalMoves(n);
+      if(!replies.length&&checks(n).length) v=10000;
+      else if(replies.length){
+        const scores=replies.map(reply=>isAssassination(n,reply)?(side==='b'?10000:-10000):score(play(n,reply),side));
+        v=.2*v+.8*(n.turn===side?Math.max(...scores):Math.min(...scores));
+      }
+    }
+    v+=Math.random()*.16;
+    if(v>high){best=m;high=v;}
   }
-  const view = samuraiView(state,flash);
-  const preferred = chooseMove(view,{rules,depth:2,budget:1300});
-  const options = moves(view,rules);
-  const ranked = preferred ? [preferred,...options.filter(m=>moveId(m)!==moveId(preferred))] : options;
-  const actual = hint ? options : legalMoves(state);
-  const byId = new Map(actual.map(move=>[moveId(move),move]));
-  let best = null, bestScore = -Infinity;
-  for (const [order,move] of ranked.entries()) {
-    const resolved = byId.get(moveId(move));
-    if (!resolved) continue;
-    const next = play(view,move);
-    const defense = hint ? next : play(state,resolved);
-    const danger = assassinationThreats(defense).length>0;
-    const shogun = next.board.indexOf('wk');
-    const cover = [...fortifiedPawns(next.board)].filter(i=>distance(i,shogun)===1).length;
-    const castle = move.kind==='castle' ? 18 : 0;
-    const score = (danger ? -10000 : 0)+(values[move.capture?.[1]] ?? 0)+cover*24+castle-order*2;
-    if (score>bestScore) { best=resolved; bestScore=score; }
-  }
-  return best ?? actual[0] ?? null;
+  return best??(hint?options:actual)[0];
 }

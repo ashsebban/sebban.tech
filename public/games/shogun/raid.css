@@ -53,3 +53,5 @@ dialog li+li{margin-top:8px}
 .assassin-warning{margin:2px 0 8px;padding:7px 9px;border:1px solid #aa6137;border-radius:5px;color:#ffe2bb;background:#352117;font-size:.85rem;line-height:1.4}
 .cell.assassin-threat{outline:3px solid #f59b54;outline-offset:-3px;z-index:1}
 .cell.danger-square{outline:2px dashed #f59b54;outline-offset:-4px}
+.cell.watched{background:linear-gradient(90deg,transparent 45%,#d1a05755 48%,#d1a05755 52%,transparent 55%),#25282b}
+.cell.rope:before{content:"⚓";position:absolute;top:2%;right:2%;z-index:2;color:#ffdb91;background:#282019;border-radius:50%;padding:1px}

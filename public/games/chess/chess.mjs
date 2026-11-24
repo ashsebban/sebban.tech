@@ -1,5 +1,5 @@
 const games = {
-  shogun: { category:'experimental', name:'Shadow of the Shogun', art:'shogun', url:'../shogun/index.html', description:'Search the dark with Samurai lights, or get an assassin bishop next to the Shogun.' },
+  shogun: { category:'experimental', name:'Shadow of the Shogun', art:'shogun-alarm', url:'../shogun/index.html', description:'Breach the sleeping castle before the alarm rings, or rally the Samurai to defend the Shogun.' },
   'kings-castles': { category:'experimental', name:'Kings & Castles', art:'kings-castles', url:'../mongols-chess/kings-castles.html', description:'Knights leap, wall archers draw longbows, and castles rally infantry.' },
   'khan-at-the-walls': { category:'experimental', name:'Khan at the Walls', art:'khan-at-the-walls', url:'../mongols-chess/khan-at-the-walls.html', description:'Choose the Mongol horse archers or the Chinese defenders. Black moves first.' },
   mongols: { category:'experimental', name:'Duel of Khans', art:'mongols', url:'../mongols-chess/index.html', description:'Command your horse archers. Checkmate the rival Khan.' },
