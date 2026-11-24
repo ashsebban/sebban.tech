@@ -88,7 +88,8 @@ function render() {
     const piece = handoff ? null : view[i];
     const move = available.get(i);
     const capturing = move && (move.kind === 'en-passant' || (piece && move.kind !== 'wall'));
-    button.className = ['cell',(i%8+Math.floor(i/8))%2 && 'dark',lit.has(i) && 'lit',i===selected && 'selected',
+    button.className = ['cell',(i%8+Math.floor(i/8))%2 && 'dark',
+      i>=48 && 'castle',i>=56 && 'castle-back',lit.has(i) && 'lit',piece==='wr' && 'lantern',i===selected && 'selected',
       !handoff && last.revealed.includes(i) && 'recent',piece==='wk' && 'goal',move && 'legal',capturing && 'capture',
       ['slip','grapple'].includes(move?.kind) && 'special',move?.kind==='probe' && 'probe',
       i===suggestion?.to && 'hint-target'].filter(Boolean).join(' ');
