@@ -6,13 +6,14 @@
 <meta name="theme-color" content="#101516">
 <title>Shadow of the Shogun</title>
 <link rel="stylesheet" href="../chess/match.css?v=1">
-<link rel="stylesheet" href="./raid.css?v=7">
-<script type="module" src="./app.mjs?v=7"></script>
+<link rel="stylesheet" href="./raid.css?v=8">
+<script type="module" src="./app.mjs?v=8"></script>
 </head>
 <body>
 <main class="match-shell">
   <header id="standalone" hidden>
     <h1>Shadow of the Shogun</h1>
+    <button class="quiet" id="piece-style-toggle" aria-label="Switch piece style" type="button">Classic</button>
     <a href="../chess/index.html?category=experimental">Variations</a>
   </header>
   <div class="match-bar">
@@ -20,12 +21,14 @@
     <span class="move-count" id="move-count"></span>
   </div>
   <p class="assassin-warning" id="assassin-warning" role="status" hidden></p>
+  <p id="mission" class="mission" hidden></p>
   <div id="board" aria-label="Chessboard" role="group"></div>
   <section id="handoff" hidden>
     <h2 id="handoff-title"></h2>
     <button class="quiet" id="continue" type="button">Show board</button>
   </section>
 
+  <button class="quiet" id="inspect" hidden>Inspect a pawn</button>
   <div class="match-actions" aria-label="Game actions" role="group"></div>
   <p class="below-board last-move" id="last" aria-live="polite"></p>
 </main>
@@ -48,12 +51,11 @@
 <dialog id="rules">
   <h2>How to play</h2>
   <ul>
-    <li>Shinobi move first. Land an assassin bishop beside the sleeping Shogun to win immediately. Only assassin bishops can hide.</li>
-    <li>The courtyard (ranks 1–2) stays lit. Wall guards watch one square forward. A tower watches straight ahead until the first piece. Select a tower and an adjacent square to turn its lantern for one move.</li>
-    <li>Samurai pawns on rank 2 form walls. Horizontal or diagonal chains reaching rank 2 stay fortified through rank 4.</li>
-    <li>Move a grappling rook directly outside a wall, then select the wall to attach a rope. On a later turn, select a neighboring raider and the empty square beyond the wall to climb. Moving or capturing the crew releases the rope.</li>
-    <li>Landing beside the sleeping Shogun wins before detection. Otherwise, spotting or capturing an assassin, or checking the Shogun, rings the alarm. Crossing a watched square is safe if you land unseen.</li>
-    <li>At the alarm both assassins become visible, the Shogun wakes, and cavalry deploy on b1 and f1 if empty. White acts next. Win by checkmate, or as White by capturing both assassin bishops.</li>
+    <li>White moves first from the ordinary chess opening. Black marks one pawn and draws a private target card: the king, queen, or one specific starting bishop.</li>
+    <li>Once the spy reaches White’s half and survives White’s reply, it can spend a turn taking its target one square in any direction or a knight’s jump away. Select the spy, then the target, to ambush.</li>
+    <li>Capture the spy and both pieces fall, including en passant. If the disappearing capturer leaves its king exposed, Black wins. Black wins if the capturer is the target or king, or if the explosion leaves the White king exposed.</li>
+    <li>Once per game, select a White bishop, choose Inspect a pawn, then tap a black pawn on its open diagonal. Only White sees the answer. White still makes a normal move.</li>
+    <li>Checkmate also wins. If another piece takes the target, or the spy promotes, its mission ends and ordinary chess continues.</li>
   </ul>
   <form method="dialog"><button type="submit" class="quiet">Back to the board</button></form>
 </dialog>
