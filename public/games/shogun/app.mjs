@@ -1,5 +1,5 @@
 import {mountMatchActions} from '../chess/match.mjs?v=1';
-import {castleLighting,warded,cards,checks,choose,inspect,inspections,key,legalMoves,opposite,play,result,square,start} from './raid.mjs?v=10';
+import {castleLighting,warded,cards,checks,choose,inspect,inspections,key,legalMoves,opposite,play,result,square,start} from './raid.mjs?v=11';
 const get = id => document.getElementById(id);
 const board = get('board'), mode = get('mode');
 const faction = {b:'Shinobi',w:'Samurai'};
@@ -75,7 +75,7 @@ function render() {
     const inspectable=inspecting&&candidates.includes(i);
     button.className=['cell',lit.has(i)&&'lit',piece&&walls.has(i)&&'wall-pawn',piece==='wr'&&'lantern',piece==='br'&&'grappler',(i%8+(i>>3))%2&&'dark',i===selected&&'selected',checked.has(i)&&'checked',
       !handoff&&move&&[move.from,move.to].includes(i)&&'recent',!inspecting&&m&&'legal',!inspecting&&m?.capture&&'capture',
-      ['vault','sidestep','bishopStrike','ambush'].includes(m?.kind)&&'technique',inspectable&&'search-target',marked&&'spy-mark',target&&'mission-target',i===suggestion?.to&&'hint-target'].filter(Boolean).join(' ');
+      ['slip','vault','sidestep','bishopStrike','ambush'].includes(m?.kind)&&'technique',inspectable&&'search-target',marked&&'spy-mark',target&&'mission-target',i===suggestion?.to&&'hint-target'].filter(Boolean).join(' ');
     button.setAttribute('aria-pressed',String(i===selected));
     button.setAttribute('aria-label',[tile,piece&&faction[piece[0]]+' '+label(piece),walls.has(i)&&'fortified wall',lit.has(i)?'lit':'shadow',marked&&'identified spy',target&&'target',inspectable&&'inspect'].filter(Boolean).join(', '));
     image.hidden=!piece;
@@ -91,7 +91,7 @@ function render() {
     faction[state.turn]+' to move'+(humanTurn() ? '' : ' · Computer')+(checking.length ? ' · Check' : '');
   if(setup)get('turn').textContent='Shinobi setup';
   get('assassin-warning').hidden = true;
-  get('last').textContent=handoff?'':end?.reason??(notice || (setup?'Tap a black pawn to mark it secretly.':sprung?'Spy caught. Both pieces fell. The Shinobi bishops now hunt the target.':move?.kind==='vault'?'Grappling crew vaulted to '+square(move.to)+'.':move?.kind==='sidestep'?'Shinobi knight sidestepped to '+square(move.to)+'.':move?label(last.state.board[move.from])+' to '+square(move.to)+'.':side==='w'?'One pawn is a spy. Select a lamp rook to inspect its file for free.':'Choose a move for Black.'));
+  get('last').textContent=handoff?'':end?.reason??(notice || (setup?'Tap a black pawn to mark it secretly.':sprung?'Spy caught. Both pieces fell. The Shinobi bishops now hunt the target.':move?.kind==='slip'?'Pawn slipped through shadow to '+square(move.to)+'.':move?.kind==='vault'?'Grappling crew vaulted to '+square(move.to)+'.':move?.kind==='sidestep'?'Shinobi knight sidestepped to '+square(move.to)+'.':move?label(last.state.board[move.from])+' to '+square(move.to)+'.':side==='w'?'Any one of your pieces could be the target. Advance walls and lanterns to close off pawn slips.':'Choose a move for Black.'));
   if(!setup&&!handoff&&!end&&side==='w'&&state.known!==null)get('last').textContent+=' Inspected '+square(state.known)+' · '+state.inspection+'.';
   get('undo').disabled = (setup || handoff || history.length<=undoFloor) && !resigned;
   get('hint').disabled = !canAct;
@@ -134,7 +134,7 @@ function chooseSquare(i) {
   }
   selected = i!==selected && state.board[i]?.[0]===state.turn ? i : null;
   suggestion = null;
-  const tips={wr:'Lantern guards adjacent allies from ambush. Inspect one pawn on this file once per game.',wb:'Watchman: inspect a pawn on an open diagonal once per game.',br:'Grapple: vault over one friendly pawn to the empty square beyond.',bn:'Infiltrate: step one square sideways onto an empty square.',bb:state.spy===null?'Hunt: reach White’s half beside the target, then strike on a later turn.':'If the spy falls, your bishops inherit its mission.'};
+  const tips={bp:'Slip one square sideways or diagonally forward into empty shadow. Any raider can capture your marked target.',wr:'Lantern guards adjacent allies from ambush. Inspect one pawn on this file once per game.',wb:'Watchman: inspect a pawn on an open diagonal once per game.',br:'Grapple: vault over one friendly pawn to the empty square beyond.',bn:'Infiltrate: step one square sideways onto an empty square.',bb:state.spy===null?'Hunt: reach White’s half beside the target, then strike on a later turn.':'If the spy falls, your bishops inherit its mission.'};
   notice=selected===null?'':tips[state.board[selected]]??'';
   if(selected!==null&&state.board[selected]?.[0]==='w'&&warded(state,selected))notice+=' Guarded by a lantern.';
   render();

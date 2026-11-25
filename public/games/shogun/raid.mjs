@@ -2,8 +2,15 @@ import {initial,moves,apply,chooseMove,checkThreats,key as chessKey,outcome,wall
 export {opposite,square} from '../mongols-chess/engine.mjs?v=50';
 
 const rules={mobileCastles:true,royalCheck:true,castling:true,territoryWalls:true,infantryBreach:true,kingBreachesWalls:true,sides:{b:{pawnWalls:false}},horseArchery:false,bishopArchery:false};
-export const cards={60:'King',59:'Queen',58:'Bishop from c1',61:'Bishop from f1'};
-export function start(spy=8+Math.floor(Math.random()*8),card=[60,59,58,61][Math.floor(Math.random()*4)]){
+const home=initial(rules).board;
+const names={k:'King',q:'Queen',r:'Rook',b:'Bishop',n:'Knight',p:'Pawn'};
+export const cards=Object.fromEntries(home.flatMap((piece,i)=>{
+  if(piece?.[0]!=='w')return [];
+  const role=piece[1];
+  const origin=String.fromCharCode(97+i%8)+(8-(i>>3));
+  return [[i,names[role]+('kq'.includes(role)?'':' from '+origin)]];
+}));
+export function start(spy=8+Math.floor(Math.random()*8),card=48+Math.floor(Math.random()*16)){
   return {...initial(rules),spy,card,target:card,inspection:null,known:null,ending:null};
 }
 export const checks=s=>checkThreats(s,rules);
@@ -35,6 +42,7 @@ export function legalMoves(s,from=null){
   if(s.ending)return [];
   const options=moves(s,rules,from);
   if(s.turn!=='b')return options;
+  const {lit}=castleLighting(s);
   function add(origin,to,kind){
     const move={kind,from:origin,to,capture:s.board[to],captureAt:null};
     if(!checks({...apply(s,move),turn:'b'}).length)options.push(move);
@@ -42,6 +50,15 @@ export function legalMoves(s,from=null){
   s.board.forEach((piece,i)=>{
     if(piece?.[0]!=='b'||(from!==null&&from!==i))return;
     const x=i%8,y=i>>3;
+    if(piece==='bp'&&!lit.has(i)){
+      for(const dx of [-1,1]){
+        if(x+dx<0||x+dx>=8)continue;
+        for(const dy of [0,1]){
+          const to=i+dx+dy*8;
+          if(to<64&&!lit.has(to)&&!s.board[to])add(i,to,'slip');
+        }
+      }
+    }
     if(piece==='bn'){
       for(const dx of [-1,1]){
         if(x+dx>=0&&x+dx<8&&!s.board[i+dx])add(i,i+dx,'sidestep');
@@ -91,7 +108,10 @@ export function play(s,m){
     if(s.board[m.from]==='wk'||m.from===s.target)next.ending={winner:'b',reason:'The capture trap claimed the '+(s.board[m.from]==='wk'?'King':cards[s.card])+'.'};
   }
   if(s.target===m.from)next.target=m.to;
-  if(s.turn==='b'&&m.capture&&taken===s.target&&!next.ending){next.card=60;next.target=next.board.indexOf('wk');}
+  if(m.kind==='castle'&&s.target===m.rookFrom)next.target=m.rookTo;
+  if(s.turn==='b'&&m.capture&&taken===s.target&&!next.ending){
+    next.ending={winner:'b',reason:'Target captured: '+cards[s.card]+'. The Shinobi completed the mission.'};
+  }
   if(s.spy===m.from)next.spy=m.promotion?null:m.to;
   if(s.known===m.from)next.known=m.promotion?null:m.to;
   if(s.turn==='w'&&m.capture&&taken===s.known)next.known=null;
@@ -110,12 +130,20 @@ export function choose(s){
   const options=legalMoves(s);
   const strike=options.find(m=>m.kind==='ambush'||m.kind==='bishopStrike');
   if(strike)return strike;
+  if(s.turn==='b'){
+    const finish=options.find(m=>m.capture&&(m.captureAt??m.to)===s.target);
+    if(finish)return finish;
+  }
   const recommended=chooseMove(s,{rules,depth:3,budget:1800});
   const value={k:15,q:9,r:5,b:3,n:3,p:1};
   let best=null,high=-Infinity;
   for(const m of options){
     let score=Math.random()*.35+(m.capture?value[m.capture[1]]:0);
     if(m.from===recommended?.from&&m.to===recommended.to&&m.promotion===recommended.promotion)score+=3;
+    if(m.kind==='slip'&&m.from===s.spy){
+      const distance=i=>Math.abs(i%8-s.target%8)+Math.abs((i>>3)-(s.target>>3));
+      score+=.8*(distance(m.from)-distance(m.to));
+    }
     if(s.turn==='b'&&m.from===s.spy&&s.target!==null){
       score+=.6+(m.to>=32&&inReach(m.to,s.target)?4:0);
       const reply=apply(s,m);

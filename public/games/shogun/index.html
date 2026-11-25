@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#101516">
 <title>Shadow of the Shogun</title>
 <link rel="stylesheet" href="../chess/match.css?v=1">
-<link rel="stylesheet" href="./raid.css?v=10">
-<script type="module" src="./app.mjs?v=10"></script>
+<link rel="stylesheet" href="./raid.css?v=11">
+<script type="module" src="./app.mjs?v=11"></script>
 </head>
 <body>
 <main class="match-shell">
@@ -51,15 +51,15 @@
 <dialog id="rules">
   <h2>How to play</h2>
   <ul>
-    <li>White moves first from the ordinary chess opening. Black marks one pawn and draws a private target card: the king, queen, or one specific starting bishop.</li>
+    <li>White moves first from the ordinary chess opening. Black marks one pawn and draws a private target card: one of the 16 starting White pieces, including pawns. The card follows that individual through moves, castling and promotion. Any legal Black capture of the target wins. Ordinary checkmate also wins.</li>
     <li>Once the spy reaches White’s half and survives White’s reply, it can spend a turn taking its target one square in any direction or a knight’s jump away. Select the spy, then the target, to ambush.</li>
     <li><strong>Capture trap.</strong> Taking the spy removes both pieces. Black wins if the capturer is the target or king, or if its disappearance exposes the White king.</li>
-    <li><strong>Bishop hunt.</strong> When the spy falls or promotes, both Shinobi bishops inherit the target. From White’s half, a bishop can spend a turn striking an adjacent target. If an ordinary capture removes the original target, the mission shifts to the king.</li>
+    <li><strong>Bishop hunt.</strong> When the spy falls or promotes, both Shinobi bishops inherit the target. From White’s half, a bishop can spend a turn striking an adjacent target.</li>
     <li><strong>Castle walls.</strong> White pawns on rank 2 form walls. A pawn on rank 3 or 4 stays fortified while connected horizontally or diagonally through other White wall pawns to rank 2. Black pawns, rooks and the king can capture a fortified pawn. Breaking its last connection turns it back into an ordinary pawn.</li>
     <li><strong>Castle light.</strong> Ranks 1 and 2 are always lit. Each wall lights its square and the squares behind it on its file. A White rook lights its own square and its eight neighbors. All pieces remain visible in shadow.</li>
     <li><strong>Lanterns.</strong> White rooks protect all adjacent allies from special strikes. Ordinary captures, capture traps and checkmate still work. Wall light alone grants no ambush protection.</li>
     <li><strong>Free inspection.</strong> Once per game, select a White rook to inspect an enemy pawn anywhere on its file, even over blockers, or a White bishop to inspect along an open diagonal. Choose Inspect a pawn and tap the pawn. You still make your move.</li>
-    <li><strong>Infiltration.</strong> Black knights may sidestep to an empty square. Black rooks may vault over one adjacent friendly pawn and land on the empty square immediately beyond it, along a rank or file. Each ability costs one move.</li>
+    <li><strong>Infiltration.</strong> Every Black pawn can slip one square sideways or diagonally forward from shadow into empty shadow. Castle light and lanterns close those routes. Slipping uses a turn. Black knights may sidestep to an empty square. Black rooks may vault over one adjacent friendly pawn and land on the empty square immediately beyond it, along a rank or file. Each ability costs one move.</li>
   </ul>
   <form method="dialog"><button type="submit" class="quiet">Back to the board</button></form>
 </dialog>
