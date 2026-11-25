@@ -61,3 +61,9 @@ dialog li+li{margin-top:8px}
 .spy-mark:before,.mission-target:before{position:absolute;top:3%;right:3%;background:#282530;color:#fff3d2;padding:1px 3px;border-radius:3px;font-size:clamp(8px,1.6vw,12px);z-index:1}
 .spy-mark:before{content:'Spy'}.mission-target:before{content:'Target'}
 .mission{margin:4px 0 8px;color:#f0d295;font-size:.9rem}
+.cell{background:#68778a;color:#f6f0e3}.cell.dark{background:#425166}
+.cell.lit{background:#e6c894;color:#33291c}.cell.dark.lit{background:#b59368;color:#251e18}
+.cell .army-piece{width:89%;height:89%;object-fit:contain;filter:drop-shadow(0 1px 1px #171c22aa) drop-shadow(0 0 1px #fff9)}
+.cell.lantern{background-image:radial-gradient(ellipse at 16% 33%,#ffe19c 0%,#e5ad5770 23%,transparent 62%)}
+.cell.lantern .rank:after{content:"";display:block;width:6px;height:9px;background:#ffe3a2;border:1px solid #88582a;border-radius:2px;box-shadow:0 0 5px 2px #ffd27d}
+.cell.technique.legal::after{background:#f4c77f;border:2px solid #60451f}.cell.technique.capture::after{background:transparent;border-color:#ffbe5c}

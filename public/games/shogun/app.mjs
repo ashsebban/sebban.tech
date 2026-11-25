@@ -1,5 +1,5 @@
 import {mountMatchActions} from '../chess/match.mjs?v=1';
-import {cards,checks,choose,inspect,inspections,key,legalMoves,opposite,play,result,square,start} from './raid.mjs?v=8';
+import {warded,cards,checks,choose,inspect,inspections,key,legalMoves,opposite,play,result,square,start} from './raid.mjs?v=9';
 const get = id => document.getElementById(id);
 const board = get('board'), mode = get('mode');
 const faction = {b:'Shinobi',w:'Samurai'};
@@ -33,7 +33,8 @@ const ending = () => resigned ?? result(state,repetitions()[key(state)]);
 const cells = Array.from({length:64},(_,display)=>{
   const button = document.createElement('button');
   button.type = 'button';
-  const image = document.createElement('span');
+  const image = document.createElement('img');
+  image.alt='';
   image.setAttribute('aria-hidden','true');
   const rank = document.createElement('span');
   rank.className = 'coord rank';
@@ -59,8 +60,8 @@ function render() {
   get('inspect').textContent=inspecting?'Cancel inspection':'Inspect a pawn';
   const mission=get('mission');
   mission.hidden=handoff||(!blackView&&!setup);
-  mission.textContent=mission.hidden?'':('Target card · '+cards[state.card]+(setup?' · Select your spy pawn':state.spy!==null?' · Spy on '+square(state.spy):' · Mission closed'));
-  get('move-count').textContent=setup?'Choose your spy':handoff?'':side==='w'?(state.inspection===null?'Inspection available':'Inspection used'):'Secret mission';
+  mission.textContent=mission.hidden?'':('Target card · '+cards[state.card]+(setup?' · Select your spy pawn':state.spy!==null?' · Spy on '+square(state.spy):' · Bishops carry the mission'));
+  get('move-count').textContent=setup?'Choose your spy':handoff?'':side==='w'?(state.spy===null?'Bishop hunt':state.inspection===null?'Free inspection':'Inspection used'):'Secret mission';
   board.hidden = handoff;
   get('handoff').hidden = !handoff;
   get('handoff-title').textContent = 'Pass to the '+(setup?'Shinobi':faction[state.turn]);
@@ -71,15 +72,17 @@ function render() {
     const marked=!handoff&&!setup&&((blackView&&i===state.spy)||(side==='w'&&state.inspection==='spy'&&state.known===i));
     const target=blackView&&!setup&&i===state.target;
     const inspectable=inspecting&&candidates.includes(i);
-    button.className=['cell','lit',(i%8+(i>>3))%2&&'dark',i===selected&&'selected',checked.has(i)&&'checked',
+    button.className=['cell',i>=48&&'lit',piece==='wr'&&'lantern',piece==='br'&&'grappler',(i%8+(i>>3))%2&&'dark',i===selected&&'selected',checked.has(i)&&'checked',
       !handoff&&move&&[move.from,move.to].includes(i)&&'recent',!inspecting&&m&&'legal',!inspecting&&m?.capture&&'capture',
-      inspectable&&'search-target',marked&&'spy-mark',target&&'mission-target',i===suggestion?.to&&'hint-target'].filter(Boolean).join(' ');
+      ['vault','sidestep','bishopStrike','ambush'].includes(m?.kind)&&'technique',inspectable&&'search-target',marked&&'spy-mark',target&&'mission-target',i===suggestion?.to&&'hint-target'].filter(Boolean).join(' ');
     button.setAttribute('aria-pressed',String(i===selected));
     button.setAttribute('aria-label',[tile,piece&&faction[piece[0]]+' '+label(piece),marked&&'identified spy',target&&'target',inspectable&&'inspect'].filter(Boolean).join(', '));
     image.hidden=!piece;
-    image.className=classic?'glyph':'miniature';
-    image.textContent=piece&&classic?({w:'♔♕♖♗♘♙',b:'♚♛♜♝♞♟'})[piece[0]]['kqrbnp'.indexOf(piece[1])]:'';
-    image.style.backgroundPosition=piece?('kqrbnp'.indexOf(piece[1])*20)+'% '+(piece[0]==='w'?100:0)+'%':'';
+    image.className='army-piece';
+    if(piece){
+      const src=classic?'../sideways-chess/pieces/'+piece[0]+piece[1].toUpperCase()+'.svg':'./art/'+piece+'.webp';
+      if(image.getAttribute('src')!==src)image.src=src;
+    }else image.removeAttribute('src');
     rank.textContent = display%8===0 ? tile[1] : '';
     file.textContent = display>=56 ? tile[0] : '';
   }
@@ -87,7 +90,7 @@ function render() {
     faction[state.turn]+' to move'+(humanTurn() ? '' : ' · Computer')+(checking.length ? ' · Check' : '');
   if(setup)get('turn').textContent='Shinobi setup';
   get('assassin-warning').hidden = true;
-  get('last').textContent=handoff?'':end?.reason??(notice || (setup?'Tap a black pawn to mark it secretly.':sprung?'Capture trap. Both pieces fell.':move?label(last.state.board[move.from])+' to '+square(move.to)+'.':side==='w'?'Play White. One enemy pawn is a hidden spy.':'Choose a move for Black.'));
+  get('last').textContent=handoff?'':end?.reason??(notice || (setup?'Tap a black pawn to mark it secretly.':sprung?'Spy caught. Both pieces fell. The Shinobi bishops now hunt the target.':move?.kind==='vault'?'Grappling crew vaulted to '+square(move.to)+'.':move?.kind==='sidestep'?'Shinobi knight sidestepped to '+square(move.to)+'.':move?label(last.state.board[move.from])+' to '+square(move.to)+'.':side==='w'?'One pawn is a spy. Select a lamp rook to inspect its file for free.':'Choose a move for Black.'));
   if(!setup&&!handoff&&!end&&side==='w'&&state.known!==null)get('last').textContent+=' Inspected '+square(state.known)+' · '+state.inspection+'.';
   get('undo').disabled = (setup || handoff || history.length<=undoFloor) && !resigned;
   get('hint').disabled = !canAct;
@@ -120,7 +123,7 @@ function chooseSquare(i) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'quiet';
-        button.textContent = roles[move.promotion] ?? ({ambush:'Reveal spy and ambush',move:'Normal capture'})[move.kind] ?? 'Move piece';
+        button.textContent = roles[move.promotion] ?? ({bishopStrike:'Finish the mission',ambush:'Reveal spy and ambush',move:'Normal capture'})[move.kind] ?? 'Move piece';
         button.addEventListener('click',()=>{ promotion.close(); commit(move); });
         return button;
       }));
@@ -130,7 +133,9 @@ function chooseSquare(i) {
   }
   selected = i!==selected && state.board[i]?.[0]===state.turn ? i : null;
   suggestion = null;
-  notice = '';
+  const tips={wr:'Lantern guards adjacent allies from ambush. Inspect one pawn on this file once per game.',wb:'Watchman: inspect a pawn on an open diagonal once per game.',br:'Grapple: vault over one friendly pawn to the empty square beyond.',bn:'Infiltrate: step one square sideways onto an empty square.',bb:state.spy===null?'Hunt: reach White’s half beside the target, then strike on a later turn.':'If the spy falls, your bishops inherit its mission.'};
+  notice=selected===null?'':tips[state.board[selected]]??'';
+  if(selected!==null&&state.board[selected]?.[0]==='w'&&warded(state,selected))notice+=' Guarded by a lantern.';
   render();
 }
 
@@ -157,15 +162,9 @@ function nextTurn() {
   if (setup || ending() || handoff || humanTurn()) return;
   timer = setTimeout(()=>{
     if(state.turn==='w'&&state.inspection===null){
-      for(let i=0;i<64;i++){
-        const [to]=inspections(state,i);
-        if(to!==undefined){state=inspect(state,i,to);undoFloor=history.length;break;}
-      }
-    }
-    if(state.turn==='w'&&state.inspection===null){
-      const probes=state.board.flatMap((piece,from)=>piece==='wb'?inspections(state,from).map(to=>({from,to})):[]);
+      const probes=state.board.flatMap((piece,from)=>piece?.[0]==='w'?inspections(state,from).map(to=>({from,to})):[]);
       probes.sort((a,b)=>b.to-a.to);
-      if(probes.length)state=inspect(state,probes[0].from,probes[0].to);
+      if(probes.length&&probes[0].to>=24){state=inspect(state,probes[0].from,probes[0].to);undoFloor=history.length;}
     }
     const move = choose(state);
     if (move) commit(move);
