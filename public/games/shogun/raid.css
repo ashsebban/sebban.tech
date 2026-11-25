@@ -67,3 +67,6 @@ dialog li+li{margin-top:8px}
 .cell.lantern{background-image:radial-gradient(ellipse at 16% 33%,#ffe19c 0%,#e5ad5770 23%,transparent 62%)}
 .cell.lantern .rank:after{content:"";display:block;width:6px;height:9px;background:#ffe3a2;border:1px solid #88582a;border-radius:2px;box-shadow:0 0 5px 2px #ffd27d}
 .cell.technique.legal::after{background:#f4c77f;border:2px solid #60451f}.cell.technique.capture::after{background:transparent;border-color:#ffbe5c}
+
+.cell.wall-pawn .army-piece{width:78%;height:78%;transform:translateY(-7%)}
+.cell.wall-pawn::before{content:"";position:absolute;left:12%;right:12%;bottom:7%;height:23%;background:center bottom/contain no-repeat url('../mongols-chess/pieces/parapet.svg');z-index:1;pointer-events:none}

@@ -1,7 +1,7 @@
-import {initial,moves,apply,chooseMove,checkThreats,key as chessKey,outcome} from '../mongols-chess/engine.mjs?v=50';
+import {initial,moves,apply,chooseMove,checkThreats,key as chessKey,outcome,wallSquares} from '../mongols-chess/engine.mjs?v=50';
 export {opposite,square} from '../mongols-chess/engine.mjs?v=50';
 
-const rules={mobileCastles:true,royalCheck:true,castling:true,pawnWalls:false,horseArchery:false,bishopArchery:false};
+const rules={mobileCastles:true,royalCheck:true,castling:true,territoryWalls:true,infantryBreach:true,kingBreachesWalls:true,sides:{b:{pawnWalls:false}},horseArchery:false,bishopArchery:false};
 export const cards={60:'King',59:'Queen',58:'Bishop from c1',61:'Bishop from f1'};
 export function start(spy=8+Math.floor(Math.random()*8),card=[60,59,58,61][Math.floor(Math.random()*4)]){
   return {...initial(rules),spy,card,target:card,inspection:null,known:null,ending:null};
@@ -14,6 +14,19 @@ function inReach(from,to){
 }
 function adjacent(a,b){
   return Math.max(Math.abs(a%8-b%8),Math.abs((a>>3)-(b>>3)))===1;
+}
+export function castleLighting(s){
+  const walls=wallSquares(s.board,rules);
+  const lit=new Set(Array.from({length:16},(_,i)=>48+i));
+  for(const wall of walls){
+    for(let i=wall;i<64;i+=8)lit.add(i);
+  }
+  s.board.forEach((piece,rook)=>{
+    if(piece!=='wr')return;
+    lit.add(rook);
+    for(let i=0;i<64;i++)if(adjacent(rook,i))lit.add(i);
+  });
+  return {walls,lit};
 }
 export function warded(s,to){
   return s.board[to]?.[0]==='w'&&s.board.some((piece,i)=>piece==='wr'&&adjacent(i,to));

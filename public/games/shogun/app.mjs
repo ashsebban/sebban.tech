@@ -1,5 +1,5 @@
 import {mountMatchActions} from '../chess/match.mjs?v=1';
-import {warded,cards,checks,choose,inspect,inspections,key,legalMoves,opposite,play,result,square,start} from './raid.mjs?v=9';
+import {castleLighting,warded,cards,checks,choose,inspect,inspections,key,legalMoves,opposite,play,result,square,start} from './raid.mjs?v=10';
 const get = id => document.getElementById(id);
 const board = get('board'), mode = get('mode');
 const faction = {b:'Shinobi',w:'Samurai'};
@@ -62,6 +62,7 @@ function render() {
   mission.hidden=handoff||(!blackView&&!setup);
   mission.textContent=mission.hidden?'':('Target card · '+cards[state.card]+(setup?' · Select your spy pawn':state.spy!==null?' · Spy on '+square(state.spy):' · Bishops carry the mission'));
   get('move-count').textContent=setup?'Choose your spy':handoff?'':side==='w'?(state.spy===null?'Bishop hunt':state.inspection===null?'Free inspection':'Inspection used'):'Secret mission';
+  const {walls,lit}=castleLighting(state);
   board.hidden = handoff;
   get('handoff').hidden = !handoff;
   get('handoff-title').textContent = 'Pass to the '+(setup?'Shinobi':faction[state.turn]);
@@ -72,11 +73,11 @@ function render() {
     const marked=!handoff&&!setup&&((blackView&&i===state.spy)||(side==='w'&&state.inspection==='spy'&&state.known===i));
     const target=blackView&&!setup&&i===state.target;
     const inspectable=inspecting&&candidates.includes(i);
-    button.className=['cell',i>=48&&'lit',piece==='wr'&&'lantern',piece==='br'&&'grappler',(i%8+(i>>3))%2&&'dark',i===selected&&'selected',checked.has(i)&&'checked',
+    button.className=['cell',lit.has(i)&&'lit',piece&&walls.has(i)&&'wall-pawn',piece==='wr'&&'lantern',piece==='br'&&'grappler',(i%8+(i>>3))%2&&'dark',i===selected&&'selected',checked.has(i)&&'checked',
       !handoff&&move&&[move.from,move.to].includes(i)&&'recent',!inspecting&&m&&'legal',!inspecting&&m?.capture&&'capture',
       ['vault','sidestep','bishopStrike','ambush'].includes(m?.kind)&&'technique',inspectable&&'search-target',marked&&'spy-mark',target&&'mission-target',i===suggestion?.to&&'hint-target'].filter(Boolean).join(' ');
     button.setAttribute('aria-pressed',String(i===selected));
-    button.setAttribute('aria-label',[tile,piece&&faction[piece[0]]+' '+label(piece),marked&&'identified spy',target&&'target',inspectable&&'inspect'].filter(Boolean).join(', '));
+    button.setAttribute('aria-label',[tile,piece&&faction[piece[0]]+' '+label(piece),walls.has(i)&&'fortified wall',lit.has(i)?'lit':'shadow',marked&&'identified spy',target&&'target',inspectable&&'inspect'].filter(Boolean).join(', '));
     image.hidden=!piece;
     image.className='army-piece';
     if(piece){
